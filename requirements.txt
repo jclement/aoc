@@ -1,0 +1,6 @@
+flask
+flask-sqlalchemy
+flask-sqlalchemy-postgres
+flask-restful
+flask-migrate
+pyjwt
