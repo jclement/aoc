@@ -6,48 +6,29 @@ from app import app
 from database.models import Tenant, User
 
 
-def token_required(f):
-    @wraps(f)
-    def decorator(*args, **kwargs):
-        token = None
-        if 'Authorization' in request.headers:
-            token = request.headers['Authorization'][7:]
-        if not token:
-            abort(500, message="token missing")
-        try:
-            data = jwt.decode(
-                token, app.config['SECRET_KEY'], algorithms=["HS256"])
-            current_user = User.query.filter_by(id=data['id']).first()
-        except:
-            abort(500, message="token invalid")
-        if 'tenant_id' in kwargs:
-            if current_user.tenant_id != kwargs['tenant_id']:
-                abort(500, message="token tenant mismatch :(")
-        return f(*args, current_user, **kwargs)
-    return decorator
-
-def admin_token_required(f):
-    @wraps(f)
-    def decorator(*args, **kwargs):
-        token = None
-        if 'Authorization' in request.headers:
-            token = request.headers['Authorization'][7:]
-        if not token:
-            abort(500, message="token missing")
-        try:
-            data = jwt.decode(
-                token, app.config['SECRET_KEY'], algorithms=["HS256"])
-            current_user = User.query.filter_by(id=data['id']).first()
-        except:
-            abort(500, message="token invalid")
-        if not current_user.is_admin:
-            abort(500, message="not an admin")
-        if 'tenant_id' in kwargs:
-            if current_user.tenant_id != kwargs['tenant_id']:
-                abort(500, message="token tenant mismatch :(")
-        return f(*args, current_user, **kwargs)
-    return decorator
-
+def token_required(admin=False):
+    def decorate(f):
+        @wraps(f)
+        def decorator(*args, **kwargs):
+            token = None
+            if 'Authorization' in request.headers:
+                token = request.headers['Authorization'][7:]
+            if not token:
+                abort(500, message="token missing")
+            try:
+                data = jwt.decode(
+                    token, app.config['SECRET_KEY'], algorithms=["HS256"])
+                current_user = User.query.filter_by(id=data['id']).first()
+            except:
+                abort(500, message="token invalid")
+            if admin and not current_user.is_admin:
+                abort(500, message="not an admin")
+            if 'tenant_id' in kwargs:
+                if current_user.tenant_id != kwargs['tenant_id']:
+                    abort(500, message="token tenant mismatch :(")
+            return f(*args, current_user, **kwargs)
+        return decorator
+    return decorate
 
 def validate_tenant(f):
     """

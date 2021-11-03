@@ -5,6 +5,7 @@ import datetime
 
 from app import app
 
+from database import db
 from database.models import User
 from .util import validate_tenant
 
@@ -31,6 +32,18 @@ class LoginApi(Resource):
             tenant_id=tenant_id, email=request.json["email"]).first()
         if user:
             token = jwt.encode({'id': user.id, 'exp': datetime.datetime.utcnow(
+            ) + datetime.timedelta(days=30)}, app.config['SECRET_KEY'], "HS256")
+            return {'token': token}
+        else:
+            u = User()
+            u.tenant_id = tenant_id
+            u.email = request.json["email"]
+            u.username = request.json["email"]
+            u.is_admin = False
+            s = db.session()
+            s.add(u)
+            s.commit()
+            token = jwt.encode({'id': u.id, 'exp': datetime.datetime.utcnow(
             ) + datetime.timedelta(days=30)}, app.config['SECRET_KEY'], "HS256")
             return {'token': token}
         abort(404, message="invalid user")

@@ -3,7 +3,7 @@ from sqlalchemy import and_
 import datetime
 from database.models import Question, Response
 from database import db
-from .util import validate_tenant, token_required, admin_token_required, score
+from .util import validate_tenant, token_required, score
 
 questionParser = reqparse.RequestParser(bundle_errors=True)
 questionParser.add_argument('title', required=True)
@@ -15,12 +15,12 @@ questionParser.add_argument('answer', required=True)
 class QuestionApi(Resource):
 
     @validate_tenant
-    @token_required
+    @token_required()
     def get(self, current_user, tenant_id, question_id):
         q,a = db.session.query(Question, Response).filter(
             Question.tenant_id==tenant_id,
             Question.id == question_id,
-            datetime.datetime.utcnow() >= Question.activate_date,
+            current_user.is_admin or datetime.datetime.utcnow() >= Question.activate_date,
             ).outerjoin(Response, and_(
                     Response.question_id == Question.id,
                     Response.user_id == current_user.id,
@@ -30,7 +30,9 @@ class QuestionApi(Resource):
             "title": q.title,
             "body": q.body,
             "active": q.is_active(),
+            #TODO: Does it make sense to return response status/score in question like this? 
             "answered": not a is None,
+            "answer": q.answer if current_user.is_admin else None,
             "points": score(q, a),
             "activate_date": q.activate_date.isoformat(),
             "deactivate_date": q.deactivate_date.isoformat(),
@@ -39,7 +41,7 @@ class QuestionApi(Resource):
         }
 
     @validate_tenant
-    @admin_token_required
+    @token_required(admin=True)
     def put(self, current_user, tenant_id, question_id):
         args = questionParser.parse_args()
         s = db.session()

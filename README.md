@@ -1,5 +1,9 @@
 # Advent of Code
 
+## Ideas
+
+Robohash for profile pics, rather than uploads.
+
 ## Setup
 
 You need Python 3.x installed.

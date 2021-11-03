@@ -3,7 +3,7 @@ from sqlalchemy import and_
 import datetime
 from database import db
 from database.models import Question, Response
-from .util import validate_tenant, token_required, admin_token_required, score
+from .util import validate_tenant, token_required, score
 from .question import questionParser
 
 
@@ -13,6 +13,8 @@ def question_to_simple(q, a):
         "title": q.title,
         "active": q.is_active(),
         "answered": not a is None,
+        "activate_date": q.activate_date.isoformat(),
+        "deactivate_date": q.deactivate_date.isoformat(),
         "points": score(q, a)
     }
 
@@ -20,11 +22,11 @@ def question_to_simple(q, a):
 class QuestionsApi(Resource):
 
     @validate_tenant
-    @admin_token_required
+    @token_required()
     def get(self, current_user, tenant_id):
         questions = db.session.query(Question, Response).filter(
             Question.tenant_id == tenant_id,
-            datetime.datetime.utcnow() >= Question.activate_date,
+            current_user.is_admin or datetime.datetime.utcnow() >= Question.activate_date,
         ).outerjoin(Response, and_(
             Response.question_id == Question.id,
             Response.user_id == current_user.id,
@@ -32,7 +34,7 @@ class QuestionsApi(Resource):
         return {"questions": [question_to_simple(q, a) for (q, a) in questions]}
 
     @validate_tenant
-    @admin_token_required
+    @token_required(admin=True)
     def post(self, current_user, tenant_id):
         args = questionParser.parse_args()
         s = db.session()

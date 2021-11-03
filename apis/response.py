@@ -8,7 +8,7 @@ from .util import validate_tenant, token_required
 class ResponseApi(Resource):
 
     @validate_tenant
-    @token_required
+    @token_required()
     def get(self, current_user, tenant_id, question_id):
         r = db.session.query(Response).filter(
             Response.question_id == question_id,
@@ -21,7 +21,7 @@ class ResponseApi(Resource):
         }
 
     @validate_tenant
-    @token_required
+    @token_required()
     def put(self, current_user, tenant_id, question_id):
         responseParser = reqparse.RequestParser(bundle_errors=True)
         responseParser.add_argument('response', required=True)
