@@ -21,47 +21,51 @@ api = Api(app)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-class Tenants(db.Model):
+# ====== DATABASE MODELS =========================================
+
+class Tenant(db.Model):
     id = db.Column(db.String(20), nullable=False, unique=True, primary_key=True)
     name = db.Column(db.String(80), unique=True, nullable=False)
     email_domain = db.Column(db.String(80), unique=False, nullable=True)
     active = db.Column(db.Boolean(), nullable=False)
 
-class Users(db.Model):
+class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(20), db.ForeignKey('tenants.id'), nullable=False)
+    tenant_id = db.Column(db.String(20), db.ForeignKey('tenant.id'), nullable=False)
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     is_admin = db.Column(db.Boolean(), nullable=False, default=False)
     created = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow())
 
-class Challenges(db.Model):
+class Challenge(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer(), db.ForeignKey('users.id'), nullable=False)
+    user_id = db.Column(db.Integer(), db.ForeignKey('user.id'), nullable=False)
     secret = db.Column(db.String(80), unique=True, nullable=False)
     expires = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow() + datetime.timedelta(minutes=10))
 
-class Questions(db.Model):
+class Question(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(20), db.ForeignKey('tenants.id'), nullable=False)
+    tenant_id = db.Column(db.String(20), db.ForeignKey('tenant.id'), nullable=False)
     title = db.Column(db.String(100), nullable=False)
     body = db.Column(db.String())
     answer = db.Column(db.String())
     activate_date = db.Column(db.DateTime, nullable=False)
     deactivate_date = db.Column(db.DateTime, nullable=False)
 
-class Responses(db.Model):
+class Response(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    question_id = db.Column(db.Integer, db.ForeignKey('questions.id'), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     response = db.Column(db.String())
     bonus_points = db.Column(db.Integer, nullable=False, default=0)
     response_date = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow())
 
-class Tags(db.Model):
+class Tag(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    response_id = db.Column(db.Integer, db.ForeignKey('responses.id'), nullable=False)
+    response_id = db.Column(db.Integer, db.ForeignKey('response.id'), nullable=False)
     tag = db.Column(db.String(30))
+
+# ====== HELPFUL DECORATORS =========================================
 
 def token_required(f):
    @wraps(f)
@@ -73,7 +77,7 @@ def token_required(f):
            return jsonify({'message': 'a valid token is missing'})
        try:
            data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
-           current_user = Users.query.filter_by(id=data['id']).first()
+           current_user = User.query.filter_by(id=data['id']).first()
        except:
            return jsonify({'message': 'token is invalid'})
        return f(current_user, *args, **kwargs)
@@ -89,7 +93,7 @@ def token_optional(f):
        if token:
         try:
             data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
-            current_user = Users.query.filter_by(id=data['id']).first()
+            current_user = User.query.filter_by(id=data['id']).first()
         finally:
             pass
        return f(current_user, *args, **kwargs)
@@ -103,7 +107,7 @@ def validate_tenant(f):
     def decorator(*args, **kwargs): 
         if not 'tenant' in kwargs:
            return jsonify({'message': 'no tenant specified'}),500
-        tenant = Tenants.query.filter_by(id=kwargs['tenant'], active=True).first()
+        tenant = Tenant.query.filter_by(id=kwargs['tenant'], active=True).first()
         if not tenant:
            return jsonify({'message': 'invalid tenant specified'}),404
         return f(*args, **kwargs)
@@ -132,7 +136,7 @@ def tenant_leader(tenant):
 @validate_tenant
 def login(tenant):
     print(request.json["email"])
-    user = Users.query.filter_by(tenant_id=tenant, email=request.json["email"]).first()
+    user = User.query.filter_by(tenant_id=tenant, email=request.json["email"]).first()
     if user:
         token = jwt.encode({'id' : user.id, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(days=30)}, app.config['SECRET_KEY'], "HS256")
         return jsonify({'token' : token})
@@ -140,8 +144,7 @@ def login(tenant):
     
 @app.route('/<tenant>/api/leaderboard')
 @validate_tenant
-@token_optional
-def leaderboard(current_user, tenant):
+def leaderboard(tenant):
     return {}
 
 def serialize_question(q, a):
@@ -162,26 +165,26 @@ def get_questions(current_user, tenant):
     """
     Returns any past and active questions
     """
-    questions = db.session.query(Questions, Responses).filter(
-        Questions.tenant_id==tenant,
-        datetime.datetime.utcnow() > Questions.activate_date,
-        ).outerjoin(Responses, and_(
-                Responses.question_id == Questions.id,
-                Responses.user_id == current_user.id,
-            )).order_by(Questions.activate_date)   
+    questions = db.session.query(Question, Response).filter(
+        Question.tenant_id==tenant,
+        datetime.datetime.utcnow() > Question.activate_date,
+        ).outerjoin(Response, and_(
+                Response.question_id == Question.id,
+                Response.user_id == current_user.id,
+            )).order_by(Question.activate_date)   
     return {"questions" : [serialize_question(q,a) for (q,a) in questions]}
     
 @app.route('/<tenant>/api/questions/<question_id>')
 @validate_tenant
 @token_required
 def get_question(current_user, tenant, question_id):
-    q,a = db.session.query(Questions, Responses).filter(
-        Questions.tenant_id==tenant,
-        Questions.id == question_id,
-        datetime.datetime.utcnow() > Questions.activate_date,
-        ).outerjoin(Responses, and_(
-                Responses.question_id == Questions.id,
-                Responses.user_id == current_user.id,
+    q,a = db.session.query(Question, Response).filter(
+        Question.tenant_id==tenant,
+        Question.id == question_id,
+        datetime.datetime.utcnow() > Question.activate_date,
+        ).outerjoin(Response, and_(
+                Response.question_id == Question.id,
+                Response.user_id == current_user.id,
             )).first()
     return serialize_question(q,a)
 
@@ -207,13 +210,13 @@ def post_response(current_user, tenant, question_id):
 @validate_tenant
 @token_required
 def current_user(current_user, tenant):
-    questions = db.session.query(Questions, Responses).filter(
-        Questions.tenant_id==tenant,
-        datetime.datetime.utcnow() > Questions.activate_date,
-        ).outerjoin(Responses, and_(
-                Responses.question_id == Questions.id,
-                Responses.user_id == current_user.id,
-            )).order_by(Questions.activate_date)   
+    questions = db.session.query(Question, Response).filter(
+        Question.tenant_id==tenant,
+        datetime.datetime.utcnow() > Question.activate_date,
+        ).outerjoin(Response, and_(
+                Response.question_id == Question.id,
+                Response.user_id == current_user.id,
+            )).order_by(Question.activate_date)   
     points = 0
     for q,a in questions:
         points +=  0 if not a else (1 if q.answer == a.response else 0) + a.bonus_points
