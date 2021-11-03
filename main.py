@@ -77,8 +77,8 @@ def tenant_leader(tenant_id):
 
 # ====== HELPERS =========================================
 
-def score(q, a):
-    return 0 if not a else (1 if q.answer == a.response else 0) + a.bonus_points
+def score(question, response):
+    return 0 if not response else (1 if question.answer == response.response else 0) + response.bonus_points
 
 # ====== API ROUTES =========================================
 
