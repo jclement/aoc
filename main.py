@@ -123,13 +123,13 @@ def token_required(f):
        if 'Authorization' in request.headers:
            token = request.headers['Authorization'][7:]
        if not token:
-           return jsonify({'message': 'a valid token is missing'})
+           abort(500, "token missing")
        try:
            data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
            current_user = User.query.filter_by(id=data['id']).first()
        except:
-           return jsonify({'message': 'token is invalid'})
-       return f(current_user, *args, **kwargs)
+           abort(500, "token invalid")
+       return f(*args, current_user, **kwargs)
    return decorator
 
 def validate_tenant(f):
@@ -138,11 +138,11 @@ def validate_tenant(f):
     """
     @wraps(f)
     def decorator(*args, **kwargs): 
-        if not 'tenant' in kwargs:
-           return jsonify({'message': 'no tenant specified'}),500
-        tenant = Tenant.query.filter_by(id=kwargs['tenant'], active=True).first()
-        if not tenant:
-           return jsonify({'message': 'invalid tenant specified'}),404
+        if not 'tenant_id' in kwargs:
+           abort(500, message="tenant missing")
+        tenant_id = Tenant.query.filter_by(id=kwargs['tenant_id'], active=True).first()
+        if not tenant_id:
+           abort(500, message="tenant does not exist")
         return f(*args, **kwargs)
     return decorator
 
@@ -153,15 +153,15 @@ def index():
     return render_template("welcome.html")
 
 @app.route('/<tenant>/')
-@app.route('/<tenant>/<path:path>')
+@app.route('/<tenant_id>/<path:path>')
 @validate_tenant
-def tenant_index(tenant, path=""):
+def tenant_index(tenant_id, path=""):
     return render_template("main.html")
 
-@app.route('/<tenant>/leaderboard/')
+@app.route('/<tenant_id>/leaderboard/')
 @validate_tenant
-def tenant_leader(tenant):
-    return render_template("leader.html", leaderboard=leaderboard(tenant))
+def tenant_leader(tenant_id):
+    return render_template("leader.html")
 
 # ====== HELPERS =========================================
 
@@ -178,149 +178,170 @@ def score(q, a):
 
 # ====== API ROUTES =========================================
 
-@app.route('/<tenant>/api/login', methods=['POST'])
-@validate_tenant
-def login(tenant):
-    print(request.json["email"])
-    user = User.query.filter_by(tenant_id=tenant, email=request.json["email"]).first()
-    if user:
-        token = jwt.encode({'id' : user.id, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(days=30)}, app.config['SECRET_KEY'], "HS256")
-        return jsonify({'token' : token})
-    return jsonify({'message': 'invalid user'}), 404
-    
-@app.route('/<tenant>/api/leaderboard')
-@validate_tenant
-def leaderboard(tenant):
-    return {}
+class LoginApi(Resource):
 
-@app.route('/<tenant>/api/questions')
-@validate_tenant
-@token_required
-def get_questions(current_user, tenant):
-    """
-    Returns any past and active questions
-    """
-    questions = db.session.query(Question, Response).filter(
-        Question.tenant_id==tenant,
-        question_is_visible(Question),
-        ).outerjoin(Response, and_(
-                Response.question_id == Question.id,
-                Response.user_id == current_user.id,
-            )).order_by(Question.activate_date)   
-    return {
-        "questions": [{
-        "id": q.id,
-        "title": q.title,
-        "active": question_is_active(q),
-        "answered": not a is None,
-        "points": score(q, a)
-    } for (q,a) in questions]}
-    
-@app.route('/<tenant>/api/questions/<question_id>')
-@validate_tenant
-@token_required
-def get_question(current_user, tenant, question_id):
-    q,a = db.session.query(Question, Response).filter(
-        Question.tenant_id==tenant,
-        Question.id == question_id,
-        datetime.datetime.utcnow() > Question.activate_date,
-        ).outerjoin(Response, and_(
-                Response.question_id == Question.id,
-                Response.user_id == current_user.id,
-            )).first()
-    return {
-        "id": q.id,
-        "title": q.title,
-        "body": q.body,
-        "active": question_is_active(q),
-        "answered": not a is None,
-        "points": score(q, a),
-        "activate_date": q.activate_date.isoformat(),
-        "deactivate_date": q.deactivate_date.isoformat(),
-        "response_date": None if a is None else a.response_date.isoformat(),
-        "response": None if a is None else a.response,
-    }
+    @validate_tenant
+    def get(self, tenant_id):
+        if 'Authorization' in request.headers:
+            token = request.headers['Authorization'][7:]
+            try:
+                data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
+                current_user = User.query.filter_by(id=data['id']).first()
+                return {"authenticated": True}
+            except:
+                pass
+        return {"authenticated": False}
 
-@app.route('/<tenant>/api/questions/<question_id>', methods=['PUT'])
-@validate_tenant
-@token_required
-def update_question(current_user, tenant, question_id):
-    return {}
+    @validate_tenant
+    def post(self, tenant_id):
+        #TODO: actually implement some sort of emailing thing here.  It's easier this way thought
+        user = User.query.filter_by(tenant_id=tenant_id, email=request.json["email"]).first()
+        if user:
+            token = jwt.encode({'id' : user.id, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(days=30)}, app.config['SECRET_KEY'], "HS256")
+            return {'token' : token}
+        abort(404, message="invalid user")
+        return jsonify({'message': 'invalid user'}), 404
 
-@app.route('/<tenant>/api/questions/<question_id>', methods=['POST'])
-@validate_tenant
-@token_required
-def add_question(current_user, tenant, question_id):
-    return {}
+class MeApi(Resource):
 
+    @validate_tenant
+    @token_required
+    def get(self, current_user, tenant_id):
+        return {}
 
-@api.route('/<tenant>/api/questions/<question_id>/response', methods=['POST'])
-@validate_tenant
-@token_required
-def post_response(current_user, tenant, question_id):
-    responseParser = reqparse.RequestParser(bundle_errors=True)
-    responseParser.add_argument('response', required=True)
-    responseParser.add_argument('tags', action='append')
-    req = responseParser.parse_args()
+    @validate_tenant
+    @token_required
+    def put(self, current_user, tenant_id):
+        return {}
 
-    q,a = db.session.query(Question, Response).filter(
-        Question.tenant_id==tenant,
-        Question.id == question_id,
-        ).outerjoin(Response, and_(
-                Response.question_id == Question.id,
-                Response.user_id == current_user.id,
-            )).first()
-    if not q:
-        abort(404, message="question does not exist")
-    if not question_is_active(q):
-        abort(500, message="question is not active")
-    if not a is None:
-        abort(500, message="response already posted")
+class LeaderboardApi(Resource):
 
-    print(len(req.tags))
-    return ""
+    @validate_tenant
+    def get(self, tenant_id):
+        return {}
 
-    s = db.session()
+class QuestionsApi(Resource):
 
-    r = Response()
-    r.question_id = question_id
-    r.response = req.response
-    s.add(r)
-    
-    for tag in req.tags:
-        t = Tag()
-        t.response = r
-        t.tag = tag
-        s.add(t)
+    @validate_tenant
+    @token_required
+    def get(self, current_user, tenant_id):
+        questions = db.session.query(Question, Response).filter(
+            Question.tenant_id==tenant_id,
+            question_is_visible(Question),
+            ).outerjoin(Response, and_(
+                    Response.question_id == Question.id,
+                    Response.user_id == current_user.id,
+                )).order_by(Question.activate_date)   
+        return {
+            "questions": [{
+            "id": q.id,
+            "title": q.title,
+            "active": question_is_active(q),
+            "answered": not a is None,
+            "points": score(q, a)
+        } for (q,a) in questions]}
 
-    s.commit()
-    return {'message': 'response saved'}
-    
-@app.route('/<tenant>/api/current_user')
-@validate_tenant
-@token_required
-def current_user(current_user, tenant):
-    questions = db.session.query(Question, Response).filter(
-        Question.tenant_id==tenant,
-        datetime.datetime.utcnow() > Question.activate_date,
-        ).outerjoin(Response, and_(
-                Response.question_id == Question.id,
-                Response.user_id == current_user.id,
-            )).order_by(Question.activate_date)   
-    points = 0
-    for q,a in questions:
-        points +=  0 if not a else (1 if q.answer == a.response else 0) + a.bonus_points
-    return {
-        "id": current_user.id,
-        "user": current_user.username,
-        "points": points,
+    @validate_tenant
+    @token_required
+    def post(self, current_user, tenant_id):
+        return {}
+
+class QuestionApi(Resource):
+
+    @validate_tenant
+    @token_required
+    def get(self, current_user, tenant_id, question_id):
+        q,a = db.session.query(Question, Response).filter(
+            Question.tenant_id==tenant_id,
+            Question.id == question_id,
+            datetime.datetime.utcnow() > Question.activate_date,
+            ).outerjoin(Response, and_(
+                    Response.question_id == Question.id,
+                    Response.user_id == current_user.id,
+                )).first()
+        return {
+            "id": q.id,
+            "title": q.title,
+            "body": q.body,
+            "active": question_is_active(q),
+            "answered": not a is None,
+            "points": score(q, a),
+            "activate_date": q.activate_date.isoformat(),
+            "deactivate_date": q.deactivate_date.isoformat(),
+            "response_date": None if a is None else a.response_date.isoformat(),
+            "response": None if a is None else a.response,
         }
 
-@app.route('/<tenant>/api/current_user', methods=['PUT'])
-@validate_tenant
-@token_required
-def update_current_user(current_user, tenant=None):
-    return {}
+    @validate_tenant
+    @token_required
+    def put(self, current_user, tenant_id, question_id):
+        return {}
+
+class ResponseApi(Resource):
+
+    @validate_tenant
+    @token_required
+    def get(self, current_user, tenant_id, question_id):
+        q, a = db.session.query(Question, Response).filter(
+            Question.tenant_id==tenant_id,
+            Question.id == question_id,
+            datetime.datetime.utcnow() > Question.activate_date,
+            ).outerjoin(Response, and_(
+                    Response.question_id == Question.id,
+                    Response.user_id == current_user.id,
+                )).first()
+        return {
+            "response": None if not a else a.response,
+            "response_date": None if not a else a.response_date
+        }
+
+    @validate_tenant
+    @token_required
+    def put(self, current_user, tenant_id, question_id):
+        responseParser = reqparse.RequestParser(bundle_errors=True)
+        responseParser.add_argument('response', required=True)
+        responseParser.add_argument('tags', action='append')
+        req = responseParser.parse_args()
+
+        res = db.session.query(Question, Response).filter(
+            Question.tenant_id==tenant_id,
+            Question.id == question_id,
+            ).outerjoin(Response, and_(
+                    Response.question_id == Question.id,
+                    Response.user_id == current_user.id,
+                )).first()
+        if not res:
+            abort(404, message="question does not exist")
+        if not question_is_active(res[0]):
+            abort(500, message="question is not active")
+        if not res[1] is None:
+            abort(500, message="response already posted")
+
+        s = db.session()
+
+        r = Response()
+        r.question_id = question_id
+        r.user_id = current_user.id
+        r.response = req.response
+        s.add(r)
+        s.commit()
+        
+        for tag in req.tags:
+            t = Tag()
+            t.response_id = r.id
+            t.tag = tag
+            s.add(t)
+
+        s.commit()
+        return {'message': 'response saved'}
+    
+
+api.add_resource(LoginApi, '/<tenant_id>/api/login')
+api.add_resource(MeApi, '/<tenant_id>/api/me')
+api.add_resource(LeaderboardApi, '/<tenant_id>/api/leaderboard')
+api.add_resource(QuestionsApi, '/<tenant_id>/api/questions')
+api.add_resource(QuestionApi, '/<tenant_id>/api/questions/<int:question_id>')
+api.add_resource(ResponseApi, '/<tenant_id>/api/questions/<int:question_id>/response')
 
 if __name__ == '__main__':
     app.run(debug=True)
