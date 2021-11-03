@@ -22,7 +22,6 @@ class User(db.Model):
     created = db.Column(db.DateTime, nullable=False,
                         default=datetime.datetime.utcnow())
 
-
 class Challenge(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer(), db.ForeignKey('user.id'), nullable=False)
