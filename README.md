@@ -34,18 +34,6 @@ FLASK_APP=main.py
 DEBUG=True
 ```
 
-Initialize the database:
-```
-flask db init
-flask db migrate
-flask db upgrade
-```
-
-Bootstrap the database:
-```
-sqlite3 aoc.sqlite < initialize.sql
-```
-
-## Nuking the Database / Restarting from Scratch
+## Creating / Resetting the Database
 
 See `initdb.sh`
