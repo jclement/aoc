@@ -2,6 +2,7 @@ from . import db
 from .models import Tenant, User, Question
 import datetime
 
+
 def create_test_data_if_empty():
     s = db.session()
     if len(s.query(Tenant).all()) == 0:

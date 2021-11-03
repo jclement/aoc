@@ -4,6 +4,7 @@ from database import db
 from database.models import Question, Response, Tag
 from .util import validate_tenant, token_required
 
+
 class ResponseApi(Resource):
 
     @validate_tenant
@@ -12,7 +13,7 @@ class ResponseApi(Resource):
         r = db.session.query(Response).filter(
             Response.question_id == question_id,
             Response.user_id == current_user.id,
-            ).first()
+        ).first()
         return {
             "response": None if not r else r.response,
             "response_date": None if not r else r.response_date.isoformat(),
@@ -28,12 +29,12 @@ class ResponseApi(Resource):
         req = responseParser.parse_args()
 
         res = db.session.query(Question, Response).filter(
-            Question.tenant_id==tenant_id,
+            Question.tenant_id == tenant_id,
             Question.id == question_id,
-            ).outerjoin(Response, and_(
-                    Response.question_id == Question.id,
-                    Response.user_id == current_user.id,
-                )).first()
+        ).outerjoin(Response, and_(
+            Response.question_id == Question.id,
+            Response.user_id == current_user.id,
+        )).first()
         if not res:
             abort(404, message="question does not exist")
         if not res[0].is_active():
@@ -49,6 +50,5 @@ class ResponseApi(Resource):
         r.tags = [Tag(tag=t) for t in req.tags]
         s.add(r)
         s.commit()
-        
+
         return {'message': 'response saved'}
-    

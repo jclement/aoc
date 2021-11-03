@@ -6,7 +6,8 @@ import datetime
 from app import app
 
 from database.models import User
-from .util import validate_tenant 
+from .util import validate_tenant
+
 
 class LoginApi(Resource):
 
@@ -15,7 +16,8 @@ class LoginApi(Resource):
         if 'Authorization' in request.headers:
             token = request.headers['Authorization'][7:]
             try:
-                data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
+                data = jwt.decode(
+                    token, app.config['SECRET_KEY'], algorithms=["HS256"])
                 if User.query.filter_by(id=data['id']).first():
                     return {"authenticated": True}
             except:
@@ -24,9 +26,11 @@ class LoginApi(Resource):
 
     @validate_tenant
     def post(self, tenant_id):
-        #TODO: actually implement some sort of emailing thing here.  It's easier this way thought
-        user = User.query.filter_by(tenant_id=tenant_id, email=request.json["email"]).first()
+        # TODO: actually implement some sort of emailing thing here.  It's easier this way thought
+        user = User.query.filter_by(
+            tenant_id=tenant_id, email=request.json["email"]).first()
         if user:
-            token = jwt.encode({'id' : user.id, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(days=30)}, app.config['SECRET_KEY'], "HS256")
-            return {'token' : token}
+            token = jwt.encode({'id': user.id, 'exp': datetime.datetime.utcnow(
+            ) + datetime.timedelta(days=30)}, app.config['SECRET_KEY'], "HS256")
+            return {'token': token}
         abort(404, message="invalid user")

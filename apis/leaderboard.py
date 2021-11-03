@@ -1,5 +1,6 @@
 from flask_restful import Resource, abort
-from .util import validate_tenant 
+from .util import validate_tenant
+
 
 class LeaderboardApi(Resource):
 

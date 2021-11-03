@@ -3,7 +3,7 @@ from sqlalchemy import and_
 import datetime
 from database.models import Question, Response
 from database import db
-from .util import validate_tenant, token_required, score
+from .util import validate_tenant, token_required, admin_token_required, score
 
 questionParser = reqparse.RequestParser(bundle_errors=True)
 questionParser.add_argument('title', required=True)
@@ -39,6 +39,18 @@ class QuestionApi(Resource):
         }
 
     @validate_tenant
-    @token_required
+    @admin_token_required
     def put(self, current_user, tenant_id, question_id):
-        return {}
+        args = questionParser.parse_args()
+        s = db.session()
+        q = db.session.query(Question).filter(
+            Question.tenant_id==tenant_id,
+            Question.id == question_id,
+            ).first()
+        q.title = args.title
+        q.body = args.body
+        q.activate_date = args.activate_date
+        q.deactivate_date = args.deactivate_date
+        q.answer = args.answer
+        s.commit()
+        return { "message": "updated" }
