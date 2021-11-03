@@ -9,8 +9,6 @@ import jwt
 import datetime
 import os
 
-from werkzeug.http import HTTP_STATUS_CODES
-
 app = Flask(__name__)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URI']
@@ -65,6 +63,57 @@ class Tag(db.Model):
     response_id = db.Column(db.Integer, db.ForeignKey('response.id'), nullable=False)
     tag = db.Column(db.String(30))
 
+# ====== THROW AWAY INIT THING =========================================
+
+@app.before_first_request
+def init_database():
+    s = db.session()
+    if len(s.query(Tenant).all()) == 0:
+        print("No data detected.  Creating testing tenant.")
+
+        t = Tenant()
+        t.name = "Testing Tenant"
+        t.id = "test"
+        t.active = True
+        s.add(t)
+
+        u = User()
+        u.username = "admin"
+        u.email = "admin@admin.com"
+        u.is_admin = True
+        u.tenant_id = t.id
+        s.add(u)
+
+        q1 = Question()
+        q1.title = "Hello, World"
+        q1.body = """
+What command prints something to the `console` in Python?
+        """
+        q1.answer = "print"
+        q1.activate_date = datetime.datetime.utcnow()
+        q1.deactivate_date = datetime.datetime.utcnow() + datetime.timedelta(days=10)
+        q1.tenant_id = t.id
+        s.add(q1)
+
+        q2 = Question()
+        q2.title = "Author"
+        q2.body = """
+Who created Python? (first name.  lower case)
+
+```python
+import os
+print("hello world")
+```
+        """
+        q2.answer = "guido"
+        q2.activate_date = datetime.datetime.utcnow() + datetime.timedelta(hours=1)
+        q2.deactivate_date = datetime.datetime.utcnow() + datetime.timedelta(days=10)
+        q2.tenant_id = t.id
+        s.add(q2)
+
+        s.commit()
+
+
 # ====== HELPFUL DECORATORS =========================================
 
 def token_required(f):
@@ -80,22 +129,6 @@ def token_required(f):
            current_user = User.query.filter_by(id=data['id']).first()
        except:
            return jsonify({'message': 'token is invalid'})
-       return f(current_user, *args, **kwargs)
-   return decorator
-
-def token_optional(f):
-   @wraps(f)
-   def decorator(*args, **kwargs):
-       token = None
-       current_user = None
-       if 'Authorization' in request.headers:
-           token = request.headers['Authorization'][7:]
-       if token:
-        try:
-            data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
-            current_user = User.query.filter_by(id=data['id']).first()
-        finally:
-            pass
        return f(current_user, *args, **kwargs)
    return decorator
 
@@ -130,6 +163,19 @@ def tenant_index(tenant, path=""):
 def tenant_leader(tenant):
     return render_template("leader.html", leaderboard=leaderboard(tenant))
 
+# ====== HELPERS =========================================
+
+def question_is_visible(q):
+    return datetime.datetime.utcnow() >= q.activate_date
+
+def question_is_active(q):
+    return \
+        datetime.datetime.utcnow() >= q.activate_date and \
+        datetime.datetime.utcnow() < q.deactivate_date
+
+def score(q, a):
+    return 0 if not a else (1 if q.answer == a.response else 0) + a.bonus_points
+
 # ====== API ROUTES =========================================
 
 @app.route('/<tenant>/api/login', methods=['POST'])
@@ -147,17 +193,6 @@ def login(tenant):
 def leaderboard(tenant):
     return {}
 
-def serialize_question(q, a):
-    return {
-        "id": q.id,
-        "title": q.title,
-        "activate_date": q.activate_date.isoformat(),
-        "deactivate_date": q.deactivate_date.isoformat(),
-        "answered": not a is None,
-        "answered_date": None if not a else a.response_date.isoformat(),
-        "points": 0 if not a else (1 if q.answer == a.response else 0) + a.bonus_points,
-    } 
-
 @app.route('/<tenant>/api/questions')
 @validate_tenant
 @token_required
@@ -167,12 +202,19 @@ def get_questions(current_user, tenant):
     """
     questions = db.session.query(Question, Response).filter(
         Question.tenant_id==tenant,
-        datetime.datetime.utcnow() > Question.activate_date,
+        question_is_visible(Question),
         ).outerjoin(Response, and_(
                 Response.question_id == Question.id,
                 Response.user_id == current_user.id,
             )).order_by(Question.activate_date)   
-    return {"questions" : [serialize_question(q,a) for (q,a) in questions]}
+    return {
+        "questions": [{
+        "id": q.id,
+        "title": q.title,
+        "active": question_is_active(q),
+        "answered": not a is None,
+        "points": score(q, a)
+    } for (q,a) in questions]}
     
 @app.route('/<tenant>/api/questions/<question_id>')
 @validate_tenant
@@ -186,7 +228,18 @@ def get_question(current_user, tenant, question_id):
                 Response.question_id == Question.id,
                 Response.user_id == current_user.id,
             )).first()
-    return serialize_question(q,a)
+    return {
+        "id": q.id,
+        "title": q.title,
+        "body": q.body,
+        "active": question_is_active(q),
+        "answered": not a is None,
+        "points": score(q, a),
+        "activate_date": q.activate_date.isoformat(),
+        "deactivate_date": q.deactivate_date.isoformat(),
+        "response_date": None if a is None else a.response_date.isoformat(),
+        "response": None if a is None else a.response,
+    }
 
 @app.route('/<tenant>/api/questions/<question_id>', methods=['PUT'])
 @validate_tenant
@@ -200,11 +253,48 @@ def update_question(current_user, tenant, question_id):
 def add_question(current_user, tenant, question_id):
     return {}
 
-@app.route('/<tenant>/api/questions/<question_id>/response', methods=['POST'])
+
+@api.route('/<tenant>/api/questions/<question_id>/response', methods=['POST'])
 @validate_tenant
 @token_required
 def post_response(current_user, tenant, question_id):
-    return {}
+    responseParser = reqparse.RequestParser(bundle_errors=True)
+    responseParser.add_argument('response', required=True)
+    responseParser.add_argument('tags', action='append')
+    req = responseParser.parse_args()
+
+    q,a = db.session.query(Question, Response).filter(
+        Question.tenant_id==tenant,
+        Question.id == question_id,
+        ).outerjoin(Response, and_(
+                Response.question_id == Question.id,
+                Response.user_id == current_user.id,
+            )).first()
+    if not q:
+        abort(404, message="question does not exist")
+    if not question_is_active(q):
+        abort(500, message="question is not active")
+    if not a is None:
+        abort(500, message="response already posted")
+
+    print(len(req.tags))
+    return ""
+
+    s = db.session()
+
+    r = Response()
+    r.question_id = question_id
+    r.response = req.response
+    s.add(r)
+    
+    for tag in req.tags:
+        t = Tag()
+        t.response = r
+        t.tag = tag
+        s.add(t)
+
+    s.commit()
+    return {'message': 'response saved'}
     
 @app.route('/<tenant>/api/current_user')
 @validate_tenant

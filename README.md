@@ -26,7 +26,12 @@ pip install -r requirements
 
 Setup a development `.flaskenv` file (SQLite):
 ```
-
+#DATABASE_URI=postgresql://postgres:password@localhost:5432/postgres
+DATABASE_URI=sqlite:///aoc.sqlite
+SECRET_KEY=004f2af45d3a4e161a7dd2d17fdae47f
+FLASK_ENV=development
+FLASK_APP=main.py
+DEBUG=True
 ```
 
 Initialize the database:
@@ -41,7 +46,6 @@ Bootstrap the database:
 sqlite3 aoc.sqlite < initialize.sql
 ```
 
-## Nuking the Database / Restarting
-* Delete `aoc.sqlite`
-* Delete the `migrations` folder
-* Rerun the database initialization/bootstrapping steps (above)
+## Nuking the Database / Restarting from Scratch
+
+See `initdb.sh`
