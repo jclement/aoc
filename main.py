@@ -3,10 +3,8 @@ from flask_migrate import Migrate
 
 from app import app, api
 import apis
-from apis.util import validate_tenant
 
 from database import db
-from database.models import * 
 from database.testdata import create_test_data_if_empty 
 
 db.init_app(app)
@@ -26,12 +24,12 @@ def index():
 
 @app.route('/<tenant_id>/')
 @app.route('/<tenant_id>/<path:path>')
-@validate_tenant
+@apis.util.validate_tenant
 def tenant_index(tenant_id, path=""):
     return render_template("main.html")
 
 @app.route('/<tenant_id>/leaderboard/')
-@validate_tenant
+@apis.util.validate_tenant
 def tenant_leader(tenant_id):
     return render_template("leader.html")
 
