@@ -1,9 +1,16 @@
-from flask_restful import Resource, abort, reqparse
+from flask_restful import Resource, abort, reqparse, inputs
 from sqlalchemy import and_
 import datetime
 from database.models import Question, Response
 from database import db
 from .util import validate_tenant, token_required, score
+
+questionParser = reqparse.RequestParser(bundle_errors=True)
+questionParser.add_argument('title', required=True)
+questionParser.add_argument('activate_date', type=inputs.datetime_from_iso8601, required=True)
+questionParser.add_argument('deactivate_date', type=inputs.datetime_from_iso8601, required=True)
+questionParser.add_argument('body', required=True)
+questionParser.add_argument('answer', required=True)
 
 class QuestionApi(Resource):
 

@@ -9,17 +9,14 @@ class ResponseApi(Resource):
     @validate_tenant
     @token_required
     def get(self, current_user, tenant_id, question_id):
-        q, a = db.session.query(Question, Response).filter(
-            Question.tenant_id==tenant_id,
-            Question.id == question_id,
-            Question.is_active(),
-            ).outerjoin(Response, and_(
-                    Response.question_id == Question.id,
-                    Response.user_id == current_user.id,
-                )).first()
+        r = db.session.query(Response).filter(
+            Response.question_id == question_id,
+            Response.user_id == current_user.id,
+            ).first()
         return {
-            "response": None if not a else a.response,
-            "response_date": None if not a else a.response_date
+            "response": None if not r else r.response,
+            "response_date": None if not r else r.response_date.isoformat(),
+            "tags": None if not r else [t.tag for t in r.tags]
         }
 
     @validate_tenant
@@ -45,20 +42,13 @@ class ResponseApi(Resource):
             abort(500, message="response already posted")
 
         s = db.session()
-
         r = Response()
         r.question_id = question_id
         r.user_id = current_user.id
         r.response = req.response
+        r.tags = [Tag(tag=t) for t in req.tags]
         s.add(r)
         s.commit()
         
-        for tag in req.tags:
-            t = Tag()
-            t.response_id = r.id
-            t.tag = tag
-            s.add(t)
-
-        s.commit()
         return {'message': 'response saved'}
     

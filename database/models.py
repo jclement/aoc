@@ -49,6 +49,7 @@ class Response(db.Model):
     response = db.Column(db.String())
     bonus_points = db.Column(db.Integer, nullable=False, default=0)
     response_date = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow())
+    tags = db.relationship("Tag")
 
 class Tag(db.Model):
     id = db.Column(db.Integer, primary_key=True)
