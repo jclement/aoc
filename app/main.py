@@ -235,6 +235,20 @@ def retrieve_question_detail(question_id, current_user=Depends(authenticated_use
         raise HTTPException(404)
     return schemas.QuestionDetail.createFromOrm(question)
 
+@app.delete("/questions/{question_id:int}", tags=["Questions"], response_model=schemas.Status)
+def delete_question(question_id, current_user=Depends(authenticated_user), db=Depends(get_db)):
+    if not current_user.is_admin:
+        raise HTTPException(400)
+    question = db.query(models.Question).filter(
+        models.Question.id == question_id,
+        current_user.is_admin or datetime.datetime.utcnow() >= models.Question.activate_date,
+    ).first()
+    if not question:
+        raise HTTPException(404)
+    db.delete(question)
+    db.commit()
+    return schemas.Status(result=True)
+
 
 @app.get("/questions/{question_id:int}/answer", tags=["Questions"], response_model=schemas.Answer)
 def retrieve_answer(question_id, current_user=Depends(authenticated_user), db=Depends(get_db)):
