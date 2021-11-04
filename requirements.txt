@@ -1,0 +1,6 @@
+fastapi
+SQLAlchemy
+uvicorn
+python-multipart
+pyjwt
+py3-validate-email
