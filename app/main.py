@@ -251,6 +251,18 @@ def retrieve_answer(question_id, current_user=Depends(authenticated_user), db=De
         raise HTTPException(404)
     return schemas.Answer(answer=question.answer)
 
+@app.get("/questions/{question_id:int}/tags", tags=["Questions"], response_model=List[schemas.Tag])
+def retrieve_tags_for_question(question_id, current_user=Depends(authenticated_user), db=Depends(get_db)):
+    responses = db.query(models.Response).filter(
+        models.Response.question_id == question_id,
+    ).all()
+    counts = {}
+    for r in responses:
+        for t in r.tags:
+            if not t.tag in counts:
+                counts[t.tag] = 0
+            counts[t.tag]+=1
+    return [schemas.Tag(tag=tag, count=count) for tag, count in counts.items()]
 
 @app.put("/questions/{question_id:int}", tags=["Questions"], response_model=schemas.QuestionDetail)
 def update_question_detail(question_id, detail: schemas.WritableQuestionDetail, current_user=Depends(authenticated_user), db=Depends(get_db)):
@@ -287,6 +299,20 @@ def update_answer(question_id, answer: schemas.Answer, current_user=Depends(auth
 # =================== RESPONSE APIS =========================
 
 
+@app.get("/questions/{question_id:int}/responses", tags=["Response"], response_model=List[schemas.UserResponse])
+def retrieve_responses(question_id, current_user=Depends(authenticated_user), db=Depends(get_db)):
+    responses = db.query(models.Response, models.User).filter(
+        models.Response.question_id == question_id,
+    ).join(models.User, models.User.id == models.Response.user_id).all()
+    return [schemas.UserResponse(
+        user_id = u.id,
+        username = u.username,
+        email = u.email,
+        response = r.response,
+        response_date = r.response_date,
+        tags = [x.tag for x in r.tags],
+    ) for r,u in responses]
+
 @app.get("/questions/{question_id:int}/response", tags=["Response"], response_model=Optional[schemas.Response])
 def retrieve_response(question_id, current_user=Depends(authenticated_user), db=Depends(get_db)):
     question = db.query(models.Question).filter(
@@ -301,7 +327,7 @@ def retrieve_response(question_id, current_user=Depends(authenticated_user), db=
         return None
     return schemas.Response(
         response=resp.response,
-        tags=[x for x in resp.tags],
+        tags=[x.tag for x in resp.tags],
     )
 
 
@@ -331,7 +357,7 @@ def post_response(question_id, response: schemas.Response, current_user=Depends(
     resp.question_id = question_id
     resp.user_id = current_user.id
     resp.response = response.response
-    resp.tags = [models.Tag(tag=x) for x in response.tags]
+    resp.tags = [models.Tag(tag=x) for x in list(dict.fromkeys(response.tags))]
     db.add(resp)
     db.commit()
     return schemas.Status(result=True)

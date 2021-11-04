@@ -76,9 +76,19 @@ class Response(BaseModel):
     response: str
     tags: List[str]
 
+class UserResponse(Response):
+    user_id: int
+    username: str
+    email: str
+    response_date: datetime.datetime
+
 class InitiateEmailLoginRequest(BaseModel):
     email: str
 
 class ActiveateEmailLoginRequest(BaseModel):
     email: str
     secret: str
+
+class Tag(BaseModel):
+    tag: str
+    count: int
