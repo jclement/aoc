@@ -8,7 +8,7 @@ class Leaderboard extends React.Component {
         };
     }
     componentDidMount() {
-        fetch('/leaderboard')
+        fetch('/api/leaderboard')
             .then(response => response.json())
             .then(data => this.setState({'data': data}))
     }

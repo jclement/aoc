@@ -33,7 +33,7 @@ def calculate_score(q, a):
 # ================== AUTHENTICATION HELPERS ==================
 
 
-oauth2_scheme = OAuth2PasswordBearer("/login")
+oauth2_scheme = OAuth2PasswordBearer("/api/login")
 
 
 def authenticated_user(token=Depends(oauth2_scheme), db=Depends(get_db)):
@@ -66,7 +66,7 @@ db.close()
 # ================== LOGIN APIS ==================
 
 
-@app.post("/email_authenicate/initiate", tags=["Login"], response_model=schemas.Status)
+@app.post("/api/email_authenicate/initiate", tags=["Login"], response_model=schemas.Status)
 async def email_authentication_initiate(request: schemas.InitiateEmailLoginRequest, db=Depends(get_db)):
     """
     Initiate an email-based account creation/signin.  Emails the provided address an activation code/link that they can use to authenticate a browser session.
@@ -84,7 +84,7 @@ async def email_authentication_initiate(request: schemas.InitiateEmailLoginReque
     return schemas.Status(result=True, message="email sent")
 
 
-@app.post("/email_authenicate/activate", tags=["Login"])
+@app.post("/api/email_authenicate/activate", tags=["Login"])
 def email_authentication_activate(request: schemas.ActiveateEmailLoginRequest, db=Depends(get_db)):
     """
     Activate / verify an email-based account creation/signin.  Upon successful validation, will create a new account if one doesn't already exist for that email address.
@@ -119,7 +119,7 @@ def email_authentication_activate(request: schemas.ActiveateEmailLoginRequest, d
     raise HTTPException(401)
 
 
-@app.post("/login", tags=["Login"])
+@app.post("/api/login", tags=["Login"])
 def login(req: Request, form_data: OAuth2PasswordRequestForm = Depends(), db=Depends(get_db)):
     user = db.query(models.User).filter(
         models.User.email == form_data.username).first()
@@ -131,7 +131,7 @@ def login(req: Request, form_data: OAuth2PasswordRequestForm = Depends(), db=Dep
     raise HTTPException(401)
 
 
-@app.get("/login", response_model=schemas.Status, tags=["Login"])
+@app.get("/api/login", response_model=schemas.Status, tags=["Login"])
 def validate_login_token(token=Depends(oauth2_scheme), db=Depends(get_db)):
     """
     Really quick check to ensure the user's authentication token is valid
@@ -151,7 +151,7 @@ def validate_login_token(token=Depends(oauth2_scheme), db=Depends(get_db)):
 # =================== ME APIS =========================
 
 
-@app.get("/me", response_model=schemas.User, tags=["Current User"])
+@app.get("/api/me", response_model=schemas.User, tags=["Current User"])
 def get_current_user_info(user=Depends(authenticated_user)):
     """
     Profile information for the current user
@@ -164,7 +164,7 @@ def get_current_user_info(user=Depends(authenticated_user)):
     )
 
 
-@app.get("/me/score", response_model=schemas.Score, tags=["Current User"])
+@app.get("/api/me/score", response_model=schemas.Score, tags=["Current User"])
 def get_current_user_calculate_score(user=Depends(authenticated_user)):
     """
     Get the current user's score
@@ -178,7 +178,7 @@ def get_current_user_calculate_score(user=Depends(authenticated_user)):
     return schemas.Score(score=tmp)
 
 
-@app.put("/me", response_model=schemas.Status, tags=['Current User'])
+@app.put("/api/me", response_model=schemas.Status, tags=['Current User'])
 def update_current_user_into(info: schemas.WriteableUser, user=Depends(authenticated_user), db=Depends(get_db)):
     '''
     Update the profile for the current user
@@ -188,7 +188,7 @@ def update_current_user_into(info: schemas.WriteableUser, user=Depends(authentic
     return schemas.Status(result=True)
 
 
-@app.put("/me/password", response_model=schemas.Status, tags=['Current User'])
+@app.put("/api/me/password", response_model=schemas.Status, tags=['Current User'])
 def change_current_user_password(password: str, user=Depends(authenticated_user), db=Depends(get_db)):
     """
     Set a password for the current user
@@ -200,7 +200,7 @@ def change_current_user_password(password: str, user=Depends(authenticated_user)
 # =================== QUESTION APIS =========================
 
 
-@app.get("/questions", tags=["Questions"], response_model=List[schemas.QuestionSummary])
+@app.get("/api/questions", tags=["Questions"], response_model=List[schemas.QuestionSummary])
 def list_all_questions(current_user=Depends(authenticated_user), db=Depends(get_db)):
     """
     Only lists questions the user is allowed to see.
@@ -211,7 +211,7 @@ def list_all_questions(current_user=Depends(authenticated_user), db=Depends(get_
     return [schemas.QuestionSummary.createFromOrm(q) for q in questions]
 
 
-@app.post("/questions", tags=["Questions"], response_model=schemas.QuestionDetail)
+@app.post("/api/questions", tags=["Questions"], response_model=schemas.QuestionDetail)
 def create_new_question(detail: schemas.WritableQuestionDetail, current_user=Depends(authenticated_user), db=Depends(get_db)):
     if not current_user.is_admin:
         raise HTTPException(400)
@@ -225,7 +225,7 @@ def create_new_question(detail: schemas.WritableQuestionDetail, current_user=Dep
     return schemas.QuestionDetail.createFromOrm(question)
 
 
-@app.get("/questions/{question_id:int}", tags=["Questions"], response_model=schemas.QuestionDetail)
+@app.get("/api/questions/{question_id:int}", tags=["Questions"], response_model=schemas.QuestionDetail)
 def retrieve_question_detail(question_id, current_user=Depends(authenticated_user), db=Depends(get_db)):
     question = db.query(models.Question).filter(
         models.Question.id == question_id,
@@ -235,7 +235,7 @@ def retrieve_question_detail(question_id, current_user=Depends(authenticated_use
         raise HTTPException(404)
     return schemas.QuestionDetail.createFromOrm(question)
 
-@app.delete("/questions/{question_id:int}", tags=["Questions"], response_model=schemas.Status)
+@app.delete("/api/questions/{question_id:int}", tags=["Questions"], response_model=schemas.Status)
 def delete_question(question_id, current_user=Depends(authenticated_user), db=Depends(get_db)):
     if not current_user.is_admin:
         raise HTTPException(400)
@@ -250,7 +250,7 @@ def delete_question(question_id, current_user=Depends(authenticated_user), db=De
     return schemas.Status(result=True)
 
 
-@app.get("/questions/{question_id:int}/answer", tags=["Questions"], response_model=schemas.Answer)
+@app.get("/api/questions/{question_id:int}/answer", tags=["Questions"], response_model=schemas.Answer)
 def retrieve_answer(question_id, current_user=Depends(authenticated_user), db=Depends(get_db)):
     """
     Retrieve the answer for a question.  Note that non-admin users may only retrieve answers for completed question
@@ -265,7 +265,7 @@ def retrieve_answer(question_id, current_user=Depends(authenticated_user), db=De
         raise HTTPException(404)
     return schemas.Answer(answer=question.answer)
 
-@app.get("/questions/{question_id:int}/tags", tags=["Questions"], response_model=List[schemas.Tag])
+@app.get("/api/questions/{question_id:int}/tags", tags=["Questions"], response_model=List[schemas.Tag])
 def retrieve_tags_for_question(question_id, current_user=Depends(authenticated_user), db=Depends(get_db)):
     responses = db.query(models.Response).filter(
         models.Response.question_id == question_id,
@@ -278,7 +278,7 @@ def retrieve_tags_for_question(question_id, current_user=Depends(authenticated_u
             counts[t.tag]+=1
     return [schemas.Tag(tag=tag, count=count) for tag, count in counts.items()]
 
-@app.put("/questions/{question_id:int}", tags=["Questions"], response_model=schemas.QuestionDetail)
+@app.put("/api/questions/{question_id:int}", tags=["Questions"], response_model=schemas.QuestionDetail)
 def update_question_detail(question_id, detail: schemas.WritableQuestionDetail, current_user=Depends(authenticated_user), db=Depends(get_db)):
     if not current_user.is_admin:
         raise HTTPException(400)
@@ -295,7 +295,7 @@ def update_question_detail(question_id, detail: schemas.WritableQuestionDetail, 
     return schemas.QuestionDetail.createFromOrm(question)
 
 
-@app.put("/questions/{question_id:int}/answer", tags=["Questions"], response_model=schemas.Status)
+@app.put("/api/questions/{question_id:int}/answer", tags=["Questions"], response_model=schemas.Status)
 def update_answer(question_id, answer: schemas.Answer, current_user=Depends(authenticated_user), db=Depends(get_db)):
     """
     Set/update the correct answer for a question.  Obviously this is only available to admins.  Not that we don't trust you...
@@ -313,7 +313,7 @@ def update_answer(question_id, answer: schemas.Answer, current_user=Depends(auth
 # =================== RESPONSE APIS =========================
 
 
-@app.get("/questions/{question_id:int}/responses", tags=["Response"], response_model=List[schemas.UserResponse])
+@app.get("/api/questions/{question_id:int}/responses", tags=["Response"], response_model=List[schemas.UserResponse])
 def retrieve_responses(question_id, current_user=Depends(authenticated_user), db=Depends(get_db)):
     responses = db.query(models.Response, models.User).filter(
         models.Response.question_id == question_id,
@@ -327,7 +327,7 @@ def retrieve_responses(question_id, current_user=Depends(authenticated_user), db
         tags = [x.tag for x in r.tags],
     ) for r,u in responses]
 
-@app.get("/questions/{question_id:int}/response", tags=["Response"], response_model=Optional[schemas.Response])
+@app.get("/api/questions/{question_id:int}/response", tags=["Response"], response_model=Optional[schemas.Response])
 def retrieve_response(question_id, current_user=Depends(authenticated_user), db=Depends(get_db)):
     question = db.query(models.Question).filter(
         models.Question.id == question_id).first()
@@ -345,7 +345,7 @@ def retrieve_response(question_id, current_user=Depends(authenticated_user), db=
     )
 
 
-@app.post("/questions/{question_id:int}/response", tags=["Response"], response_model=schemas.Status)
+@app.post("/api/questions/{question_id:int}/response", tags=["Response"], response_model=schemas.Status)
 def post_response(question_id, response: schemas.Response, current_user=Depends(authenticated_user), db=Depends(get_db)):
     """
     Post a response to a question
@@ -380,7 +380,7 @@ def post_response(question_id, response: schemas.Response, current_user=Depends(
 # =================== LEADERBOARD =========================
 
 
-@app.get("/leaderboard", tags=["Leaderboard"], response_model=List[schemas.LeaderboardEntry])
+@app.get("/api/leaderboard", tags=["Leaderboard"], response_model=List[schemas.LeaderboardEntry])
 def retrieve_leaderboard(db=Depends(get_db)):
     """
     Remember the scoreboard on PACMAN?  This is like that.  Only with longer high-score names.
