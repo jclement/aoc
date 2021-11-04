@@ -4,7 +4,9 @@
 
 Robohash for profile pics, rather than uploads.  
 
-## Setup
+## Server
+
+### Server Setup
 
 You need Python 3.x installed.
 
@@ -30,17 +32,39 @@ Install dependencies for this application
 pip install -r requirements
 ```
 
+### Running the Server
+
 Run it (from the root, not the app folder)
 ```sh
 uvicorn app.main:app --reload
 ```
 
+### API Documentation & Swagger
+
 Check out the Swagger page:
 http://localhost:8000/docs/
 
-## Creating / Resetting the Database
+### Creating / Resetting the Database
 
 A new empty SQLITE database is created on startup.
+
+## Client
+
+### Client Setup
+
+Install a recent version of Node
+
+```sh
+cd client
+npm install
+```
+
+### Running the Development Client
+
+``sh
+cd client
+npm start
+```
 
 ## Production Deployment Notes
 
