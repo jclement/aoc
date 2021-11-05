@@ -34,7 +34,7 @@ class App extends React.Component {
       <div className="App">
         {!token && <button onClick={authenticationService.login}>Login</button>}
         {token && <button onClick={authenticationService.logout}>Logout</button>}
-        <h1>Really Lame Leaderboard</h1>
+        <h1>Really Really Lame Leaderboard</h1>
         <Leaderboard />
         {token && <button onClick={this.getMe.bind(this)}>Get Info</button>}
         {this.state.me}
