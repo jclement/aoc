@@ -29,7 +29,7 @@ app.add_middleware(
 
 
 def calculate_score(q, a):
-    return 0 if not a else (1 if q.answer == a.response else 0) + a.bonus_points
+    return 0 if not a else (5 if q.answer == a.response else 1) + a.bonus_points
 
 # ================== AUTHENTICATION HELPERS ==================
 
