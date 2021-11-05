@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+
+  db:
+    image: "postgres:latest"
+    volumes:
+      - "dbdata:/var/lib/postgresql/data"
+    env_file:
+      - .env
+
+  backend:
+    build: ./backend
+    env_file:
+      - .env
+    command: uvicorn backend.main:app --root-path /api --proxy-headers --host 0.0.0.0 --port 8000
+    depends_on: 
+      - db
+
+  frontend:
+    build: ./frontend
+    env_file:
+      - .env
+    ports:
+      - "80:80"
+    volumes:
+      - ./docker/nginx_conf.d:/etc/nginx/conf.d
+    depends_on:
+      - backend
+      - pgadmin
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    env_file:
+      - .env
+    depends_on:
+      - db
+
+volumes:
+  dbdata:
+  pgadmin-data:

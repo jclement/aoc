@@ -1,6 +1,7 @@
 fastapi
 SQLAlchemy
 uvicorn
+psycopg2
 python-multipart
 pyjwt
 py3-validate-email

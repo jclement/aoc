@@ -13,6 +13,10 @@ You need Python 3.x installed.
 Setup a new Python Virtual Env in this folder (keeps us from contaminating global Python)
 
 ```sh
+cd backend
+```
+
+```sh
 python -m venv venv
 ```
 
@@ -29,13 +33,14 @@ venv\scripts\activate
 Install dependencies for this application
 
 ```sh
-pip install -r requirements
+pip install -r backend/requirements
 ```
 
 ### Running the Server
 
-Run it (from the root, not the app folder)
+Run it
 ```sh
+cd backend
 uvicorn app.main:app --reload
 ```
 
@@ -55,20 +60,21 @@ A new empty SQLITE database is created on startup.
 Install a recent version of Node
 
 ```sh
-cd client
+cd frontend
 npm install
 ```
 
 ### Running the Development Client
 
-``sh
-cd client
+```sh
+cd frontend
 npm start
 ```
 
+See `setupProxy.js` for code that pushes /api requests through to the development server.
+
 ## Production Deployment Notes
 
-* See `settings.py`.  Almost everything in there should be overwritten as an environment variable
-* Postgres instead of sqlite
-* Docker?
-* Behind NGINX, etc.  (may be able get this all up and running with Compose and Traefik)
+1. Modify settings in `.env`
+2. `docker-compose up --build`
+3. Hide it behind some sort of TLS thing
