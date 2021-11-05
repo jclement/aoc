@@ -3,6 +3,7 @@ from pydantic import BaseSettings
 
 class Settings(BaseSettings):
     secret_key: str = "development"
+    admin_email: str = "admin"
     admin_password: str = "admin"
     database_uri: str = "sqlite:///development.sqlite"
     restrict_domain: str = ""  # i.e. "@gmail.com"
