@@ -7,6 +7,7 @@ from typing import List, Optional
 import jwt
 import datetime
 import secrets
+from mailgun3 import Mailgun
 from validate_email import validate_email
 from . import models, schemas, util
 from .database import engine, get_db, SessionLocal
@@ -76,11 +77,22 @@ async def email_authentication_initiate(request: schemas.InitiateEmailLoginReque
     if settings.restrict_domain:
         if not request.email.endswith(settings.restrict_domain):
             return schemas.Status(result=False, message="not a valid email domain")
+
+    token = secrets.token_hex(32)
     ch = models.Challenge()
     ch.email = request.email
-    ch.secret = secrets.token_hex(32)
+    ch.secret = token
     db.add(ch)
     db.commit()
+
+    if settings.mailgun_apikey:
+        mailer = Mailgun(settings.mailgun_domain, settings.mailgun_apikey, settigs.mailgun_pubkey)
+        mailer.send_message(
+        settings.mail_from,
+        [request.email],
+        subject='Yo! Authenticate yourself!',
+        html=f"Your magic token is <b>{token}</b>",
+        )
     return schemas.Status(result=True, message="email sent")
 
 

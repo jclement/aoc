@@ -5,3 +5,4 @@ psycopg2
 python-multipart
 pyjwt
 py3-validate-email
+mailgun3
