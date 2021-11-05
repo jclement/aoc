@@ -10,6 +10,7 @@ services:
       - .env
 
   backend:
+    image: "jclement/aoc-backend:latest"
     build: ./backend
     env_file:
       - .env
@@ -18,6 +19,7 @@ services:
       - db
 
   frontend:
+    image: "jclement/aoc-frontend:latest"
     build: ./frontend
     env_file:
       - .env
