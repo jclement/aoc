@@ -1,0 +1,22 @@
+:80
+# replace above with "server.com" for HTTP/HTTPS
+
+root * /usr/share/caddy/
+file_server browse
+
+handle_path /api/* {
+	reverse_proxy backend:8000 {
+        header_up Host {upstream_hostport}
+        header_up X-Real-IP {remote_addr}
+        header_up X-Forwarded-Host {host}
+    }
+}
+
+handle_path /pgadmin/* {
+	reverse_proxy pgadmin:5050 {
+        header_up Host {upstream_hostport}
+        header_up X-Script-Name /pgadmin
+        header_up X-Forwarded-Host {host}
+        header_down Location (http://pgadmin:5050/)(.*) /$2
+    }
+}

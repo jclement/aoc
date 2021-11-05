@@ -23,8 +23,10 @@ services:
       - .env
     ports:
       - "80:80"
+      - "443:443"
     volumes:
-      - ./docker/nginx_conf.d:/etc/nginx/conf.d
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy-data:/data
     depends_on:
       - backend
       - pgadmin
@@ -41,3 +43,4 @@ services:
 volumes:
   dbdata:
   pgadmin-data:
+  caddy-data:
