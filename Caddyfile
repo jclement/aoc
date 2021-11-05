@@ -18,5 +18,6 @@ handle_path /pgadmin/* {
         header_up X-Script-Name /pgadmin
         header_up X-Forwarded-Host {host}
         header_down Location (http://pgadmin:5050/)(.*) /$2
+        header_down Location (https://pgadmin:5050/)(.*) /$2
     }
 }
