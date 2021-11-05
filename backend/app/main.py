@@ -57,7 +57,7 @@ db = SessionLocal()
 if db.query(models.User).count() == 0:
     u = models.User()
     u.username = "admin"
-    u.email = "admin"
+    u.email = settings.admin_email
     u.password = util.hash_password(settings.admin_password)
     u.is_admin = True
     db.add(u)
@@ -142,6 +142,16 @@ def login(req: Request, form_data: OAuth2PasswordRequestForm = Depends(), db=Dep
             return {"access_token": token, "token_type": "bearer"}
     raise HTTPException(401)
 
+@app.post("/fakelogin", tags=["Login"])
+def for_the_love_of_god_delete_this_fake_login(req: Request, db=Depends(get_db)):
+    user = db.query(models.User).filter(
+        models.User.email == "admin").first()
+    if user:
+        if util.verify_password(user.password, "admin"):
+            token = jwt.encode({'id': user.id, 'exp': datetime.datetime.utcnow(
+            ) + datetime.timedelta(days=30)}, settings.secret_key, "HS256")
+            return {"access_token": token, "token_type": "bearer"}
+    raise HTTPException(401)
 
 @app.get("/login", response_model=schemas.Status, tags=["Login"])
 def validate_login_token(token=Depends(oauth2_scheme), db=Depends(get_db)):
