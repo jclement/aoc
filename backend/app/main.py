@@ -86,7 +86,7 @@ async def email_authentication_initiate(request: schemas.InitiateEmailLoginReque
     db.commit()
 
     if settings.mailgun_apikey:
-        mailer = Mailgun(settings.mailgun_domain, settings.mailgun_apikey, settigs.mailgun_pubkey)
+        mailer = Mailgun(settings.mailgun_domain, settings.mailgun_apikey, settings.mailgun_pubkey)
         mailer.send_message(
         settings.mail_from,
         [request.email],
