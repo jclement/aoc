@@ -1,6 +1,6 @@
 from .database import Base
 from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Boolean
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 import datetime
 import secrets
 
@@ -61,10 +61,11 @@ class Response(Base):
     bonus_points = Column(Integer, nullable=False, default=0)
     response_date = Column(
         DateTime, nullable=False, default=datetime.datetime.utcnow)
-    tags = relationship("Tag")
+    tags = relationship("Tag", cascade="all, delete-orphan")
 
 class Tag(Base):
     __tablename__ = 'tags'
     id = Column(Integer, primary_key=True)
     response_id = Column(Integer, ForeignKey('responses.id'), nullable=False)
     tag = Column(String())
+    response = relationship("Response", backref=backref("responses", cascade="all, delete-orphan"))

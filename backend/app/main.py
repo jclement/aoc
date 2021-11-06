@@ -426,7 +426,6 @@ def post_response(question_id, response: schemas.Response, current_user=Depends(
     Requires the question:
     * Exists
     * Is Active
-    * Hasn't already been responded to by this user
     """
     question = db.query(models.Question).filter(
         models.Question.id == question_id).first()
@@ -438,14 +437,18 @@ def post_response(question_id, response: schemas.Response, current_user=Depends(
         models.Response.question_id == question_id,
         models.Response.user_id == current_user.id,
     ).first()
+
     if resp:
-        return schemas.Status(result=False, message="question has already been responded to")
-    resp = models.Response()
-    resp.question_id = question_id
-    resp.user_id = current_user.id
-    resp.response = response.response
-    resp.tags = [models.Tag(tag=x) for x in list(dict.fromkeys(response.tags))]
-    db.add(resp)
+        resp.response = response.response
+        resp.response_date = datetime.datetime.utcnow()
+        resp.tags = [models.Tag(tag=x) for x in list(dict.fromkeys(response.tags))]
+    else:
+        resp = models.Response()
+        resp.question_id = question_id
+        resp.user_id = current_user.id
+        resp.response = response.response
+        resp.tags = [models.Tag(tag=x) for x in list(dict.fromkeys(response.tags))]
+        db.add(resp)
     db.commit()
     return schemas.Status(result=True)
 
