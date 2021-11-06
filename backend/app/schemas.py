@@ -15,7 +15,7 @@ class WriteableUser(BaseModel):
     username: str
 
 class User(WriteableUser):
-    id: int
+    id: str
     is_admin: bool
     email: str
 
@@ -26,11 +26,11 @@ class Comment(WriteableComment):
     id: int
     comment: str
     comment_date: datetime.datetime
-    user_id: int
+    user_id: str
     username: str
 
 class LeaderboardEntry(BaseModel):
-    user_id: int
+    user_id: str
     username: str
     score: int
 
@@ -87,7 +87,7 @@ class Response(BaseModel):
     tags: List[str]
 
 class UserResponse(Response):
-    user_id: int
+    user_id: str
     username: str
     email: str
     response_date: datetime.datetime
