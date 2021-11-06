@@ -2,10 +2,10 @@ from .database import Base
 from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Boolean
 from sqlalchemy.orm import relationship, backref
 import datetime
-import secrets
+import uuid
 
 def new_id():
-    return secrets.token_hex(16)
+    return uuid.uuid4().hex
 
 class User(Base):
     __tablename__ = 'users'
