@@ -148,8 +148,7 @@ def login(req: Request, form_data: OAuth2PasswordRequestForm = Depends(), db=Dep
 
 @app.post("/fakelogin", tags=["Login"])
 def for_the_love_of_god_delete_this_fake_login(req: Request, db=Depends(get_db)):
-    user = db.query(models.User).filter(
-        models.User.id == 1).first()
+    user = db.query(models.User).first()
     if user:
         token = jwt.encode({'id': user.id, 'exp': datetime.datetime.utcnow(
         ) + datetime.timedelta(days=30)}, settings.secret_key, "HS256")
