@@ -57,4 +57,4 @@ class Tag(Base):
     id = Column(Integer, primary_key=True)
     response_id = Column(Integer, ForeignKey(
         'responses.id'), nullable=False)
-    tag = Column(String(30))
+    tag = Column(String())
