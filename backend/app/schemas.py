@@ -23,7 +23,7 @@ class WriteableComment(BaseModel):
     comment: str
 
 class Comment(WriteableComment):
-    id: int
+    id: str
     comment: str
     comment_date: datetime.datetime
     user_id: str
@@ -35,7 +35,7 @@ class LeaderboardEntry(BaseModel):
     score: int
 
 class QuestionSummary(BaseModel):
-    id: int
+    id: str
     title: str
     activate_date: datetime.datetime
     deactivate_date: datetime.datetime
@@ -60,7 +60,7 @@ class WritableQuestionDetail(BaseModel):
     body: str
 
 class QuestionDetail(WritableQuestionDetail):
-    id: int
+    id: str
     is_active: bool
     is_visible: bool 
 

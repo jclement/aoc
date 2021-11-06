@@ -250,7 +250,7 @@ def create_new_question(detail: schemas.WritableQuestionDetail, current_user=Dep
     return schemas.QuestionDetail.createFromOrm(question)
 
 
-@app.get("/questions/{question_id:int}", tags=["Questions"], response_model=schemas.QuestionDetail)
+@app.get("/questions/{question_id}", tags=["Questions"], response_model=schemas.QuestionDetail)
 def retrieve_question_detail(question_id, current_user=Depends(authenticated_user), db=Depends(get_db)):
     question = db.query(models.Question).filter(
         models.Question.id == question_id,
@@ -260,7 +260,7 @@ def retrieve_question_detail(question_id, current_user=Depends(authenticated_use
         raise HTTPException(404)
     return schemas.QuestionDetail.createFromOrm(question)
 
-@app.delete("/questions/{question_id:int}", tags=["Questions"], response_model=schemas.Status)
+@app.delete("/questions/{question_id}", tags=["Questions"], response_model=schemas.Status)
 def delete_question(question_id, current_user=Depends(authenticated_user), db=Depends(get_db)):
     if not current_user.is_admin:
         raise HTTPException(400)
@@ -275,7 +275,7 @@ def delete_question(question_id, current_user=Depends(authenticated_user), db=De
     return schemas.Status(result=True)
 
 
-@app.get("/questions/{question_id:int}/answer", tags=["Questions"], response_model=schemas.Answer)
+@app.get("/questions/{question_id}/answer", tags=["Questions"], response_model=schemas.Answer)
 def retrieve_answer(question_id, current_user=Depends(authenticated_user), db=Depends(get_db)):
     """
     Retrieve the answer for a question.  Note that non-admin users may only retrieve answers for completed question
@@ -290,7 +290,7 @@ def retrieve_answer(question_id, current_user=Depends(authenticated_user), db=De
         raise HTTPException(404)
     return schemas.Answer(answer=question.answer)
 
-@app.get("/questions/{question_id:int}/tags", tags=["Questions"], response_model=List[schemas.Tag])
+@app.get("/questions/{question_id}/tags", tags=["Questions"], response_model=List[schemas.Tag])
 def retrieve_tags_for_question(question_id, current_user=Depends(authenticated_user), db=Depends(get_db)):
     responses = db.query(models.Response).filter(
         models.Response.question_id == question_id,
@@ -303,7 +303,7 @@ def retrieve_tags_for_question(question_id, current_user=Depends(authenticated_u
             counts[t.tag]+=1
     return [schemas.Tag(tag=tag, count=count) for tag, count in counts.items()]
 
-@app.put("/questions/{question_id:int}", tags=["Questions"], response_model=schemas.QuestionDetail)
+@app.put("/questions/{question_id}", tags=["Questions"], response_model=schemas.QuestionDetail)
 def update_question_detail(question_id, detail: schemas.WritableQuestionDetail, current_user=Depends(authenticated_user), db=Depends(get_db)):
     if not current_user.is_admin:
         raise HTTPException(400)
@@ -320,7 +320,7 @@ def update_question_detail(question_id, detail: schemas.WritableQuestionDetail, 
     return schemas.QuestionDetail.createFromOrm(question)
 
 
-@app.put("/questions/{question_id:int}/answer", tags=["Questions"], response_model=schemas.Status)
+@app.put("/questions/{question_id}/answer", tags=["Questions"], response_model=schemas.Status)
 def update_answer(question_id, answer: schemas.Answer, current_user=Depends(authenticated_user), db=Depends(get_db)):
     """
     Set/update the correct answer for a question.  Obviously this is only available to admins.  Not that we don't trust you...
@@ -336,7 +336,7 @@ def update_answer(question_id, answer: schemas.Answer, current_user=Depends(auth
     return schemas.Status(result=True)
 
 # =================== COMMENT APIS =========================
-@app.get("/questions/{question_id:int}/comments", tags=["Questions"], response_model=List[schemas.Comment])
+@app.get("/questions/{question_id}/comments", tags=["Questions"], response_model=List[schemas.Comment])
 def retrieve_comments_for_question(question_id, current_user=Depends(authenticated_user), db=Depends(get_db)):
     """
     Retrieve all user comments for a question
@@ -361,7 +361,7 @@ def retrieve_comments_for_question(question_id, current_user=Depends(authenticat
     ) for c, u in comments]
 
 
-@app.post("/questions/{question_id:int}/comments", tags=["Questions"], response_model=schemas.Status)
+@app.post("/questions/{question_id}/comments", tags=["Questions"], response_model=schemas.Status)
 def post_comment_for_question(question_id, request:schemas.WriteableComment, current_user=Depends(authenticated_user), db=Depends(get_db)):
     """
     Post a new user comment for a question
@@ -386,7 +386,7 @@ def post_comment_for_question(question_id, request:schemas.WriteableComment, cur
 # =================== RESPONSE APIS =========================
 
 
-@app.get("/questions/{question_id:int}/responses", tags=["Response"], response_model=List[schemas.UserResponse])
+@app.get("/questions/{question_id}/responses", tags=["Response"], response_model=List[schemas.UserResponse])
 def retrieve_responses(question_id, current_user=Depends(authenticated_user), db=Depends(get_db)):
     responses = db.query(models.Response, models.User).filter(
         models.Response.question_id == question_id,
@@ -400,7 +400,7 @@ def retrieve_responses(question_id, current_user=Depends(authenticated_user), db
         tags = [x.tag for x in r.tags],
     ) for r,u in responses]
 
-@app.get("/questions/{question_id:int}/response", tags=["Response"], response_model=Optional[schemas.Response])
+@app.get("/questions/{question_id}/response", tags=["Response"], response_model=Optional[schemas.Response])
 def retrieve_response(question_id, current_user=Depends(authenticated_user), db=Depends(get_db)):
     question = db.query(models.Question).filter(
         models.Question.id == question_id).first()
@@ -418,7 +418,7 @@ def retrieve_response(question_id, current_user=Depends(authenticated_user), db=
     )
 
 
-@app.post("/questions/{question_id:int}/response", tags=["Response"], response_model=schemas.Status)
+@app.post("/questions/{question_id}/response", tags=["Response"], response_model=schemas.Status)
 def post_response(question_id, response: schemas.Response, current_user=Depends(authenticated_user), db=Depends(get_db)):
     """
     Post a response to a question

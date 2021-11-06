@@ -7,7 +7,6 @@ import secrets
 def new_id():
     return secrets.token_hex(16)
 
-
 class User(Base):
     __tablename__ = 'users'
     id = Column(String(32), primary_key=True, default=new_id)
@@ -19,16 +18,15 @@ class User(Base):
 
 class Challenge(Base):
     __tablename__ = 'challenges'
-    id = Column(Integer, primary_key=True)
+    id = Column(String(32), primary_key=True, default=new_id)
     email = Column(String(120), nullable=False)
     secret = Column(String(80), unique=True, nullable=False)
     expires = Column(DateTime, nullable=False, default=lambda :datetime.datetime.utcnow(
     ) + datetime.timedelta(minutes=10))
 
-
 class Question(Base):
     __tablename__ = 'questions'
-    id = Column(Integer, primary_key=True)
+    id = Column(String(32), primary_key=True, default=new_id)
     title = Column(String(100), nullable=False)
     body = Column(String())
     answer = Column(String())
@@ -45,8 +43,8 @@ class Question(Base):
 
 class Comment(Base):
     __tablename__ = 'comments'
-    id = Column(Integer, primary_key=True)
-    question_id = Column(Integer, ForeignKey('questions.id'), nullable=False)
+    id = Column(String(32), primary_key=True, default=new_id)
+    question_id = Column(String(32), ForeignKey('questions.id'), nullable=False)
     user_id = Column(String(32), ForeignKey('users.id'), nullable=False)
     body = Column(String(), nullable=False)
     comment_date = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
@@ -54,8 +52,8 @@ class Comment(Base):
 
 class Response(Base):
     __tablename__ = 'responses'
-    id = Column(Integer, primary_key=True)
-    question_id = Column(Integer, ForeignKey('questions.id'), nullable=False)
+    id = Column(String(32), primary_key=True, default=new_id)
+    question_id = Column(String(32), ForeignKey('questions.id'), nullable=False)
     user_id = Column(String(32), ForeignKey('users.id'), nullable=False)
     response = Column(String())
     bonus_points = Column(Integer, nullable=False, default=0)
@@ -65,7 +63,6 @@ class Response(Base):
 
 class Tag(Base):
     __tablename__ = 'tags'
-    id = Column(Integer, primary_key=True)
-    response_id = Column(Integer, ForeignKey('responses.id'), nullable=False)
+    id = Column(String(32), primary_key=True, default=new_id)
+    response_id = Column(String(32), ForeignKey('responses.id'), nullable=False)
     tag = Column(String())
-    response = relationship("Response", backref=backref("responses", cascade="all, delete-orphan"))
