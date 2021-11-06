@@ -335,6 +335,54 @@ def update_answer(question_id, answer: schemas.Answer, current_user=Depends(auth
     db.commit()
     return schemas.Status(result=True)
 
+# =================== COMMENT APIS =========================
+@app.get("/questions/{question_id:int}/comments", tags=["Questions"], response_model=List[schemas.Comment])
+def retrieve_comments_for_question(question_id, current_user=Depends(authenticated_user), db=Depends(get_db)):
+    """
+    Retrieve all user comments for a question
+    """
+    # ensure the question exists and we can see it
+    question = db.query(models.Question).filter(
+        models.Question.id == question_id,
+        current_user.is_admin or datetime.datetime.utcnow() >= models.Question.activate_date,
+    ).first()
+    if not question:
+        raise HTTPException(404)
+    # fetch comments for the question
+    comments = db.query(models.Comment, models.User).filter(
+        models.Comment.question_id == question_id,
+    ).join(models.User, models.User.id == models.Comment.user_id).order_by(models.Comment.comment_date.desc()).all()
+    return [schemas.Comment(
+        id = c.id,
+        user_id = u.id, 
+        username = u.username,
+        comment = c.body,
+        comment_date = c.comment_date,
+    ) for c, u in comments]
+
+
+@app.post("/questions/{question_id:int}/comments", tags=["Questions"], response_model=schemas.Status)
+def post_comment_for_question(question_id, request:schemas.WriteableComment, current_user=Depends(authenticated_user), db=Depends(get_db)):
+    """
+    Post a new user comment for a question
+    """
+    # ensure the question exists and we can see it
+    question = db.query(models.Question).filter(
+        models.Question.id == question_id,
+        current_user.is_admin or datetime.datetime.utcnow() >= models.Question.activate_date,
+    ).first()
+    if not question:
+        raise HTTPException(404)
+    # add a new non-empty comment
+    if request.comment.strip():
+        c = models.Comment()
+        c.question_id = question_id
+        c.user_id = current_user.id
+        c.body = request.comment.strip()
+        db.add(c)
+        db.commit()
+    return schemas.Status(result=True)
+
 # =================== RESPONSE APIS =========================
 
 

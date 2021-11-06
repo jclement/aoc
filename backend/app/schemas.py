@@ -19,6 +19,16 @@ class User(WriteableUser):
     is_admin: bool
     email: str
 
+class WriteableComment(BaseModel):
+    comment: str
+
+class Comment(WriteableComment):
+    id: int
+    comment: str
+    comment_date: datetime.datetime
+    user_id: int
+    username: str
+
 class LeaderboardEntry(BaseModel):
     user_id: int
     username: str

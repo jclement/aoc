@@ -40,6 +40,14 @@ class Question(Base):
             datetime.datetime.utcnow() >= self.activate_date and \
             datetime.datetime.utcnow() < self.deactivate_date
 
+class Comment(Base):
+    __tablename__ = 'comments'
+    id = Column(Integer, primary_key=True)
+    question_id = Column(Integer, ForeignKey('questions.id'), nullable=False)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    body = Column(String(), nullable=False)
+    comment_date = Column(DateTime, nullable=False, default=datetime.datetime.utcnow())
+
 
 class Response(Base):
     __tablename__ = 'responses'
