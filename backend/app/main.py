@@ -57,7 +57,7 @@ db = SessionLocal()
 if db.query(models.User).count() == 0:
     u = models.User()
     u.username = "admin"
-    u.email = settings.admin_email
+    u.email = settings.admin_email.lower()
     u.password = util.hash_password(settings.admin_password)
     u.is_admin = True
     db.add(u)
@@ -72,15 +72,17 @@ async def email_authentication_initiate(request: schemas.InitiateEmailLoginReque
     """
     Initiate an email-based account creation/signin.  Emails the provided address an activation code/link that they can use to authenticate a browser session.
     """
-    if not validate_email(request.email, check_smtp=False):
+    email = request.email.lower()
+
+    if not validate_email(email, check_smtp=False):
         return schemas.Status(result=False, message="not a valid email address")
     if settings.restrict_domain:
-        if not request.email.endswith(settings.restrict_domain):
+        if not email.endswith(settings.restrict_domain):
             return schemas.Status(result=False, message="not a valid email domain")
 
     token = secrets.token_hex(32)
     ch = models.Challenge()
-    ch.email = request.email
+    ch.email = email
     ch.secret = token
     db.add(ch)
     db.commit()
@@ -89,7 +91,7 @@ async def email_authentication_initiate(request: schemas.InitiateEmailLoginReque
         mailer = Mailgun(settings.mailgun_domain, settings.mailgun_apikey, settings.mailgun_pubkey)
         mailer.send_message(
         settings.mail_from,
-        [request.email],
+        [email],
         subject='Yo! Authenticate yourself!',
         html=f"Your magic token is <b>{token}</b>",
         )
@@ -101,21 +103,23 @@ def email_authentication_activate(request: schemas.ActiveateEmailLoginRequest, d
     """
     Activate / verify an email-based account creation/signin.  Upon successful validation, will create a new account if one doesn't already exist for that email address.
     """
+    email = request.email.lower()
+
     tmp = db.query(models.Challenge).filter(
         datetime.datetime.utcnow() < models.Challenge.expires,
-        models.Challenge.email == request.email,
+        models.Challenge.email == email,
         models.Challenge.secret == request.secret,
     ).first()
 
     if tmp:  # if this record exists, we've got a valid challenge
         user = db.query(models.User).filter(
-            models.User.email == request.email).first()
+            models.User.email == email).first()
 
         # create the user if this is the first time seeing them
         if not user:
             user = models.User()
-            user.username = request.email
-            user.email = request.email
+            user.username = email
+            user.email = email
             db.add(user)
             db.commit()
 
@@ -134,7 +138,7 @@ def email_authentication_activate(request: schemas.ActiveateEmailLoginRequest, d
 @app.post("/login", tags=["Login"])
 def login(req: Request, form_data: OAuth2PasswordRequestForm = Depends(), db=Depends(get_db)):
     user = db.query(models.User).filter(
-        models.User.email == form_data.username).first()
+        models.User.email == form_data.username.lower()).first()
     if user:
         if util.verify_password(user.password, form_data.password):
             token = jwt.encode({'id': user.id, 'exp': datetime.datetime.utcnow(
