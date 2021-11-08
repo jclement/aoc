@@ -2,15 +2,15 @@ import React from 'react';
 import './App.css';
 import Leaderboard from './Leaderboard';
 import { authenticationService } from './_services/authentication.service';
+import { Link } from 'react-router-dom';
 
-
-class App extends React.Component {
+class AppComponent extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-        token: null,
-        me: null
+      token: null,
+      me: null
     };
   }
 
@@ -38,9 +38,13 @@ class App extends React.Component {
         <Leaderboard />
         {token && <button onClick={this.getMe.bind(this)}>Get Info</button>}
         {this.state.me}
+
+        <Link to="/calendar">Calendar</Link>
       </div>
     );
   }
 }
+
+const App = () => (<AppComponent/>);
 
 export default App;
