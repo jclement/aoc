@@ -2,7 +2,15 @@ import React from 'react';
 import './App.css';
 import Leaderboard from './Leaderboard';
 import { authenticationService } from './_services/authentication.service';
-import { Link } from 'react-router-dom';
+import Calendar from './Calendar';
+import DayQuestion from './DayQuestion';
+import {
+  BrowserRouter,
+  Link,
+  Routes,
+  Route
+  // Outlet
+} from 'react-router-dom';
 
 class AppComponent extends React.Component {
   constructor(props) {
@@ -45,6 +53,12 @@ class AppComponent extends React.Component {
   }
 }
 
-const App = () => (<AppComponent/>);
+const App = () => (<BrowserRouter>
+  <Routes>
+    <Route path="/" element={<AppComponent/>} />
+    <Route path="calendar" element={<Calendar/>} />
+    <Route path="calendar/:day" element={<DayQuestion/>} />
+  </Routes>
+</BrowserRouter>);
 
 export default App;

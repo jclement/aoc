@@ -1,9 +1,15 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 class CalDay extends React.Component {
-  render = () => (<td>
-    {(this.props.day < 1) ? ' ' : this.props.day}
-  </td>);
+  render = () => {
+    if (this.props.day < 1) { return (<td/>); }
+    return (<td>
+      <Link to={`/calendar/${this.props.day}`}>
+        {`Day ${this.props.day}`}
+      </Link>
+    </td>);
+  };
 }
 
 class CalWeek extends React.Component {
@@ -21,7 +27,7 @@ class CalWeek extends React.Component {
   }
 }
 
-class Calendar extends React.Component {
+class CalendarComponent extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -44,5 +50,7 @@ class Calendar extends React.Component {
     </table>);
   }
 }
+
+const Calendar = () => (<CalendarComponent />);
 
 export default Calendar;
