@@ -4,6 +4,7 @@ import Leaderboard from './Leaderboard';
 import { authenticationService } from './_services/authentication.service';
 import Calendar from './Calendar';
 import DayQuestion from './DayQuestion';
+import FourOhFour from './FourOhFour';
 import {
   BrowserRouter,
   Link,
@@ -58,6 +59,7 @@ const App = () => (<BrowserRouter>
     <Route path="/" element={<AppComponent/>} />
     <Route path="calendar" element={<Calendar/>} />
     <Route path="calendar/:day" element={<DayQuestion/>} />
+    <Route path="*" element={<FourOhFour/>} />
   </Routes>
 </BrowserRouter>);
 
