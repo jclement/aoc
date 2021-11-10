@@ -4,8 +4,6 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
-// Despite all examples, nested routes don't fucking work.
-
 ReactDOM.render(
   <React.StrictMode>
     <App />

@@ -1,7 +1,6 @@
 import React from 'react';
 import FourOhFour from './FourOhFour';
 import {
-  // useHistory,
   useParams
 } from 'react-router-dom';
 
