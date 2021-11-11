@@ -33,6 +33,10 @@ venv\scripts\activate
 Install dependencies for this application
 
 ```sh
+# Windows
+pip install -r backend\requirements.txt
+
+# Mac / Linux
 pip install -r backend/requirements
 ```
 

@@ -1,0 +1,8 @@
+#cal .col.day:hover {
+  background-color: #d0d0d0;
+  cursor: pointer;
+}
+
+#cal .col {
+  text-align: center;
+}
