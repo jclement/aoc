@@ -60,16 +60,13 @@ class CalendarComponent extends React.Component {
 }
 
 class CalendarWrapper extends React.Component {
-  render = () => (<div>
+  render = () => (<div className="App">
     <div className="text-center display-2">December</div>
     <br/>
     <CalendarComponent fnNav={this.props.fnNav}/>
   </div>);
 }
 
-const Calendar = () => {
-  let fnNav = useNavigate();    // seems to only work for components that the router knows about
-  return (<CalendarWrapper fnNav={fnNav}/>);
-}
+const Calendar = () => (<CalendarWrapper fnNav={useNavigate()}/>);
 
 export default Calendar;
