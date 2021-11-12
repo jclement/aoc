@@ -1,4 +1,5 @@
 import React from 'react';
+import Header from './Header';
 import { Link } from 'react-router-dom';
 
 class LinkBack extends React.Component {
@@ -11,6 +12,7 @@ class LinkBack extends React.Component {
 
 class FourOhFourComponent extends React.Component {
   render = () => (<div>
+    <Header>Whoops!</Header>
     <p>What are you doing at '{window.location.href}'?</p>
     <p>There's nothing here!</p>
     <p>

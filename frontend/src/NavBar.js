@@ -30,7 +30,7 @@ class NavComponent extends React.Component {
     })
     .then(response => response.json())
     .then(data => {
-      this.setState({ me: data },);
+      this.setState({ me: data });
     })
   }
 

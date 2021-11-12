@@ -1,5 +1,5 @@
 import React from 'react';
-// import { authenticationService } from './_services/authentication.service';
+import Header from './Header';
 
 class QuestionPosterComponent extends React.Component {
   constructor(props) {
@@ -87,7 +87,7 @@ class QuestionPosterComponent extends React.Component {
 }
 
 const QuestionPoster = () => (<div>
-  <div className="text-center display-2">Post a new Question</div>
+  <Header>Post a new Question</Header>
   <QuestionPosterComponent />
 </div>);
 

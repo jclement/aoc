@@ -1,5 +1,6 @@
 import React from 'react';
 import './Calendar.css';
+import Header from './Header';
 import { useNavigate } from 'react-router-dom';
 
 class CalDay extends React.Component {
@@ -60,11 +61,10 @@ class CalendarComponent extends React.Component {
 }
 
 class CalendarWrapper extends React.Component {
-  render = () => (<div className="App">
-    <div className="text-center display-2">December</div>
-    <br/>
+  render = () => <div className="App">
+    <Header>December</Header>
     <CalendarComponent fnNav={this.props.fnNav}/>
-  </div>);
+  </div>
 }
 
 const Calendar = () => (<CalendarWrapper fnNav={useNavigate()}/>);
