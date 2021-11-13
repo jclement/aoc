@@ -10,18 +10,18 @@ class LinkBack extends React.Component {
   </span>);
 }
 
-class FourOhFourComponent extends React.Component {
+class FourOhFour extends React.Component {
   render = () => (<div>
     <Header>Whoops!</Header>
-    <p>What are you doing at '{window.location.href}'?</p>
-    <p>There's nothing here!</p>
+    {this.props.msg ?
+      (<p className="display-5"><b className="text-danger">{this.props.msg}</b></p>) :
+      (<p>What are you doing at '{window.location.href}'?</p>)
+    }
     <p>
       <Link to="/">Go home!</Link>
     </p>
     <p>Or <LinkBack>Go back</LinkBack>.</p>
   </div>)
 }
-
-const FourOhFour = () => (<FourOhFourComponent />);
 
 export default FourOhFour;

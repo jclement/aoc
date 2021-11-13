@@ -23,6 +23,8 @@ class QuestionPosterComponent extends React.Component {
           Authorization: 'Bearer ' + localStorage.getItem('token'),
           body: JSON.stringify({
             title: this.state.title,
+
+            // date format: 2020-01-01 00:00:00
             activate_date: this.state.active,
             deactivate_date: this.state.deactive,
             body: this.state.body

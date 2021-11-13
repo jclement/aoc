@@ -47,6 +47,8 @@ class NavComponent extends React.Component {
   render = () => {
     const { token } = this.state;
 
+    // <Link to="calendar" className="nav-link">Calendar</Link>
+
     return (<nav className="navbar navbar-expand-md navbar-dark bg-dark">
       <div className="container-fluid">
         <Link className="navbar-brand" to="/">Advent of Code 2021</Link>
@@ -63,7 +65,7 @@ class NavComponent extends React.Component {
         <div className="collapse navbar-collapse">
           <ul className="navbar-nav">
             <li className="nav-item">
-              <Link to="calendar" className="nav-link">Calendar</Link>
+              <Link to="questions" className="nav-link">Questions</Link>
             </li>
           </ul>
           <ul className="navbar-nav flex-row flex-wrap ms-md-auto">

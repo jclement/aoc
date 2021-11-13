@@ -1,7 +1,8 @@
 import React from 'react';
 import Leaderboard from './Leaderboard';
-import Calendar from './Calendar';
-import DayQuestion from './DayQuestion';
+import QuestionList from './QuestionList';
+import EmptyQuestion from './EmptyQuestion';
+import Question from './Question';
 import PostQuestion from './PostQuestion';
 import FourOhFour from './FourOhFour';
 import NavBar from './NavBar';
@@ -15,6 +16,7 @@ import {
 class AppComponent extends React.Component {
   render = () => (<div>
     <NavBar/>
+    <br/>
     <div className="container-lg">
       <Outlet />
     </div>
@@ -25,9 +27,13 @@ const App = () => (<BrowserRouter>
   <Routes>
     <Route path="/" element={<AppComponent/>} >
       <Route index element={<Leaderboard />} />
-      <Route path="calendar" element={<Calendar/>} />
-      <Route path="calendar/:day" element={<DayQuestion/>} />
       <Route path="postquestion" element={<PostQuestion/>} />
+
+      <Route path="questions" element={<QuestionList/>} >
+        <Route index element={<EmptyQuestion/>} />
+        <Route path=":day" element={<Question/>} />
+      </Route>
+
       <Route path="*" element={<FourOhFour/>} />
     </Route>
   </Routes>
