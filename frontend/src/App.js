@@ -1,70 +1,42 @@
 import React from 'react';
-import './App.css';
 import Leaderboard from './Leaderboard';
-import { authenticationService } from './_services/authentication.service';
-import Calendar from './Calendar';
-import DayQuestion from './DayQuestion';
+import QuestionList from './QuestionList';
+import EmptyQuestion from './EmptyQuestion';
+import Question from './Question';
+import PostQuestion from './PostQuestion';
 import FourOhFour from './FourOhFour';
 import NavBar from './NavBar';
 import {
   BrowserRouter,
+  Outlet,
   Routes,
   Route
 } from 'react-router-dom';
 
 class AppComponent extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      token: null,
-      me: null
-    };
-  }
-
-  componentDidMount() {
-    authenticationService.token.subscribe(x => this.setState({ token: x }));
-  }
-
-  getMe() {
-    fetch('/api/me', {
-      method: "GET",
-      headers: authenticationService.authHeader(),
-    })
-    .then(response => response.json())
-    .then(data => this.setState({me: data.username}));
-  }
-
-  render() {
-    const { token } = this.state;
-
-    return (
-      <div className="App">
-        {!token && <button onClick={authenticationService.login}>Login</button>}
-        {token && <button onClick={authenticationService.logout}>Logout</button>}
-        <h1>Really Really Lame Leaderboard</h1>
-        <Leaderboard />
-        {token && <button onClick={this.getMe.bind(this)}>Get Info</button>}
-        {this.state.me}
-      </div>
-    );
-  }
+  render = () => (<div>
+    <NavBar/>
+    <br/>
+    <div className="container-lg">
+      <Outlet />
+    </div>
+  </div>);
 }
 
-// Despite all examples, nested routes don't work.
+const App = () => (<BrowserRouter>
+  <Routes>
+    <Route path="/" element={<AppComponent/>} >
+      <Route index element={<Leaderboard />} />
+      <Route path="postquestion" element={<PostQuestion/>} />
 
-const App = () => (<div>
-  <BrowserRouter>
-    <NavBar/>
-    <div className="container-lg">
-      <Routes>
-        <Route path="/" element={<AppComponent/>} />
-        <Route path="calendar" element={<Calendar/>} />
-        <Route path="calendar/:day" element={<DayQuestion/>} />
-        <Route path="*" element={<FourOhFour/>} />
-      </Routes>
-    </div>
-  </BrowserRouter>
-</div>);
+      <Route path="questions" element={<QuestionList/>} >
+        <Route index element={<EmptyQuestion/>} />
+        <Route path=":day" element={<Question/>} />
+      </Route>
+
+      <Route path="*" element={<FourOhFour/>} />
+    </Route>
+  </Routes>
+</BrowserRouter>);
 
 export default App;
