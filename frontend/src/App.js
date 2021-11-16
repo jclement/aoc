@@ -6,6 +6,8 @@ import Question from './Question';
 import PostQuestion from './PostQuestion';
 import FourOhFour from './FourOhFour';
 import NavBar from './NavBar';
+import NeedLogin from './NeedLogin';
+import { authenticationService } from './_services/authentication.service';
 import {
   BrowserRouter,
   Outlet,
@@ -14,11 +16,22 @@ import {
 } from 'react-router-dom';
 
 class AppComponent extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { token: null };
+  }
+
+  componentDidMount() {
+    authenticationService.token.subscribe(x => {
+      this.setState({ token: x ? x : null });
+    })
+  }
+
   render = () => (<div>
     <NavBar/>
     <br/>
     <div className="container-lg">
-      <Outlet />
+      { this.state.token ? <Outlet/> : <NeedLogin/> }
     </div>
   </div>);
 }
