@@ -24,16 +24,14 @@ class UserIcon extends React.Component {
     }
 
     return (<li className="nav-item dropdown">
-      <a
-        className="nav-link dropdown-toggle"
-        data-bs-toggle="dropdown"
-        role="button"
-        aria-expanded="false">
+      <span
+        className="nav-link dropdown-toggle clickable"
+        data-bs-toggle="dropdown">
         <img
           className="userIcon"
           src={`https://robohash.org/${this.props.user.username}.png?size=50x50`}
           alt={this.props.user.username} />
-      </a>
+      </span>
       <ul className="dropdown-menu">
         <li>
           <div className="dropdown-item">{this.props.user.username}</div>
