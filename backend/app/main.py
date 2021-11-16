@@ -483,7 +483,7 @@ def retrieve_leaderboard(db=Depends(get_db)):
 # =================== CHALLENGE =========================
 
 class UnlockRequest(BaseModel):
-    code: str
+    code: str = "55555"
 
 class UnlockResponse(BaseModel):
     success: bool
@@ -491,6 +491,11 @@ class UnlockResponse(BaseModel):
 
 @app.post("/safe/unlock", tags=["Safe"], response_model=UnlockResponse)
 def unlock_safe(request: UnlockRequest, db=Depends(get_db)):
+    """
+    Helpful API to unlock (and display contents of) Santa's safe
+    """
+    if len(request.code) != 5:
+        raise HTTPException(500, detail="Code must be 5 digits")
     if request.code == "90210":
         return UnlockResponse(
             success= True,
