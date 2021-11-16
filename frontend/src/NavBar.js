@@ -25,12 +25,11 @@ class NavComponent extends React.Component {
   componentDidMount() {
     authenticationService.token.subscribe(x => {
       if (x) {
-        fetch('/api/me', {
-          method: 'GET',
-          headers: authenticationService.authHeader(),
-        })
-        .then(response => response.json())
-        .then(data => {
+        authenticationService.httpGet(
+          '/api/me'
+        ).then(
+          response => response.json()
+        ).then(data => {
           this.setState({ me: data });
         });
       } else {

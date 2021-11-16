@@ -9,6 +9,15 @@ class WaitHeader extends React.Component {
   render = () => (<Header>Please Wait...</Header>)
 }
 
+class ExpectedAnswer extends React.Component {
+  render = () => {
+    if (!this.props.expectedAnswer) {
+      return null;
+    }
+    return (<p>Expected Answer: <b className="text-success">{this.props.expectedAnswer}</b></p>);
+  }
+}
+
 class AnswerText extends React.Component {
   render = () => (<input
     type="text"
@@ -212,6 +221,7 @@ class QuestionComponent extends React.Component {
         submitAnswer={this.submitAnswer}
         question={question}
         prevAnswer={this.state.prevAnswer} />
+      <ExpectedAnswer expectedAnswer={this.state.expectedAnswer} />
     </div>);
   }
 }
