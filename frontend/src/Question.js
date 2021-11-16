@@ -2,6 +2,7 @@ import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import FourOhFour from './FourOhFour';
 import Header from './Header';
+import Tagger from './Tagger';
 import { useParams } from 'react-router-dom';
 import { authenticationService } from './_services/authentication.service';
 
@@ -10,11 +11,11 @@ class WaitHeader extends React.Component {
 }
 
 class ExpectedAnswer extends React.Component {
-  render = () => {
+  render() {
     if (!this.props.expectedAnswer) {
       return null;
     }
-    return (<p>Expected Answer: <b className="text-success">{this.props.expectedAnswer}</b></p>);
+    return (<p>Expected Answer: <b className="text-light">{this.props.expectedAnswer}</b></p>);
   }
 }
 
@@ -67,9 +68,6 @@ class AnswerBox extends React.Component {
   }
 }
 
-// todo: render tags
-// todo: maybe don't setState each time a response comes back
-
 class QuestionComponent extends React.Component {
   constructor(props) {
     super(props);
@@ -79,59 +77,58 @@ class QuestionComponent extends React.Component {
       prevAnswer: '',
       expectedAnswer: null,
       tags: [],
+      userTags: []
     };
   }
 
   fetching = false
 
+  clearFetching = () => this.fetching = false
+
   handleError = error => {
+    console.log('Handling Error:', error);
     this.setState({ failedMessage: error.message });
-    this.fetching = false;
+    this.clearFetching();
   }
 
-  fetchCorrectResponse = () => {
-    if (this.state.question.is_active) {
-      this.fetching = false;
-    } else {
-      authenticationService.httpGet(
-        `/api/questions/${this.props.day}/answer`
-      ).then(
-        resp => resp.json()
-      ).then(
-        data => {
-          if (data) {
-            this.setState(
-              { expectedAnswer: data.answer },
-              () => this.fetching = false
-            )
-          } else {
-            this.fetching = false;
-          }
-        }
-      ).catch(this.handleError);
-    }
-  }
+  fetchQuestionMeta = () => {
+    let prevRespGetter = authenticationService
+      .httpGet(`/api/questions/${this.props.day}/response`);
 
-  fetchPrevResponse = () => {
-    authenticationService.httpGet(
-      `/api/questions/${this.props.day}/response`
-    ).then(
-      resp => resp.json()
-    ).then(
-      data => {
-        if (data) {
-          this.setState(
-            {
-              prevAnswer: data.response,
-              tags: data.tags,
-            },
-            () => this.fetchCorrectResponse()
-          )
-        } else {
-          this.fetchCorrectResponse();
-        }
-      }
-    ).catch(this.handleError);
+    let tagRespGetter = authenticationService
+      .httpGet(`/api/questions/${this.props.day}/tags`);
+
+    let correctRespGetter = this.state.question.is_active ?
+      null :
+      authenticationService.httpGet(`/api/questions/${this.props.day}/answer`);
+
+    Promise.all(
+      [prevRespGetter, tagRespGetter, correctRespGetter]
+    ).then(results => {
+      let correctResp = results[2];
+
+      Promise.all([
+        results[0].json(),                      // prev response
+        results[1].json(),                      // tags
+        correctResp ? correctResp.json() : null // correct response (if old question)
+      ]).then(responses => {
+        const prev = responses[0];
+        const expected = responses[2];
+
+        console.log('responses:', responses);
+
+        let tags = responses[1].map(t => t.tag);
+        this.setState(
+          {
+            prevAnswer: prev ? prev.response : '',
+            tags,
+            userTags: (prev ? prev.tags : []).filter(t => tags.indexOf(t) === -1),
+            expectedAnswer: expected ? expected.answer : ''
+          },
+          this.clearFetching
+        )
+      }).catch(this.handleError);
+    });
   }
 
   fetchQuestion = () => {
@@ -154,7 +151,7 @@ class QuestionComponent extends React.Component {
           failedMessage: null,
           prevAnswer: '',
         },
-        this.fetchPrevResponse
+        this.fetchQuestionMeta
       )
     ).catch(this.handleError);
 
@@ -171,7 +168,7 @@ class QuestionComponent extends React.Component {
       `/api/questions/${this.props.day}/response`,
       {
         response: ans,
-        tags: []  // todo: some real tags
+        tags: this.state.userTags
       }
     ).then(
       resp => resp.json()
@@ -192,6 +189,18 @@ class QuestionComponent extends React.Component {
     return (<WaitHeader />);
   }
 
+  tagify = newTag => newTag.replace(/\W+/gi, '').toLowerCase()
+
+  addTag = newTag => {
+    const formattedTag = this.tagify(newTag);
+    const hasThisTag = tag => tag === formattedTag;
+    if (!this.state.tags.find(hasThisTag) && !this.state.userTags.find(hasThisTag)) {
+      this.setState({
+        userTags: this.state.userTags.concat([formattedTag])
+      });
+    }
+  }
+
   render() {
     if (!this.state.failedMessage) {
       if (this.state.question) {
@@ -205,23 +214,28 @@ class QuestionComponent extends React.Component {
       return (<FourOhFour msg={this.state.failedMessage}/>);
     }
 
+    // todo: answerbox in an optional .card-footer
     const question = this.state.question;
     return (<div>
       <div className={`card${question.is_active ? '' : ' text-white bg-secondary'}`}>
         <div className="card-body">
           <h1 className="card-title">{question.title}</h1>
+          <Tagger
+            tags={this.state.tags.concat(this.state.userTags)}
+            addTag={this.addTag}
+            editable={(this.state.question && this.state.question.is_active) ? true : false} />
           <br/>
           <div className="card-text">
             <ReactMarkdown>{question.body}</ReactMarkdown>
           </div>
+          <br/>
+          <AnswerBox
+            submitAnswer={this.submitAnswer}
+            question={question}
+            prevAnswer={this.state.prevAnswer} />
+          <ExpectedAnswer expectedAnswer={this.state.expectedAnswer} />
         </div>
       </div>
-      <br/>
-      <AnswerBox
-        submitAnswer={this.submitAnswer}
-        question={question}
-        prevAnswer={this.state.prevAnswer} />
-      <ExpectedAnswer expectedAnswer={this.state.expectedAnswer} />
     </div>);
   }
 }
