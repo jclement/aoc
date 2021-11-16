@@ -4,6 +4,7 @@ from fastapi.exceptions import HTTPException
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
+from pydantic import BaseModel
 import jwt
 import datetime
 import secrets
@@ -478,3 +479,25 @@ def retrieve_leaderboard(db=Depends(get_db)):
         username=x[0].username,
         score=x[1],
     ) for x in leader]
+
+# =================== CHALLENGE =========================
+
+class UnlockRequest(BaseModel):
+    code: str
+
+class UnlockResponse(BaseModel):
+    success: bool
+    secret_message: Optional[str]
+
+@app.post("/safe/unlock", tags=["Safe"], response_model=UnlockResponse)
+def unlock_safe(request: UnlockRequest, db=Depends(get_db)):
+    if request.code == "90210":
+        return UnlockResponse(
+            success= True,
+            secret_message= "The safe word is 'peaches'",
+        )
+    else:
+        return UnlockResponse(
+            success=False
+        )
+
