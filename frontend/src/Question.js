@@ -5,6 +5,19 @@ import Header from './Header';
 import { useParams } from 'react-router-dom';
 import { authenticationService } from './_services/authentication.service';
 
+class WaitHeader extends React.Component {
+  render = () => (<Header>Please Wait...</Header>)
+}
+
+class ExpectedAnswer extends React.Component {
+  render = () => {
+    if (!this.props.expectedAnswer) {
+      return null;
+    }
+    return (<p>Expected Answer: <b className="text-success">{this.props.expectedAnswer}</b></p>);
+  }
+}
+
 class AnswerText extends React.Component {
   render = () => (<input
     type="text"
@@ -17,10 +30,8 @@ class AnswerText extends React.Component {
 class AnswerBox extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { answer: '' };
+    this.state = { answer: null };
   }
-
-  // todo: fetch correct answer on past questions
 
   submitAnswer = evt => {
     evt.preventDefault();
@@ -31,18 +42,20 @@ class AnswerBox extends React.Component {
 
   allowSubmit = () => (this.state.answer && this.state.answer.length) ? true : false
 
-  renderPastAnswer = () => (<input
+  renderNonEditableAnswer = () => (<input
     type="text"
     className="form-control"
-    value={`Your Answer: ${this.props.prevAnswer}`}
+    value={`Your Answer: ${this.props.answer || '---'}`}
     disabled />)
 
   render() {
     return (<form onSubmit={this.submitAnswer}>
       <div className="input-group">
         {this.props.question.is_active ?
-          <AnswerText answer={this.state.answer} updateAnswer={this.updateAnswer} /> :
-          this.renderPastAnswer()
+          <AnswerText
+            answer={this.state.answer || this.props.prevAnswer}
+            updateAnswer={this.updateAnswer} /> :
+          this.renderNonEditableAnswer()
         }
         {
           (this.props.question.is_active && this.allowSubmit()) ?
@@ -54,6 +67,9 @@ class AnswerBox extends React.Component {
   }
 }
 
+// todo: render tags
+// todo: maybe don't setState each time a response comes back
+
 class QuestionComponent extends React.Component {
   constructor(props) {
     super(props);
@@ -61,21 +77,67 @@ class QuestionComponent extends React.Component {
       question: null,
       failedMessage: null,
       prevAnswer: '',
-      doneFetches: false
+      expectedAnswer: null,
+      tags: [],
     };
   }
 
-  // todo: use these
-  fetchQuestionTags = () => { }
-  fetchPrevAnswer = () => { }
+  fetching = false
+
+  handleError = error => {
+    this.setState({ failedMessage: error.message });
+    this.fetching = false;
+  }
+
+  fetchCorrectResponse = () => {
+    if (this.state.question.is_active) {
+      this.fetching = false;
+    } else {
+      authenticationService.httpGet(
+        `/api/questions/${this.props.day}/answer`
+      ).then(
+        resp => resp.json()
+      ).then(
+        data => {
+          if (data) {
+            this.setState(
+              { expectedAnswer: data.answer },
+              () => this.fetching = false
+            )
+          } else {
+            this.fetching = false;
+          }
+        }
+      ).catch(this.handleError);
+    }
+  }
+
+  fetchPrevResponse = () => {
+    authenticationService.httpGet(
+      `/api/questions/${this.props.day}/response`
+    ).then(
+      resp => resp.json()
+    ).then(
+      data => {
+        if (data) {
+          this.setState(
+            {
+              prevAnswer: data.response,
+              tags: data.tags,
+            },
+            () => this.fetchCorrectResponse()
+          )
+        } else {
+          this.fetchCorrectResponse();
+        }
+      }
+    ).catch(this.handleError);
+  }
 
   fetchQuestion = () => {
-    fetch(
-      `/api/questions/${this.props.day}`,
-      {
-        method: 'GET',
-        headers: authenticationService.authHeader(),
-      }
+    this.fetching = true
+    authenticationService.httpGet(
+      `/api/questions/${this.props.day}`
     ).then(
       resp => {
         if (!resp.ok) {
@@ -85,16 +147,18 @@ class QuestionComponent extends React.Component {
         }
       }
     ).then(
-      data => this.setState({
-        question: data,
-        failedMessage: null,
-        prevAnswer: ''
-      })
-    ).catch(
-      error => this.setState({ failedMessage: error.message })
-    );
+      data => this.setState(
+        {
+          expectedAnswer: null,
+          question: data,
+          failedMessage: null,
+          prevAnswer: '',
+        },
+        this.fetchPrevResponse
+      )
+    ).catch(this.handleError);
 
-    return (<Header>Please Wait...</Header>);
+    return (<WaitHeader/>);
   }
 
   submitAnswer = answer => {
@@ -103,17 +167,39 @@ class QuestionComponent extends React.Component {
     const ans = answer.trim();
     if (!ans.length) { return; }
 
-    alert(`fake send answer '${ans}'`);
+    authenticationService.httpPost(
+      `/api/questions/${this.props.day}/response`,
+      {
+        response: ans,
+        tags: []  // todo: some real tags
+      }
+    ).then(
+      resp => resp.json()
+    ).then(
+      () => this.setState({
+        question: null,
+        prevAnswer: '',
+        failedMessage: null,
+        tags: []
+      })
+    ).catch(this.handleError);
+  }
+
+  initFetchQuestion = () => {
+    if (!this.fetching) {
+      this.fetchQuestion();
+    }
+    return (<WaitHeader />);
   }
 
   render() {
     if (!this.state.failedMessage) {
       if (this.state.question) {
         if (this.state.question.id !== this.props.day) {
-          return this.fetchQuestion();
+          return this.initFetchQuestion();
         }
       } else {
-        return this.fetchQuestion();
+        return this.initFetchQuestion();
       }
     } else {
       return (<FourOhFour msg={this.state.failedMessage}/>);
@@ -135,6 +221,7 @@ class QuestionComponent extends React.Component {
         submitAnswer={this.submitAnswer}
         question={question}
         prevAnswer={this.state.prevAnswer} />
+      <ExpectedAnswer expectedAnswer={this.state.expectedAnswer} />
     </div>);
   }
 }

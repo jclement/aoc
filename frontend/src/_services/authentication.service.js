@@ -9,6 +9,8 @@ export const authenticationService = {
     logout,
     authHeader,
     token: tokenSubject.asObservable(),
+    httpGet,
+    httpPost
 };
 
 function authHeader() {
@@ -43,4 +45,26 @@ function logout() {
     // remove user from local storage to log user out
     localStorage.removeItem('token');
     tokenSubject.next(null);
+}
+
+function httpGet(sUrl) {
+  return fetch(
+    sUrl,
+    {
+      method: 'GET',
+      headers: authHeader()
+    }
+  );
+}
+
+function httpPost(sUrl, payload) {
+  let postOptions = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: authHeader().Authorization
+    },
+    body: JSON.stringify(payload)
+  };
+  return fetch(sUrl, postOptions);
 }

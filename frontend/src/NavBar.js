@@ -1,6 +1,7 @@
 import React from 'react';
 import { authenticationService } from './_services/authentication.service';
 import { Link } from 'react-router-dom';
+import UserIcon from './UserIcon';
 
 class NavBtn extends React.Component {
   render = () => (<li className="nav-item">
@@ -22,16 +23,19 @@ class NavComponent extends React.Component {
   }
 
   componentDidMount() {
-    authenticationService.token.subscribe(x => this.setState({ token: x }));
-
-    fetch('/api/me', {
-      method: 'GET',
-      headers: authenticationService.authHeader(),
-    })
-    .then(response => response.json())
-    .then(data => {
-      this.setState({ me: data });
-    })
+    authenticationService.token.subscribe(x => {
+      if (x) {
+        authenticationService.httpGet(
+          '/api/me'
+        ).then(
+          response => response.json()
+        ).then(data => {
+          this.setState({ me: data });
+        });
+      } else {
+        this.setState({ token: x, me: null });
+      }
+    });
   }
 
   showMyInfo = () => {
@@ -45,10 +49,6 @@ class NavComponent extends React.Component {
   }
 
   render = () => {
-    const { token } = this.state;
-
-    // <Link to="calendar" className="nav-link">Calendar</Link>
-
     return (<nav className="navbar navbar-expand-md navbar-dark bg-dark">
       <div className="container-fluid">
         <Link className="navbar-brand" to="/">Advent of Code 2021</Link>
@@ -76,11 +76,7 @@ class NavComponent extends React.Component {
                 </li>) :
                 null
             }
-            {
-              token ?
-                <NavBtn btnClick={authenticationService.logout} btnText="Logout"/> :
-                <NavBtn btnClick={authenticationService.login} btnText="Login"/>
-            }
+            <UserIcon user={this.state.me} />
             <NavBtn btnClick={this.showMyInfo} btnText="Who am I?" btnClass="info"/>
           </ul>
         </div>

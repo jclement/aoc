@@ -1,6 +1,5 @@
 import React from 'react';
 import './App.css';
-import Header from './Header';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { authenticationService } from './_services/authentication.service';
 
@@ -39,12 +38,8 @@ class QuestionListComponent extends React.Component {
   }
 
   componentDidMount = () => {
-    fetch(
-      '/api/questions',
-      {
-        method: 'GET',
-        headers: authenticationService.authHeader(),
-      }
+    authenticationService.httpGet(
+      '/api/questions'
     ).then(
       resp => resp.json()
     ).then(
