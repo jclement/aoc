@@ -13,6 +13,7 @@ import {
   Outlet,
   Routes,
   Route,
+  Navigate,
 } from 'react-router-dom';
 
 class AppComponent extends React.Component {
@@ -38,7 +39,25 @@ class AppComponent extends React.Component {
       //{ this.state.user ? <Outlet/> : <NeedLogin/> }
 
 
-const App = () => (<BrowserRouter>
+class App extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { user: null };
+  }
+
+  componentDidMount() {
+    authenticationService.user.subscribe(x => {
+      this.setState({ user: x });
+    });
+  }
+
+  RequireAuth({ children }) {
+    return this.state.user 
+      ? children 
+      : <Navigate to="/login" replace />;
+  }
+
+  render = () => (<BrowserRouter>
   <Routes>
     <Route path="/" element={<AppComponent/>} >
       <Route index element={<Leaderboard />} />
@@ -55,5 +74,6 @@ const App = () => (<BrowserRouter>
     </Route>
   </Routes>
 </BrowserRouter>);
+}
 
 export default App;
