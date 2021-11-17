@@ -5,6 +5,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from pydantic import BaseModel
+from urllib.parse import quote
 import jwt
 import datetime
 import secrets
@@ -97,7 +98,7 @@ async def email_authentication_initiate(request: schemas.InitiateEmailLoginReque
         html=f"""
         <h1>Advent of Quorum Authentication</h1>
         <p>Your magic token is <b>{token}</b></p>
-        <p><a href="{settings.site_root}/login?{token}">Login</a></p>
+        <p><a href="{settings.site_root}/login?email={quote(email)}&secret={token}">Login</a></p>
         """,
         )
     return schemas.Status(result=True, message="email sent")
