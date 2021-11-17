@@ -22,7 +22,7 @@ class UserIcon extends React.Component {
       return (<BtnLogin />);
     }
 
-    return (<li className="nav-item dropdown">
+    return (<li className="nav-item dropdown dropstart">
       <span
         className="nav-link dropdown-toggle clickable"
         data-bs-toggle="dropdown">
