@@ -22,7 +22,6 @@ function updateToken(token) {
   }
   __token = token;
   if (token) {
-    console.log("fetch", token);
     httpGet('/api/me')
         .then(response => response.json())
         .then(data => {
