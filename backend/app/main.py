@@ -68,7 +68,7 @@ db.close()
 # ================== LOGIN APIS ==================
 
 
-@app.post("/email_authenicate/initiate", tags=["Login"], response_model=schemas.Status)
+@app.post("/email_authenticate/initiate", tags=["Login"], response_model=schemas.Status)
 async def email_authentication_initiate(request: schemas.InitiateEmailLoginRequest, db=Depends(get_db)):
     """
     Initiate an email-based account creation/signin.  Emails the provided address an activation code/link that they can use to authenticate a browser session.
@@ -93,13 +93,17 @@ async def email_authentication_initiate(request: schemas.InitiateEmailLoginReque
         mailer.send_message(
         settings.mail_from,
         [email],
-        subject='Yo! Authenticate yourself!',
-        html=f"Your magic token is <b>{token}</b>",
+        subject='Robot Prime says, "Authenticate yourself!"',
+        html=f"""
+        <h1>Advent of Quorum Authentication</h1>
+        <p>Your magic token is <b>{token}</b></p>
+        <p><a href="{settings.site_root}/login?{token}">Login</a></p>
+        """,
         )
     return schemas.Status(result=True, message="email sent")
 
 
-@app.post("/email_authenicate/activate", tags=["Login"])
+@app.post("/email_authenticate/activate", tags=["Login"])
 def email_authentication_activate(request: schemas.ActiveateEmailLoginRequest, db=Depends(get_db)):
     """
     Activate / verify an email-based account creation/signin.  Upon successful validation, will create a new account if one doesn't already exist for that email address.

@@ -23,25 +23,14 @@ class NavComponent extends React.Component {
   }
 
   componentDidMount() {
-    authenticationService.token.subscribe(x => {
-      if (x) {
-        authenticationService.httpGet(
-          '/api/me'
-        ).then(
-          response => response.json()
-        ).then(data => {
-          this.setState({ me: data });
-        });
-      } else {
-        this.setState({ token: x, me: null });
-      }
+    authenticationService.user.subscribe(data => {
+      this.setState({ me: data });
     });
   }
 
   showMyInfo = () => {
     const me = this.state.me;
     if (me) {
-      console.log('me:', me);
       alert('Me: ' + me.username);
     } else {
       alert('Me: <null>');
@@ -51,7 +40,7 @@ class NavComponent extends React.Component {
   render = () => {
     return (<nav className="navbar navbar-expand-md navbar-dark bg-dark">
       <div className="container-fluid">
-        <Link className="navbar-brand" to="/">Advent of Code 2021</Link>
+        <Link className="navbar-brand" to="/">Advent of Quorum 2021</Link>
         <button
           className="navbar-toggler"
           type="button"
@@ -64,9 +53,9 @@ class NavComponent extends React.Component {
         </button>
         <div className="collapse navbar-collapse">
           <ul className="navbar-nav">
-            <li className="nav-item">
+            {this.state.me ? <li className="nav-item">
               <Link to="questions" className="nav-link">Questions</Link>
-            </li>
+            </li> : ""}
           </ul>
           <ul className="navbar-nav flex-row flex-wrap ms-md-auto">
             {
@@ -77,7 +66,6 @@ class NavComponent extends React.Component {
                 null
             }
             <UserIcon user={this.state.me} />
-            <NavBtn btnClick={this.showMyInfo} btnText="Who am I?" btnClass="info"/>
           </ul>
         </div>
       </div>

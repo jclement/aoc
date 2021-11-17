@@ -6,35 +6,37 @@ import Question from './Question';
 import PostQuestion from './PostQuestion';
 import FourOhFour from './FourOhFour';
 import NavBar from './NavBar';
-import NeedLogin from './NeedLogin';
+import Login from './Login';
 import { authenticationService } from './_services/authentication.service';
 import {
   BrowserRouter,
   Outlet,
   Routes,
-  Route
+  Route,
 } from 'react-router-dom';
 
 class AppComponent extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { token: null };
+    this.state = { user: null };
   }
 
   componentDidMount() {
-    authenticationService.token.subscribe(x => {
-      this.setState({ token: x ? x : null });
-    })
+    authenticationService.user.subscribe(x => {
+      this.setState({ user: x });
+    });
   }
 
   render = () => (<div>
     <NavBar/>
     <br/>
     <div className="container-lg">
-      { this.state.token ? <Outlet/> : <NeedLogin/> }
+      <Outlet/>
     </div>
   </div>);
 }
+      //{ this.state.user ? <Outlet/> : <NeedLogin/> }
+
 
 const App = () => (<BrowserRouter>
   <Routes>
@@ -42,7 +44,9 @@ const App = () => (<BrowserRouter>
       <Route index element={<Leaderboard />} />
       <Route path="postquestion" element={<PostQuestion/>} />
 
-      <Route path="questions" element={<QuestionList/>} >
+      <Route path="login" element={<Login />} />
+
+      <Route path="questions" element={<QuestionList/>}>
         <Route index element={<EmptyQuestion/>} />
         <Route path=":day" element={<Question/>} />
       </Route>

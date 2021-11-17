@@ -1,12 +1,11 @@
 import React from 'react';
 import { authenticationService } from './_services/authentication.service';
+import { Link } from 'react-router-dom';
 
 class BtnLogin extends React.Component {
   render() {
-    return (<li className="btn btn-light">
-      <span
-        className="clickable"
-        onClick={authenticationService.login}>Login</span>
+    return (<li>
+      <Link to="login" className="btn btn-light">Login</Link>
     </li>);
   }
 }
