@@ -62,7 +62,7 @@ class App extends React.Component {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<AppComponent />}>
-            <Route index element={<Leaderboard />} />
+            <Route index element={<Leaderboard user={this.state.user} />} />
             <Route path="postquestion" element={<PostQuestion />} />
 
             <Route path="login" element={<Login />} />
