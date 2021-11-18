@@ -4,6 +4,8 @@ from fastapi.exceptions import HTTPException
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
+from pydantic import BaseModel
+from urllib.parse import quote
 import jwt
 import datetime
 import secrets
@@ -67,7 +69,7 @@ db.close()
 # ================== LOGIN APIS ==================
 
 
-@app.post("/email_authenicate/initiate", tags=["Login"], response_model=schemas.Status)
+@app.post("/email_authenticate/initiate", tags=["Login"], response_model=schemas.Status)
 async def email_authentication_initiate(request: schemas.InitiateEmailLoginRequest, db=Depends(get_db)):
     """
     Initiate an email-based account creation/signin.  Emails the provided address an activation code/link that they can use to authenticate a browser session.
@@ -92,13 +94,17 @@ async def email_authentication_initiate(request: schemas.InitiateEmailLoginReque
         mailer.send_message(
         settings.mail_from,
         [email],
-        subject='Yo! Authenticate yourself!',
-        html=f"Your magic token is <b>{token}</b>",
+        subject='Robot Prime says, "Authenticate yourself!"',
+        html=f"""
+        <h1>Advent of Quorum Authentication</h1>
+        <p>Your magic token is <b>{token}</b></p>
+        <p><a href="{settings.site_root}/login?email={quote(email)}&secret={token}">Login</a></p>
+        """,
         )
     return schemas.Status(result=True, message="email sent")
 
 
-@app.post("/email_authenicate/activate", tags=["Login"])
+@app.post("/email_authenticate/activate", tags=["Login"])
 def email_authentication_activate(request: schemas.ActiveateEmailLoginRequest, db=Depends(get_db)):
     """
     Activate / verify an email-based account creation/signin.  Upon successful validation, will create a new account if one doesn't already exist for that email address.
@@ -144,15 +150,6 @@ def login(req: Request, form_data: OAuth2PasswordRequestForm = Depends(), db=Dep
             token = jwt.encode({'id': user.id, 'exp': datetime.datetime.utcnow(
             ) + datetime.timedelta(days=30)}, settings.secret_key, "HS256")
             return {"access_token": token, "token_type": "bearer"}
-    raise HTTPException(401)
-
-@app.post("/fakelogin", tags=["Login"])
-def for_the_love_of_god_delete_this_fake_login(req: Request, db=Depends(get_db)):
-    user = db.query(models.User).first()
-    if user:
-        token = jwt.encode({'id': user.id, 'exp': datetime.datetime.utcnow(
-        ) + datetime.timedelta(days=30)}, settings.secret_key, "HS256")
-        return {"access_token": token, "token_type": "bearer"}
     raise HTTPException(401)
 
 @app.get("/login", response_model=schemas.Status, tags=["Login"])
@@ -207,8 +204,19 @@ def update_current_user_into(info: schemas.WriteableUser, user=Depends(authentic
     '''
     Update the profile for the current user
     '''
-    user.username = info.username
-    db.commit()
+    username = info.username.strip()
+    if (len(username) < 3):
+        return schemas.Status(result=False, message="Short usernames available for the low cost of $99USD.")
+    if (len(username) > 50):
+        return schemas.Status(result=False, message="This username is excessively long")
+    if not all(ord(c) < 128 for c in username):
+        return schemas.Status(result=False, message="We only support ASCII usernames.  Stay tuned for Username 2.0.")
+    try:
+        user.username = username
+        db.commit()
+    except:
+        return schemas.Status(result=False, message="Somebody else has already scored this sweet username")
+        
     return schemas.Status(result=True)
 
 
@@ -478,3 +486,30 @@ def retrieve_leaderboard(db=Depends(get_db)):
         username=x[0].username,
         score=x[1],
     ) for x in leader]
+
+# =================== CHALLENGE =========================
+
+class UnlockRequest(BaseModel):
+    code: str = "55555"
+
+class UnlockResponse(BaseModel):
+    success: bool
+    secret_message: Optional[str]
+
+@app.post("/safe/unlock", tags=["Safe"], response_model=UnlockResponse)
+def unlock_safe(request: UnlockRequest, db=Depends(get_db)):
+    """
+    Helpful API to unlock (and display contents of) Santa's safe
+    """
+    if len(request.code) != 5:
+        raise HTTPException(500, detail="Code must be 5 digits")
+    if request.code == "90210":
+        return UnlockResponse(
+            success= True,
+            secret_message= "The safe word is 'peaches'",
+        )
+    else:
+        return UnlockResponse(
+            success=False
+        )
+

@@ -2,45 +2,85 @@ import { BehaviorSubject } from 'rxjs';
 
 // I hate almost everything about this class.  Probably should expose user info, etc.
 
-const tokenSubject = new BehaviorSubject(localStorage.getItem('token'));
+const userSubject = new BehaviorSubject();
 
 export const authenticationService = {
-    login,
     logout,
-    authHeader,
-    token: tokenSubject.asObservable(),
+    user: userSubject.asObservable(),
+    httpGet,
+    httpPost,
+    httpPut,
+    updateToken,
+    refreshUser,
 };
 
-function authHeader() {
-    // return authorization header with jwt token
-    const token = tokenSubject.value;
-    if (token) {
-        return { Authorization: `Bearer ${token}` };
-    } else {
-        return {};
-    }
-}
 
-function login() {
-    const requestOptions = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        // Hardcoded for science.  Not the real login flow anyways.
-        body: JSON.stringify({"username": "admin", password:"admin" })
-    };
-
-    return fetch('/api/fakelogin', requestOptions)
+var __token = null;
+function updateToken(token) {
+  if (token) {
+    localStorage.setItem('token', token);
+  } else {
+    localStorage.removeItem('token');
+  }
+  __token = token;
+  if (token) {
+    httpGet('/api/me')
         .then(response => response.json())
         .then(data => {
-            let token = data['access_token'];
-            localStorage.setItem('token', token);
-            tokenSubject.next(token);
-            return token;
+          userSubject.next(data);
         });
+  } else {
+    userSubject.next(null);
+  }
 }
+updateToken(localStorage.getItem('token'));
+
+function refreshUser() {
+  if (__token) {
+    httpGet('/api/me')
+        .then(response => response.json())
+        .then(data => {
+          userSubject.next(data);
+        });
+  }
+}
+
 
 function logout() {
     // remove user from local storage to log user out
-    localStorage.removeItem('token');
-    tokenSubject.next(null);
+    updateToken(null);
+}
+
+function httpGet(sUrl) {
+  return fetch(
+    sUrl,
+    {
+      method: 'GET',
+      headers: { Authorization: `Bearer ${__token}` }
+    }
+  );
+}
+
+function httpPost(sUrl, payload) {
+  let postOptions = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${__token}`,
+    },
+    body: JSON.stringify(payload)
+  };
+  return fetch(sUrl, postOptions);
+}
+
+function httpPut(sUrl, payload) {
+  let putOptions = {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${__token}`,
+    },
+    body: JSON.stringify(payload)
+  };
+  return fetch(sUrl, putOptions);
 }

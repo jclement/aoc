@@ -1,0 +1,24 @@
+.full-height {
+  height: 100%;
+}
+
+#question-tags .badge {
+  margin-right: 4px;
+}
+
+#user-tags .btn-group .btn {
+  font-weight: bold;
+}
+
+#user-tags .btn-group>.btn:not(:last-child) {
+  border-top-left-radius: 50rem;
+  border-bottom-left-radius: 50rem;
+  padding-right: 2px;
+  margin-left: 8px;
+  cursor: default;
+}
+
+#user-tags .btn-group>.btn:not(:first-child) {
+  border-top-right-radius: 50rem;
+  border-bottom-right-radius: 50rem;
+}

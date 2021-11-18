@@ -1,15 +1,15 @@
 from .database import Base
-from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Boolean
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Boolean,CHAR
+from sqlalchemy.orm import relationship
 import datetime
-import secrets
+import uuid
 
 def new_id():
-    return secrets.token_hex(16)
+    return uuid.uuid4().hex
 
 class User(Base):
     __tablename__ = 'users'
-    id = Column(String(32), primary_key=True, default=new_id)
+    id = Column(CHAR(32), primary_key=True, default=new_id)
     username = Column(String(80), unique=True, nullable=False)
     email = Column(String(120), unique=True, nullable=False)
     password = Column(String(200))
@@ -18,7 +18,7 @@ class User(Base):
 
 class Challenge(Base):
     __tablename__ = 'challenges'
-    id = Column(String(32), primary_key=True, default=new_id)
+    id = Column(CHAR(32), primary_key=True, default=new_id)
     email = Column(String(120), nullable=False)
     secret = Column(String(80), unique=True, nullable=False)
     expires = Column(DateTime, nullable=False, default=lambda :datetime.datetime.utcnow(
@@ -26,7 +26,7 @@ class Challenge(Base):
 
 class Question(Base):
     __tablename__ = 'questions'
-    id = Column(String(32), primary_key=True, default=new_id)
+    id = Column(CHAR(32), primary_key=True, default=new_id)
     title = Column(String(100), nullable=False)
     body = Column(String())
     answer = Column(String())
@@ -43,18 +43,18 @@ class Question(Base):
 
 class Comment(Base):
     __tablename__ = 'comments'
-    id = Column(String(32), primary_key=True, default=new_id)
-    question_id = Column(String(32), ForeignKey('questions.id'), nullable=False)
-    user_id = Column(String(32), ForeignKey('users.id'), nullable=False)
+    id = Column(CHAR(32), primary_key=True, default=new_id)
+    question_id = Column(CHAR(32), ForeignKey('questions.id'), nullable=False)
+    user_id = Column(CHAR(32), ForeignKey('users.id'), nullable=False)
     body = Column(String(), nullable=False)
     comment_date = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 
 
 class Response(Base):
     __tablename__ = 'responses'
-    id = Column(String(32), primary_key=True, default=new_id)
-    question_id = Column(String(32), ForeignKey('questions.id'), nullable=False)
-    user_id = Column(String(32), ForeignKey('users.id'), nullable=False)
+    id = Column(CHAR(32), primary_key=True, default=new_id)
+    question_id = Column(CHAR(32), ForeignKey('questions.id'), nullable=False)
+    user_id = Column(CHAR(32), ForeignKey('users.id'), nullable=False)
     response = Column(String())
     bonus_points = Column(Integer, nullable=False, default=0)
     response_date = Column(
@@ -63,6 +63,6 @@ class Response(Base):
 
 class Tag(Base):
     __tablename__ = 'tags'
-    id = Column(String(32), primary_key=True, default=new_id)
-    response_id = Column(String(32), ForeignKey('responses.id'), nullable=False)
+    id = Column(CHAR(32), primary_key=True, default=new_id)
+    response_id = Column(CHAR(32), ForeignKey('responses.id'), nullable=False)
     tag = Column(String())
