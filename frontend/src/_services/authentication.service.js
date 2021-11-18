@@ -11,7 +11,7 @@ export const authenticationService = {
     httpPost,
     httpPut,
     updateToken,
-    updateProfile,
+    refreshUser,
 };
 
 
@@ -35,17 +35,16 @@ function updateToken(token) {
 }
 updateToken(localStorage.getItem('token'));
 
-function updateProfile(username) {
-  authenticationService.httpPut("/api/me", {username: username})
+function refreshUser() {
+  if (__token) {
+    httpGet('/api/me')
         .then(response => response.json())
         .then(data => {
-        httpGet('/api/me')
-            .then(response => response.json())
-            .then(data => {
-              userSubject.next(data);
-            });
+          userSubject.next(data);
         });
+  }
 }
+
 
 function logout() {
     // remove user from local storage to log user out

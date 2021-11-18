@@ -204,8 +204,19 @@ def update_current_user_into(info: schemas.WriteableUser, user=Depends(authentic
     '''
     Update the profile for the current user
     '''
-    user.username = info.username
-    db.commit()
+    username = info.username.strip()
+    if (len(username) < 3):
+        return schemas.Status(result=False, message="Short usernames available for the low cost of $99USD.")
+    if (len(username) > 50):
+        return schemas.Status(result=False, message="This username is excessively long")
+    if not all(ord(c) < 128 for c in username):
+        return schemas.Status(result=False, message="We only support ASCII usernames.  Stay tuned for Username 2.0.")
+    try:
+        user.username = username
+        db.commit()
+    except:
+        return schemas.Status(result=False, message="Somebody else has scored this sweet username")
+        
     return schemas.Status(result=True)
 
 
