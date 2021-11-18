@@ -49,12 +49,18 @@ class AnswerBox extends React.Component {
     value={`Your Answer: ${this.props.answer || '---'}`}
     disabled />)
 
+  componentDidUpdate = (prevProps, prevState) => {
+    if (this.props.prevAnswer !== prevProps.prevAnswer) {
+      this.setState({ answer: this.props.prevAnswer });
+    }
+  }
+
   render() {
     return (<form onSubmit={this.submitAnswer}>
       <div className="input-group">
         {this.props.question.is_active ?
           <AnswerText
-            answer={this.state.answer || this.props.prevAnswer}
+            answer={this.state.answer}
             updateAnswer={this.updateAnswer} /> :
           this.renderNonEditableAnswer()
         }
@@ -227,11 +233,7 @@ class QuestionComponent extends React.Component {
             addTag={this.addTag}
             removeTag={this.removeTag}
             editable={(this.state.question && this.state.question.is_active) ? true : false} />
-          <br/>
-          <div className="card-text">
-            <ReactMarkdown>{question.body}</ReactMarkdown>
-          </div>
-          <br/>
+          <ReactMarkdown className="card-text">{question.body}</ReactMarkdown>
         </div>
         <div className="card-footer">
           <AnswerBox
