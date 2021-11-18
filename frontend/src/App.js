@@ -13,7 +13,6 @@ import {
   Outlet,
   Routes,
   Route,
-  Navigate,
 } from 'react-router-dom';
 
 class AppComponent extends React.Component {
@@ -38,42 +37,48 @@ class AppComponent extends React.Component {
 }
       //{ this.state.user ? <Outlet/> : <NeedLogin/> }
 
-
 class App extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { user: null };
+    this.state = { user: null, auth_initialized: false };
   }
 
   componentDidMount() {
     authenticationService.user.subscribe(x => {
-      this.setState({ user: x });
+      if (x !== undefined) { 
+        this.setState({ user: x, auth_initialized: true});
+      }
     });
   }
 
-  RequireAuth({ children }) {
-    return this.state.user 
-      ? children 
-      : <Navigate to="/login" replace />;
+  render = () => {
+
+    var that = this;
+    const RequireAuth = function({children}) {
+      if (!that.state.auth_initialized) 
+        return ""
+      return that.state.user ? children : "Login"
+    };
+
+    return (
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<AppComponent/>} >
+            <Route index element={<Leaderboard />} />
+            <Route path="postquestion" element={<PostQuestion/>} />
+
+            <Route path="login" element={<Login />} />
+
+            <Route path="questions" element={<RequireAuth><QuestionList /></RequireAuth>}>
+              <Route index element={<EmptyQuestion/>} />
+              <Route path=":day" element={<RequireAuth><Question/></RequireAuth>} />
+            </Route>
+
+            <Route path="*" element={<FourOhFour/>} />
+          </Route>
+        </Routes>
+      </BrowserRouter>);
   }
-
-  render = () => (<BrowserRouter>
-  <Routes>
-    <Route path="/" element={<AppComponent/>} >
-      <Route index element={<Leaderboard />} />
-      <Route path="postquestion" element={<PostQuestion/>} />
-
-      <Route path="login" element={<Login />} />
-
-      <Route path="questions" element={<QuestionList/>}>
-        <Route index element={<EmptyQuestion/>} />
-        <Route path=":day" element={<Question/>} />
-      </Route>
-
-      <Route path="*" element={<FourOhFour/>} />
-    </Route>
-  </Routes>
-</BrowserRouter>);
 }
 
 export default App;

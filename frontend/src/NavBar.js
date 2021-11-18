@@ -1,6 +1,6 @@
 import React from 'react';
 import { authenticationService } from './_services/authentication.service';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import UserIcon from './UserIcon';
 
 class NavBtn extends React.Component {
@@ -65,7 +65,7 @@ class NavComponent extends React.Component {
                 </li>) :
                 null
             }
-            <UserIcon user={this.state.me} />
+            <UserIcon user={this.state.me} navigate={this.props.navigate} />
           </ul>
         </div>
       </div>
@@ -73,6 +73,6 @@ class NavComponent extends React.Component {
   }
 }
 
-const NavBar = () => (<NavComponent />);
+const NavBar = () => (<NavComponent navigate={useNavigate()}/>);
 
 export default NavBar;

@@ -33,7 +33,7 @@ class LoginComponent extends React.Component {
         if (data.result) {
           this.setState({email_sent: true});
         } else {
-          alert(data);
+          alert(data.message);
         }
       });
 

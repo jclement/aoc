@@ -11,10 +11,12 @@ class BtnLogin extends React.Component {
 }
 
 class UserIcon extends React.Component {
+
   logout = evt => {
     evt.stopPropagation();
     evt.preventDefault();
     authenticationService.logout();
+    this.props.navigate("/");
   }
 
   render() {
