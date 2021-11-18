@@ -16,28 +16,32 @@ class QuestionTagCollection extends React.Component {
 }
 
 class SkittleTag extends React.Component {
-  tagClasses = [
-    // 'secondary',
-    // 'light text-dark',
-    'primary',
-    'success',
-    'danger',
-    'warning text-dark',
-    'info text-dark',
-    'dark'
-  ].map(c => 'btn btn-' + c)
-  // 6 tag variations
+  constructor(props) {
+    super(props);
+
+    let tagClasses = [
+      'primary',
+      'success',
+      'danger',
+      'warning text-dark',
+      'info text-dark',
+      'dark'
+    ].map(c => 'btn btn-' + c);
+
+    const clsCount = tagClasses.length;
+    this.getTag = () => tagClasses[this.props.tagNum % clsCount];
+  }
 
   removeTag = () => this.props.removeTag(this.props.tagTxt)
 
   render = () => (<div className="btn-group btn-group-sm">
-    <div className={this.tagClasses[this.props.tagNum % 6]}>
+    <div className={this.getTag()}>
       {this.props.tagTxt}
     </div>
     <button
       type="button"
       onClick={this.removeTag}
-      className={this.tagClasses[this.props.tagNum % 6]}>&times;</button>
+      className={this.getTag()}>&times;</button>
   </div>)
 }
 
