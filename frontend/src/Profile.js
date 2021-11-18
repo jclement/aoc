@@ -52,7 +52,7 @@ class Profile extends React.Component {
         <form>
           <div className="row mb-3">
             <label htmlFor="inputEmail" className="col-sm-2 col-form-label">
-              Email
+              Email Address:
             </label>
             <div className="col-sm-10">
               <input
@@ -66,7 +66,7 @@ class Profile extends React.Component {
           </div>
           <div className="row mb-3">
             <label htmlFor="inputUsername" className="col-sm-2 col-form-label">
-              Username
+              Username:
             </label>
             <div className="col-sm-10">
               <input
