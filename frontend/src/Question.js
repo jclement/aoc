@@ -86,7 +86,6 @@ class QuestionComponent extends React.Component {
   clearFetching = () => this.fetching = false
 
   handleError = error => {
-    console.log('Handling Error:', error);
     this.setState({ failedMessage: error.message });
     this.clearFetching();
   }
@@ -114,15 +113,12 @@ class QuestionComponent extends React.Component {
       ]).then(responses => {
         const prev = responses[0];
         const expected = responses[2];
-
-        console.log('responses:', responses);
-
         let tags = responses[1].map(t => t.tag);
         this.setState(
           {
             prevAnswer: prev ? prev.response : '',
             tags,
-            userTags: (prev ? prev.tags : []).filter(t => tags.indexOf(t) === -1),
+            userTags: (prev ? prev.tags : []),
             expectedAnswer: expected ? expected.answer : ''
           },
           this.clearFetching
@@ -194,11 +190,17 @@ class QuestionComponent extends React.Component {
   addTag = newTag => {
     const formattedTag = this.tagify(newTag);
     const hasThisTag = tag => tag === formattedTag;
-    if (!this.state.tags.find(hasThisTag) && !this.state.userTags.find(hasThisTag)) {
+    if (!this.state.userTags.find(hasThisTag)) {
       this.setState({
         userTags: this.state.userTags.concat([formattedTag])
       });
     }
+  }
+
+  removeTag = doomedTag => {
+    this.setState({
+      userTags: this.state.userTags.filter(t => t !== doomedTag)
+    });
   }
 
   render() {
@@ -214,21 +216,24 @@ class QuestionComponent extends React.Component {
       return (<FourOhFour msg={this.state.failedMessage}/>);
     }
 
-    // todo: answerbox in an optional .card-footer
     const question = this.state.question;
     return (<div>
       <div className={`card${question.is_active ? '' : ' text-white bg-secondary'}`}>
         <div className="card-body">
           <h1 className="card-title">{question.title}</h1>
           <Tagger
-            tags={this.state.tags.concat(this.state.userTags)}
+            tags={this.state.tags}
+            userTags={this.state.userTags}
             addTag={this.addTag}
+            removeTag={this.removeTag}
             editable={(this.state.question && this.state.question.is_active) ? true : false} />
           <br/>
           <div className="card-text">
             <ReactMarkdown>{question.body}</ReactMarkdown>
           </div>
           <br/>
+        </div>
+        <div className="card-footer">
           <AnswerBox
             submitAnswer={this.submitAnswer}
             question={question}
