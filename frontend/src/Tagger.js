@@ -1,21 +1,64 @@
 import React from 'react';
 
-class AssortedTag extends React.Component {
-  tagClasses = [
-    'badge rounded-pill bg-primary',
-    'badge rounded-pill bg-secondary',
-    'badge rounded-pill bg-success',
-    'badge rounded-pill bg-danger',
-    'badge rounded-pill bg-warning text-dark',
-    'badge rounded-pill bg-info text-dark',
-    'badge rounded-pill bg-light text-dark',
-    'badge rounded-pill bg-dark'
-  ]
-  // 8 tag variations
+class BaseTag extends React.Component {
+  render = () => (<span className="badge rounded-pill bg-secondary text-light">{this.props.children}</span>);
+}
 
-  render = () => (<span className={this.tagClasses[this.props.tagNum % 8]}>
-    {this.props.children}
-  </span>)
+class QuestionTagCollection extends React.Component {
+  renderTag = (tagTxt, tagNum) => (<BaseTag
+    key={tagNum}
+    tagNum={tagNum}>{tagTxt}</BaseTag>)
+
+  render() {
+    if (!this.props.tags || !this.props.tags.length) { return (<br/>); }
+    return (<div id="question-tags">{this.props.tags.map(this.renderTag)}</div>);
+  };
+}
+
+class SkittleTag extends React.Component {
+  tagClasses = [
+    // 'secondary',
+    // 'light text-dark',
+    'primary',
+    'success',
+    'danger',
+    'warning text-dark',
+    'info text-dark',
+    'dark'
+  ].map(c => 'btn btn-' + c)
+  // 6 tag variations
+
+  removeTag = () => this.props.removeTag(this.props.tagTxt)
+
+  render = () => (<div className="btn-group btn-group-sm">
+    <div className={this.tagClasses[this.props.tagNum % 6]}>
+      {this.props.tagTxt}
+    </div>
+    <button
+      type="button"
+      onClick={this.removeTag}
+      className={this.tagClasses[this.props.tagNum % 6]}>&times;</button>
+  </div>)
+}
+
+class UserTagCollection extends React.Component {
+  renderTag = (tagTxt, tagNum) => (<SkittleTag
+    key={tagNum}
+    removeTag={this.props.removeTag}
+    tagNum={tagNum}
+    tagTxt={tagTxt} />)
+
+  render() {
+    if (!this.props.tags || !this.props.tags.length) { return null; }
+
+    return (<div className="card">
+      <div className="card-body bg-light">
+        <div className="float-end" id="user-tags">
+          {this.props.tags.map(this.renderTag)}
+        </div>
+      </div>
+    </div>);
+  };
 }
 
 class TagAdder extends React.Component {
@@ -61,25 +104,12 @@ class TagAdder extends React.Component {
   }
 }
 
-class TagCollection extends React.Component {
-  renderTag = (tagTxt, tagNum) => (<AssortedTag
-    key={tagNum}
-    tagNum={tagNum}>{tagTxt}</AssortedTag>)
-
-  render() {
-    if (!this.props.tags || !this.props.tags.length) { return (<br/>); }
-
-    return (<div className="card">
-      <div className="card-body bg-light">
-        {this.props.tags.map(this.renderTag)}
-      </div>
-    </div>);
-  };
-}
-
 class Tagger extends React.Component {
   render = () => (<div>
-    <TagCollection tags={this.props.tags}/>
+    <QuestionTagCollection tags={this.props.tags}/>
+    <UserTagCollection
+      tags={this.props.userTags}
+      removeTag={this.props.removeTag}/>
     <TagAdder addTag={this.props.addTag} editable={this.props.editable}/>
   </div>)
 }
