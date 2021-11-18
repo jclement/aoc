@@ -2,6 +2,7 @@ import React from "react";
 import Header from "./Header";
 import { authenticationService } from "./_services/authentication.service";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import { toast } from 'react-toastify';
 
 class LoginComponent extends React.Component {
   constructor(props) {
@@ -10,7 +11,6 @@ class LoginComponent extends React.Component {
       email: "",
       email_sent: false,
       secret: "",
-      error: "",
     };
 
     const [searchParams] = props.params;
@@ -30,9 +30,9 @@ class LoginComponent extends React.Component {
       .then((response) => response.json())
       .then((data) => {
         if (data.result) {
-          this.setState({ email_sent: true, error: "" });
+          this.setState({ email_sent: true});
         } else {
-          this.setState({ error: data.message });
+          toast(data.message, {theme: "colored", type:"error"});
         }
       });
 
@@ -62,7 +62,7 @@ class LoginComponent extends React.Component {
           }
         },
         (err) => {
-          this.setState({ error: err.message });
+          toast(err.message, {theme: "colored", type:"error"});
         }
       );
 

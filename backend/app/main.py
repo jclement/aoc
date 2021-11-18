@@ -215,7 +215,7 @@ def update_current_user_into(info: schemas.WriteableUser, user=Depends(authentic
         user.username = username
         db.commit()
     except:
-        return schemas.Status(result=False, message="Somebody else has scored this sweet username")
+        return schemas.Status(result=False, message="Somebody else has already scored this sweet username")
         
     return schemas.Status(result=True)
 

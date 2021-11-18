@@ -1,5 +1,6 @@
 import React from "react";
 import { authenticationService } from "./_services/authentication.service";
+import { toast } from 'react-toastify';
 
 class Profile extends React.Component {
   constructor(props) {
@@ -25,11 +26,13 @@ class Profile extends React.Component {
       .then((data) => {
         if (data.result) {
           authenticationService.refreshUser();
+          toast("Your profile has been updated.", {type: "success", theme: "colored"});
         } else {
           this.setState({
-            error: data.message,
+            //error: data.message,
             username: this.props.user.username,
           });
+          toast("Nope! " + data.message, {type: "error", theme: "colored"});
         }
       });
     event.preventDefault();

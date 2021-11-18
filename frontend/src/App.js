@@ -10,6 +10,8 @@ import Login from "./Login";
 import Profile from "./Profile";
 import { authenticationService } from "./_services/authentication.service";
 import { BrowserRouter, Outlet, Routes, Route } from "react-router-dom";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 class AppComponent extends React.Component {
   constructor(props) {
@@ -30,6 +32,7 @@ class AppComponent extends React.Component {
       <div className="container-lg">
         <Outlet />
       </div>
+      <ToastContainer />
     </div>
   );
 }
