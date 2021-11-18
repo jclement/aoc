@@ -32,17 +32,15 @@ class UserIcon extends React.Component {
           className="userIcon"
           src={`https://robohash.org/${this.props.user.id}.png?size=50x50`}
           alt={this.props.user.username} />
+          {this.props.user.username}
       </span>
       <ul className="dropdown-menu">
         <li>
-          <div className="dropdown-item">{this.props.user.username}</div>
+          <Link to="profile" className="dropdown-item">Profile</Link>
         </li>
         <li><hr className="dropdown-divider" /></li>
         <li>
-          <a
-            href="#"
-            className="dropdown-item"
-            onClick={this.logout}>Logout</a>
+          <button className="dropdown-item" onClick={this.logout}>Logout</button>
         </li>
       </ul>
     </li>);

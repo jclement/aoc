@@ -7,6 +7,7 @@ import PostQuestion from './PostQuestion';
 import FourOhFour from './FourOhFour';
 import NavBar from './NavBar';
 import Login from './Login';
+import Profile from './Profile';
 import { authenticationService } from './_services/authentication.service';
 import {
   BrowserRouter,
@@ -57,8 +58,9 @@ class App extends React.Component {
     const RequireAuth = function({children}) {
       if (!that.state.auth_initialized) 
         return ""
-      return that.state.user ? children : "Login"
+      return that.state.user ? children : "You need to be logged in!"
     };
+
 
     return (
       <BrowserRouter>
@@ -68,6 +70,7 @@ class App extends React.Component {
             <Route path="postquestion" element={<PostQuestion/>} />
 
             <Route path="login" element={<Login />} />
+            <Route path="profile" element={<RequireAuth><Profile user={this.state.user} /></RequireAuth>} />
 
             <Route path="questions" element={<RequireAuth><QuestionList /></RequireAuth>}>
               <Route index element={<EmptyQuestion/>} />
