@@ -3,15 +3,15 @@ import { authenticationService } from './_services/authentication.service';
 import { Link, useNavigate } from 'react-router-dom';
 import UserIcon from './UserIcon';
 
-class NavBtn extends React.Component {
-  render = () => (<li className="nav-item">
-    <button
-      className={`btn btn-${this.props.btnClass ? this.props.btnClass : 'secondary'}`}
-      onClick={this.props.btnClick}>
-      {this.props.btnText}
-    </button>
-  </li>);
-}
+// class NavBtn extends React.Component {
+//   render = () => (<li className="nav-item">
+//     <button
+//       className={`btn btn-${this.props.btnClass ? this.props.btnClass : 'secondary'}`}
+//       onClick={this.props.btnClick}>
+//       {this.props.btnText}
+//     </button>
+//   </li>);
+// }
 
 class NavComponent extends React.Component {
   constructor(props) {
@@ -28,14 +28,14 @@ class NavComponent extends React.Component {
     });
   }
 
-  showMyInfo = () => {
-    const me = this.state.me;
-    if (me) {
-      alert('Me: ' + me.username);
-    } else {
-      alert('Me: <null>');
-    }
-  }
+  // showMyInfo = () => {
+  //   const me = this.state.me;
+  //   if (me) {
+  //     alert('Me: ' + me.username);
+  //   } else {
+  //     alert('Me: <null>');
+  //   }
+  // }
 
   render = () => {
     return (<nav className="navbar navbar-expand-md navbar-dark bg-dark">

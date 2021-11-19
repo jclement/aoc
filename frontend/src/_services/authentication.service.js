@@ -61,26 +61,19 @@ function httpGet(sUrl) {
   );
 }
 
+const httpOpts = (method, payload) => ({
+  method,
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${__token}`,
+  },
+  body: JSON.stringify(payload)
+})
+
 function httpPost(sUrl, payload) {
-  let postOptions = {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${__token}`,
-    },
-    body: JSON.stringify(payload)
-  };
-  return fetch(sUrl, postOptions);
+  return fetch(sUrl, httpOpts('POST', payload));
 }
 
 function httpPut(sUrl, payload) {
-  let putOptions = {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${__token}`,
-    },
-    body: JSON.stringify(payload)
-  };
-  return fetch(sUrl, putOptions);
+  return fetch(sUrl, httpOpts('PUT', payload));
 }
