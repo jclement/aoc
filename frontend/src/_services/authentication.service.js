@@ -10,8 +10,9 @@ export const authenticationService = {
     httpGet,
     httpPost,
     httpPut,
+    httpDelete,
     updateToken,
-    refreshUser,
+    refreshUser
 };
 
 
@@ -76,4 +77,14 @@ function httpPost(sUrl, payload) {
 
 function httpPut(sUrl, payload) {
   return fetch(sUrl, httpOpts('PUT', payload));
+}
+
+function httpDelete(sUrl) {
+  return fetch(
+    sUrl,
+    {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${__token}` }
+    }
+  );
 }

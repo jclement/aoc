@@ -4,6 +4,8 @@ import QuestionList from "./QuestionList";
 import EmptyQuestion from "./EmptyQuestion";
 import Question from "./Question";
 import PostQuestion from "./PostQuestion";
+import QuestionEditList from "./QuestionEditList";
+import QuestionEditor from "./QuestionEditor";
 import FourOhFour from "./FourOhFour";
 import NavBar from "./NavBar";
 import Login from "./Login";
@@ -92,6 +94,12 @@ class App extends React.Component {
                   </RequireAuth>
                 }
               />
+            </Route>
+            <Route path="editquestion" element={<QuestionEditList />}>
+              <Route index element={<EmptyQuestion />} />
+              <Route
+                path=":qid"
+                element={<QuestionEditor/>} />
             </Route>
 
             <Route path="*" element={<FourOhFour />} />

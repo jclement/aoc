@@ -1,5 +1,5 @@
 import React from "react";
-import Header from "./Header";
+import { Header } from "./Styling";
 import "./App.css";
 
 export default class Leaderboard extends React.Component {

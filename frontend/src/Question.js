@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import FourOhFour from './FourOhFour';
-import Header from './Header';
+import { Header } from './Styling';
 import Tagger from './Tagger';
 import { useParams } from 'react-router-dom';
 import { authenticationService } from './_services/authentication.service';

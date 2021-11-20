@@ -1,17 +1,7 @@
 import React from 'react';
-import Header from './Header';
-import { toast } from 'react-toastify';
+import { Header, ButtonBar } from './Styling';
+import { popError, popSuccess } from './handleError';
 import { authenticationService } from './_services/authentication.service';
-
-const popError = msg => toast(msg, { theme: 'colored', type: 'error' });
-
-const handleError = err => {
-  if (err.detail) {
-    err.detail.forEach(e => popError(e.msg));
-  } else {
-    popError(err.message ? err.messge : err || err.toString());
-  }
-}
 
 // ---- Date Formatting ----
 
@@ -30,6 +20,7 @@ class QuestionInput extends React.Component {
       <b><label htmlFor={this.props.id}>{this.props.label}</label></b>
       <input
         type={this.props.isDate ? 'date' : 'text'}
+        disabled={this.props.disabled}
         className="form-control"
         value={this.props.value}
         onChange={this.props.updater} />
@@ -40,14 +31,17 @@ class QuestionInput extends React.Component {
 class QuestionPosterComponent extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
+
+    this.blankSlate = {
       id: '',
       title: '',
       active: '',
       deactive: '',
       body: '',
-      answer: ''
+      answer: '',
+      submitting: false
     };
+    this.state = this.blankSlate;
   }
 
   getSubmitErrors = () => {
@@ -63,6 +57,22 @@ class QuestionPosterComponent extends React.Component {
     ].filter(e => e !== null);
   }
 
+  handleError = err => {
+    if (err.detail) {
+      err.detail.forEach(e => popError(e.msg));
+    } else {
+      popError(err.message ? err.messge : err || err.toString());
+    }
+    this.setState({ submitting: false });
+  }
+
+  clearForm = evt => {
+    if (evt) {
+      evt.preventDefault();
+    }
+    this.setState(this.blankSlate);
+  }
+
   submitAnswer = () => {
     authenticationService.httpPut(
       `/api/questions/${this.state.id}/answer`,
@@ -73,20 +83,23 @@ class QuestionPosterComponent extends React.Component {
       if (!validation.result) {
         popError(validation.message);
       } else {
-        toast('Success!', { theme: 'colored', type: 'success' });
+        popSuccess('Success!');
+        this.clearForm();
       }
-    }).catch(handleError);
+    }).catch(this.handleError);
   }
 
   postQuestion = evt => {
     evt.preventDefault();
 
     let anyErrors = this.getSubmitErrors().map(err => {
-      toast(err, { theme: 'colored', type: 'error' });
+      popError(err);
       return 1;
     });
 
     if (anyErrors.length) { return; }
+
+    this.setState({ submitting: true });
 
     authenticationService.httpPost(
       '/api/questions',
@@ -103,7 +116,7 @@ class QuestionPosterComponent extends React.Component {
         { id: question.id },
         this.submitAnswer
       );
-    }).catch(handleError);
+    }).catch(this.handleError);
   }
 
   render() {
@@ -122,16 +135,19 @@ class QuestionPosterComponent extends React.Component {
       <div className="mb-3 row">
         <QuestionInput
           id="ques_title" label="Title"
+          disabled={this.state.submitting}
           value={this.state.title}
           updater={this.updaters.title}/>
       </div>
       <div className="mb-3 row">
         <QuestionInput
           id="ques_active" label="Activate Date" isDate={1}
+          disabled={this.state.submitting}
           value={this.state.active}
           updater={this.updaters.active} />
         <QuestionInput
           id="ques_deactive" label="Deactivate Date" isDate={1}
+          disabled={this.state.submitting}
           value={this.state.deactive}
           updater={this.updaters.deactive} />
       </div>
@@ -139,8 +155,8 @@ class QuestionPosterComponent extends React.Component {
         <b><label htmlFor="ques_body">Question Body</label></b>
         <textarea
           id="ques_body"
-          type="text"
           className="form-control"
+          disabled={this.state.submitting}
           value={this.state.body}
           onChange={this.updaters.body}
           placeholder="For the sake of your sanity, copy-paste"></textarea>
@@ -148,13 +164,21 @@ class QuestionPosterComponent extends React.Component {
       <div className="mb-3 row">
         <QuestionInput
           id="answer" label="Answer"
+          disabled={this.state.submitting}
           value={this.state.answer}
           updater={this.updaters.answer} />
       </div>
-      <button
-        type="submit"
-        className="btn btn-primary"
-        onClick={this.postQuestion}>Submit</button>
+      <ButtonBar>
+        <button
+          type="submit"
+          className="btn btn-primary"
+          disabled={this.state.submitting}
+          onClick={this.postQuestion}>Submit</button>
+        <button
+          type="button"
+          className="btn btn-light border border-secondary"
+          onClick={this.clearForm}>Clear</button>
+      </ButtonBar>
     </form>);
   }
 }

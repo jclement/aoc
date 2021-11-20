@@ -8,7 +8,7 @@ class Status(BaseModel):
     """
     ISO-9746 Standard Response Object, at your service
     """
-    result: bool  
+    result: bool
     message: Optional[str] = ""
 
 class WriteableUser(BaseModel):
@@ -40,7 +40,7 @@ class QuestionSummary(BaseModel):
     activate_date: datetime.datetime
     deactivate_date: datetime.datetime
     is_active: bool
-    is_visible: bool 
+    is_visible: bool
 
     @classmethod
     def createFromOrm(cls, q: models.Question):
@@ -48,7 +48,7 @@ class QuestionSummary(BaseModel):
             id= q.id,
             title = q.title,
             activate_date = q.activate_date,
-            deactivate_date = q.activate_date,
+            deactivate_date = q.deactivate_date,
             is_active = q.is_active(),
             is_visible = q.is_visible(),
         )
@@ -62,7 +62,7 @@ class WritableQuestionDetail(BaseModel):
 class QuestionDetail(WritableQuestionDetail):
     id: str
     is_active: bool
-    is_visible: bool 
+    is_visible: bool
 
     @classmethod
     def createFromOrm(cls, q: models.Question):
@@ -70,7 +70,7 @@ class QuestionDetail(WritableQuestionDetail):
             id= q.id,
             title = q.title,
             activate_date = q.activate_date,
-            deactivate_date = q.activate_date,
+            deactivate_date = q.deactivate_date,
             is_active = q.is_active(),
             is_visible = q.is_visible(),
             body = q.body,

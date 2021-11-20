@@ -1,13 +1,10 @@
 import React from 'react';
-import './App.css';
 import './Question.css';
 import QuestionCard from "./QuestionCard";
 import { Outlet } from 'react-router-dom';
 import { authenticationService } from './_services/authentication.service';
 
-// todo: indicator of whether you answered it (participated)
-
-class QuestionListComponent extends React.Component {
+class QuestionEditListComponent extends React.Component {
   constructor(props) {
     super(props);
     this.state = { questions: [] };
@@ -26,22 +23,22 @@ class QuestionListComponent extends React.Component {
   renderQuestionCard = question => (<QuestionCard
     key={question.id}
     question={question}
-    pathPrefix="questions"/>)
+    pathPrefix="editquestion" />)
 
   render = () => (<main>
     <div className="row question-sidebar">
       <div className="col-md-3">
-        <nav className="nav nav-pills nav-tabs flex-column">
+        <div className="nav nav-pills nav-tabs flex-column">
           {this.state.questions.map(this.renderQuestionCard)}
-        </nav>
+        </div>
       </div>
       <div className="col-md-9">
         <Outlet/>
       </div>
     </div>
-  </main>);
+  </main>)
 }
 
-const QuestionList = () => (<QuestionListComponent />);
+const QuestionEditList = () => (<QuestionEditListComponent />)
 
-export default QuestionList;
+export default QuestionEditList;
