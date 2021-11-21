@@ -28,18 +28,16 @@ class QuestionListComponent extends React.Component {
     question={question}
     pathPrefix="questions"/>)
 
-  render = () => (<main>
-    <div className="row question-sidebar">
-      <div className="col-md-3">
-        <nav className="nav nav-pills nav-tabs flex-column">
-          {this.state.questions.map(this.renderQuestionCard)}
-        </nav>
-      </div>
-      <div className="col-md-9">
-        <Outlet/>
-      </div>
+  render = () => (<div className="row question-sidebar">
+    <div className="col-md-3">
+      <nav className="nav nav-pills nav-tabs flex-column">
+        {this.state.questions.map(this.renderQuestionCard)}
+      </nav>
     </div>
-  </main>);
+    <div className="col-md-9">
+      <Outlet/>
+    </div>
+  </div>);
 }
 
 const QuestionList = () => (<QuestionListComponent />);

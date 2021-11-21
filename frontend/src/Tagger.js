@@ -19,13 +19,14 @@ class SkittleTag extends React.Component {
   constructor(props) {
     super(props);
 
+    // Christmassy tags
     let tagClasses = [
-      'primary',
+      // 'primary',
       'success',
       'danger',
-      'warning text-dark',
-      'info text-dark',
-      'dark'
+      // 'warning text-dark',
+      // 'info text-dark',
+      // 'dark'
     ].map(c => 'btn btn-' + c);
 
     const clsCount = tagClasses.length;

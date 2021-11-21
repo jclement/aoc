@@ -64,10 +64,13 @@ class App extends React.Component {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<AppComponent />}>
-            <Route index element={<Leaderboard user={this.state.user} />} />
-            <Route path="postquestion" element={<PostQuestion />} />
+            <Route
+              index
+              element={<Leaderboard
+              user={this.state.user} />} />
 
             <Route path="login" element={<Login />} />
+
             <Route
               path="profile"
               element={
@@ -79,24 +82,25 @@ class App extends React.Component {
 
             <Route
               path="questions"
-              element={
-                <RequireAuth>
-                  <QuestionList />
-                </RequireAuth>
-              }
-            >
-              <Route index element={<EmptyQuestion />} />
+              element={<RequireAuth><QuestionList /></RequireAuth>}>
+              <Route
+                index
+                element={<EmptyQuestion />} />
               <Route
                 path=":day"
-                element={
-                  <RequireAuth>
-                    <Question />
-                  </RequireAuth>
-                }
-              />
+                element={<Question />}/>
             </Route>
-            <Route path="editquestion" element={<QuestionEditList />}>
-              <Route index element={<EmptyQuestion />} />
+
+            <Route
+              path="postquestion"
+              element={<RequireAuth><PostQuestion /></RequireAuth>} />
+
+            <Route
+              path="editquestion"
+              element={<RequireAuth><QuestionEditList /></RequireAuth>}>
+              <Route
+                index
+                element={<EmptyQuestion />} />
               <Route
                 path=":qid"
                 element={<QuestionEditor/>} />

@@ -25,18 +25,16 @@ class QuestionEditListComponent extends React.Component {
     question={question}
     pathPrefix="editquestion" />)
 
-  render = () => (<main>
-    <div className="row question-sidebar">
-      <div className="col-md-3">
-        <div className="nav nav-pills nav-tabs flex-column">
-          {this.state.questions.map(this.renderQuestionCard)}
-        </div>
-      </div>
-      <div className="col-md-9">
-        <Outlet/>
+  render = () => (<div className="row question-sidebar">
+    <div className="col-md-3">
+      <div className="nav nav-pills nav-tabs flex-column">
+        {this.state.questions.map(this.renderQuestionCard)}
       </div>
     </div>
-  </main>)
+    <div className="col-md-9">
+      <Outlet/>
+    </div>
+  </div>)
 }
 
 const QuestionEditList = () => (<QuestionEditListComponent />)

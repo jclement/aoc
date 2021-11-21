@@ -1,8 +1,8 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
-import FourOhFour from './FourOhFour';
 import { Header } from './Styling';
 import Tagger from './Tagger';
+import { popSuccess, handleError } from './handleError';
 import { useParams } from 'react-router-dom';
 import { authenticationService } from './_services/authentication.service';
 
@@ -25,6 +25,7 @@ class AnswerText extends React.Component {
     className="form-control"
     placeholder="Your Answer"
     value={this.props.answer}
+    disabled={this.props.submitting}
     onChange={this.props.updateAnswer} />)
 }
 
@@ -61,7 +62,8 @@ class AnswerBox extends React.Component {
         {this.props.question.is_active ?
           <AnswerText
             answer={this.state.answer}
-            updateAnswer={this.updateAnswer} /> :
+            updateAnswer={this.updateAnswer}
+            submitting={this.props.submitting} /> :
           this.renderNonEditableAnswer()
         }
         {
@@ -79,11 +81,11 @@ class QuestionComponent extends React.Component {
     super(props);
     this.state = {
       question: null,
-      failedMessage: null,
       prevAnswer: '',
       expectedAnswer: null,
       tags: [],
-      userTags: []
+      userTags: [],
+      submitting: false
     };
   }
 
@@ -91,8 +93,9 @@ class QuestionComponent extends React.Component {
 
   clearFetching = () => this.fetching = false
 
-  handleError = error => {
-    this.setState({ failedMessage: error.message });
+  catchError = error => {
+    this.setState({ submitting: false });
+    handleError(error);
     this.clearFetching();
   }
 
@@ -129,7 +132,7 @@ class QuestionComponent extends React.Component {
           },
           this.clearFetching
         )
-      }).catch(this.handleError);
+      }).catch(this.catchError);
     });
   }
 
@@ -150,12 +153,11 @@ class QuestionComponent extends React.Component {
         {
           expectedAnswer: null,
           question: data,
-          failedMessage: null,
           prevAnswer: '',
         },
         this.fetchQuestionMeta
       )
-    ).catch(this.handleError);
+    ).catch(this.catchError);
 
     return (<WaitHeader/>);
   }
@@ -166,6 +168,8 @@ class QuestionComponent extends React.Component {
     const ans = answer.trim();
     if (!ans.length) { return; }
 
+    this.setState({ submitting: true });
+
     authenticationService.httpPost(
       `/api/questions/${this.props.day}/response`,
       {
@@ -175,13 +179,16 @@ class QuestionComponent extends React.Component {
     ).then(
       resp => resp.json()
     ).then(
-      () => this.setState({
-        question: null,
-        prevAnswer: '',
-        failedMessage: null,
-        tags: []
-      })
-    ).catch(this.handleError);
+      () => {
+        this.setState({
+          question: null,
+          prevAnswer: '',
+          tags: [],
+          submitting: false
+        });
+        popSuccess('Submitted!');
+      }
+    ).catch(this.catchError);
   }
 
   initFetchQuestion = () => {
@@ -210,16 +217,12 @@ class QuestionComponent extends React.Component {
   }
 
   render() {
-    if (!this.state.failedMessage) {
-      if (this.state.question) {
-        if (this.state.question.id !== this.props.day) {
-          return this.initFetchQuestion();
-        }
-      } else {
+    if (this.state.question) {
+      if (this.state.question.id !== this.props.day) {
         return this.initFetchQuestion();
       }
     } else {
-      return (<FourOhFour msg={this.state.failedMessage}/>);
+      return this.initFetchQuestion();
     }
 
     const question = this.state.question;
@@ -239,8 +242,11 @@ class QuestionComponent extends React.Component {
           <AnswerBox
             submitAnswer={this.submitAnswer}
             question={question}
-            prevAnswer={this.state.prevAnswer} />
-          <ExpectedAnswer expectedAnswer={this.state.expectedAnswer} />
+            prevAnswer={this.state.prevAnswer}
+            submitting={this.state.submitting} />
+          <ExpectedAnswer
+            expectedAnswer={this.state.expectedAnswer}
+            submitting={this.state.submitting}/>
         </div>
       </div>
     </div>);
