@@ -17,7 +17,7 @@ class ExpectedAnswer extends React.Component {
     if (!this.props.expectedAnswer) {
       return null;
     }
-    return (<p>Expected Answer: <b className="text-light">{this.props.expectedAnswer}</b></p>);
+    return (<p>Expected Answer: <b>{this.props.expectedAnswer}</b></p>);
   }
 }
 
@@ -225,36 +225,36 @@ class QuestionComponent extends React.Component {
           removeTag={this.removeTag}
           editable={(this.state.question && this.state.question.is_active) ? true : false} />
         <ReactMarkdown
-        className="card-text"
-        components={{
-          code({node, inline, className, children, ...props}) {
-            const match = /language-(\w+)/.exec(className || '')
-            return !inline && match ? (
-              <SyntaxHighlighter
-                children={String(children).replace(/\n$/, '')}
-                style={dark}
-                language={match[1]}
-                PreTag="div"
-                {...props}
-              />
-            ) : (
-              <code className={className} {...props}>
-                {children}
-              </code>
-            )
-          }
-        }}>{question.body}</ReactMarkdown>
-        </div>
-        <div className="card-footer">
-          <AnswerBox
-            submitAnswer={this.submitAnswer}
-            question={question}
-            prevAnswer={this.state.prevAnswer}
-            submitting={this.state.submitting} />
-          <ExpectedAnswer
-            expectedAnswer={this.state.expectedAnswer}
-            submitting={this.state.submitting}/>
-        </div>
+          className="card-text"
+          components={{
+            code({node, inline, className, children, ...props}) {
+              const match = /language-(\w+)/.exec(className || '')
+              return !inline && match ? (
+                <SyntaxHighlighter
+                  children={String(children).replace(/\n$/, '')}
+                  style={dark}
+                  language={match[1]}
+                  PreTag="div"
+                  {...props}
+                />
+              ) : (
+                <code className={className} {...props}>
+                  {children}
+                </code>
+              )
+            }
+          }}>{question.body}</ReactMarkdown>
+      </div>
+      <div className="card-footer">
+        <AnswerBox
+          submitAnswer={this.submitAnswer}
+          question={question}
+          prevAnswer={this.state.prevAnswer}
+          submitting={this.state.submitting} />
+        <ExpectedAnswer
+          expectedAnswer={this.state.expectedAnswer}
+          submitting={this.state.submitting}/>
+      </div>
     </div>);
   }
 }

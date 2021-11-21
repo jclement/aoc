@@ -23,10 +23,18 @@ class AdminQuestionListComponent extends React.Component {
     );
   }
 
+  roundedNumDays = question => {
+    const daysLeft = (Date.parse(question.deactivate_date)-Date.now()) / (1000*60*60*24);
+    return Math.round(100 * daysLeft) / 100;
+  }
+  daysRemaining = question => (`${this.roundedNumDays(question)} days remaining`)
+
+  namedStatus = question => (Date.now() > Date.parse(question.deactivate_date) ? "Complete" : "Inactive")
+
   renderQuestionCard = question => (
     <tr key={question.id}>
       <td><Link to={question.id}>{question.title}</Link></td>
-      <td>{question.is_active ? (Date.parse(question.deactivate_date)-Date.now())/(1000*60*60*24) + " days remaining": Date.now() > Date.parse(question.deactivate_date) ? "Complete" : "In-active"}</td>
+      <td>{question.is_active ? this.daysRemaining(question) : this.namedStatus(question)}</td>
       <td>{question.activate_date}</td>
       <td>{question.deactivate_date}</td>
     </tr>);
