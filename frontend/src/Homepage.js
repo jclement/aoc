@@ -17,12 +17,12 @@ export default class Homepage extends React.Component {
           <Leaderboard user={this.props.user} />
           </div>}
       {this.props.user && <div className="container-fluid">
-          <div className="row">
-              <div className="col col-md-4">
-                <Leaderboard user={this.props.user} />
-              </div>
-              <div className="col col-md-8">
+          <div className="row row-cols-2">
+              <div className="col-12 col-sm-12 col-md-8">
                   <QuestionList />
+              </div>
+              <div className="col-12 col-sm-12 col-md-4">
+                <Leaderboard user={this.props.user} />
               </div>
           </div>
       </div>}

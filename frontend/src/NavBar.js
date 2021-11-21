@@ -28,13 +28,13 @@ class NavComponent extends React.Component {
           className="navbar-toggler"
           type="button"
           data-bs-toggle="collapse"
-          data-bs-target="#navbarTogglerDemo01"
-          aria-controls="navbarTogglerDemo01"
+          data-bs-target="#navbarContent"
+          aria-controls="navbarContent"
           aria-expanded="false"
           aria-label="Toggle navigation">
           <span className="navbar-toggler-icon"></span>
         </button>
-        <div className="collapse navbar-collapse">
+        <div  id="navbarContent" className="collapse navbar-collapse">
           <ul className="navbar-nav">
             {isAdmin && <Link to="editquestion" className="nav-link">Manage Questions</Link>}
             {isAdmin && <Link to="postquestion" className="nav-link">New Question</Link>}
