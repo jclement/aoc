@@ -1,13 +1,21 @@
-// true if running local/dev
-// false in prod
-const isSqlite = false;
+const toUtc = dateStr => (new Date(dateStr)).toISOString();
 
-const toUtc = dateStr => (
-  isSqlite ?
-    `${dateStr} 00:00:00` :       // date format: 2020-01-01 00:00:00
-    `${dateStr}T00:00:00Z-7:00`   // This is so dumb. Assuming MST midnight.
-);
+const pad10 = num => num < 10 ? `0${num}` : num.toString();
 
-const fromUtc = dateStr => dateStr.substring(0, 10);
+// controls take the format YYYY-MM-ddTHH:mm
+const fromUtc = dateStr => {
+  const dayUtc = new Date(Date.parse(dateStr));
+  const dt = new Date(Date.UTC(
+    dayUtc.getFullYear(),
+    dayUtc.getMonth(),
+    dayUtc.getDate(),
+    dayUtc.getHours(),
+    dayUtc.getMinutes()
+  ));
+  return (
+    `${dt.getFullYear()}-${pad10(dt.getMonth() + 1)}-${pad10(dt.getDate())}T` +
+    `${pad10(dt.getHours())}:${pad10(dt.getMinutes())}`
+  );
+};
 
 export { fromUtc, toUtc };

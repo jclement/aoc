@@ -1,3 +1,4 @@
+
 import React from 'react';
 import './App.css';
 import './Question.css';
@@ -6,7 +7,7 @@ import { Link } from "react-router-dom";
 
 // todo: indicator of whether you answered it (participated)
 
-class QuestionListComponent extends React.Component {
+class AdminQuestionListComponent extends React.Component {
   constructor(props) {
     super(props);
     this.state = { questions: [] };
@@ -31,14 +32,16 @@ class QuestionListComponent extends React.Component {
   namedStatus = question => (Date.now() > Date.parse(question.deactivate_date) ? "Complete" : "Inactive")
 
   renderQuestionCard = question => (
-    <tr key={question.id} className={question.is_active ? "table-success" : ""}>
-      <td><Link to={"question/" + question.id}>{question.title}</Link></td>
+    <tr key={question.id}>
+      <td><Link to={question.id}>{question.title}</Link></td>
       <td>{question.is_active ? this.daysRemaining(question) : this.namedStatus(question)}</td>
+      <td>{question.activate_date}</td>
+      <td>{question.deactivate_date}</td>
     </tr>);
 
   render = () => (
     <table className="table table-striped">
-      <thead><tr><th>Question</th><th>Status</th></tr></thead>
+      <thead><tr><th>Question</th><th>Status</th><th>Activation Date</th><th>Deactivation Date</th></tr></thead>
       <tbody>
         {this.state.questions.map(this.renderQuestionCard)}
       </tbody>
@@ -46,6 +49,6 @@ class QuestionListComponent extends React.Component {
   );
 }
 
-const QuestionList = () => (<QuestionListComponent />);
+const QuestionList = () => (<AdminQuestionListComponent />);
 
 export default QuestionList;

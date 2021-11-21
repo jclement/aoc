@@ -9,7 +9,7 @@ class QuestionInput extends React.Component {
     return (<div className="col-lg-6">
       <b><label htmlFor={this.props.id}>{this.props.label}</label></b>
       <input
-        type={this.props.isDate ? 'date' : 'text'}
+        type={this.props.isDate ? 'datetime-local' : 'text'}
         disabled={this.props.disabled}
         className="form-control"
         value={this.props.value}
@@ -147,6 +147,7 @@ class QuestionPosterComponent extends React.Component {
           id="ques_body"
           className="form-control"
           disabled={this.state.submitting}
+          rows="20"
           value={this.state.body}
           onChange={this.updaters.body}
           placeholder="For the sake of your sanity, copy-paste"></textarea>
