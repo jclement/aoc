@@ -91,14 +91,9 @@ class QuestionComponent extends React.Component {
     };
   }
 
-  fetching = false
-
-  clearFetching = () => this.fetching = false
-
   catchError = error => {
     this.setState({ submitting: false });
     handleError(error);
-    this.clearFetching();
   }
 
   fetchQuestionMeta = () => {
@@ -131,15 +126,13 @@ class QuestionComponent extends React.Component {
             tags,
             userTags: (prev ? prev.tags : []),
             expectedAnswer: expected ? expected.answer : ''
-          },
-          this.clearFetching
+          }
         )
       }).catch(this.catchError);
     });
   }
 
   fetchQuestion = () => {
-    this.fetching = true
     authenticationService.httpGet(
       `/api/questions/${this.props.day}`
     ).then(
@@ -194,9 +187,7 @@ class QuestionComponent extends React.Component {
   }
 
   initFetchQuestion = () => {
-    if (!this.fetching) {
-      this.fetchQuestion();
-    }
+    this.fetchQuestion();
     return (<WaitHeader />);
   }
 
@@ -219,44 +210,40 @@ class QuestionComponent extends React.Component {
   }
 
   render() {
-    if (this.state.question) {
-      if (this.state.question.id !== this.props.day) {
-        return this.initFetchQuestion();
-      }
-    } else {
+    if (!this.state.question) {
       return this.initFetchQuestion();
     }
 
     const question = this.state.question;
     return (<div>
       <div>
-          <h1>{question.title}</h1>
-          <Tagger
-            tags={this.state.tags}
-            userTags={this.state.userTags}
-            addTag={this.addTag}
-            removeTag={this.removeTag}
-            editable={(this.state.question && this.state.question.is_active) ? true : false} />
-          <ReactMarkdown 
-          className="card-text"
-          components={{
-            code({node, inline, className, children, ...props}) {
-              const match = /language-(\w+)/.exec(className || '')
-              return !inline && match ? (
-                <SyntaxHighlighter
-                  children={String(children).replace(/\n$/, '')}
-                  style={dark}
-                  language={match[1]}
-                  PreTag="div"
-                  {...props}
-                />
-              ) : (
-                <code className={className} {...props}>
-                  {children}
-                </code>
-              )
-            }
-          }}>{question.body}</ReactMarkdown>
+        <h1>{question.title}</h1>
+        <Tagger
+          tags={this.state.tags}
+          userTags={this.state.userTags}
+          addTag={this.addTag}
+          removeTag={this.removeTag}
+          editable={(this.state.question && this.state.question.is_active) ? true : false} />
+        <ReactMarkdown
+        className="card-text"
+        components={{
+          code({node, inline, className, children, ...props}) {
+            const match = /language-(\w+)/.exec(className || '')
+            return !inline && match ? (
+              <SyntaxHighlighter
+                children={String(children).replace(/\n$/, '')}
+                style={dark}
+                language={match[1]}
+                PreTag="div"
+                {...props}
+              />
+            ) : (
+              <code className={className} {...props}>
+                {children}
+              </code>
+            )
+          }
+        }}>{question.body}</ReactMarkdown>
         </div>
         <div className="card-footer">
           <AnswerBox

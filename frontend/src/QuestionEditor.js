@@ -10,7 +10,7 @@ class QuestionInput extends React.Component {
     return (<div className="col-lg-6">
       <b><label htmlFor={this.props.id}>{this.props.label}</label></b>
       <input
-        type={this.props.isDate ? 'date' : 'text'}
+        type={this.props.isDate ? 'datetime-local' : 'text'}
         disabled={this.props.disabled}
         className="form-control"
         value={this.props.value}
@@ -117,12 +117,6 @@ class QuestionEditorComponent extends React.Component {
         });
       }).catch(handleError);
     }).catch(handleError);
-  }
-
-  componentDidUpdate = (prevProps, prevState) => {
-    if (this.props.qid !== prevProps.qid) {
-      this.retrieveQuestion(this.props.qid);
-    }
   }
 
   componentDidMount = () => this.retrieveQuestion(this.props.qid)
