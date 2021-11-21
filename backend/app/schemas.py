@@ -32,6 +32,7 @@ class Comment(WriteableComment):
 class LeaderboardEntry(BaseModel):
     user_id: str
     username: str
+    is_admin: bool
     score: int
 
 class QuestionSummary(BaseModel):

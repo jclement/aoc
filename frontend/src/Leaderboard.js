@@ -32,7 +32,9 @@ export default class Leaderboard extends React.Component {
           src={`https://robohash.org/${row.user_id}.png?size=50x50`}
           alt={row.username}
         />
-        &nbsp;&nbsp;{row.username}
+        &nbsp;
+        {row.is_admin ? <span className="badge rounded-pill bg-dark">admin</span>:""}
+        &nbsp;{row.username}&nbsp;
       </td>
       <td className="text-end">{row.score.toLocaleString("en-US")}</td>
     </tr>

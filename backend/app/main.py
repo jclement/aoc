@@ -489,6 +489,7 @@ def retrieve_leaderboard(db=Depends(get_db)):
     return [schemas.LeaderboardEntry(
         user_id=x[0].id,
         username=x[0].username,
+        is_admin=x[0].is_admin,
         score=x[1],
     ) for x in leader]
 
