@@ -3,30 +3,6 @@ import { authenticationService } from './_services/authentication.service';
 import { Link, useNavigate } from 'react-router-dom';
 import UserIcon from './UserIcon';
 
-class NeedsAdmin extends React.Component {
-  render() {
-    if (this.props.me && this.props.me.is_admin) {
-      return (<li className="nav-item dropdown dropstart">
-        <span
-          className="nav-link dropdown-toggle clickable"
-          data-bs-toggle="dropdown">
-          Edit Questions
-        </span>
-        <ul className="dropdown-menu">
-          {this.props.children}
-        </ul>
-      </li>);
-    }
-    return null;
-  }
-}
-
-class DropdownLink extends React.Component {
-  render = () => (<li>
-    <Link to={this.props.to} className="dropdown-item">{this.props.children}</Link>
-  </li>)
-}
-
 class NavComponent extends React.Component {
   constructor(props) {
     super(props);
@@ -57,16 +33,10 @@ class NavComponent extends React.Component {
       </button>
       <div className="collapse navbar-collapse">
         <ul className="navbar-nav">
-          {this.state.me ? <li className="nav-item">
-            <Link to="questions" className="nav-link">Questions</Link>
-          </li> : ""}
+            {this.state.me && this.state.me.is_admin && <Link to="editquestion" className="nav-link">Manage Questions</Link>}
+            {this.state.me && this.state.me.is_admin && <Link to="postquestion" className="nav-link">New Question</Link>}
         </ul>
         <ul className="navbar-nav flex-row flex-wrap ms-md-auto">
-          <NeedsAdmin me={this.state.me}>
-            <DropdownLink to="editquestion">Update</DropdownLink>
-            <li><hr className="dropdown-divider"/></li>
-            <DropdownLink to="postquestion">Post New</DropdownLink>
-          </NeedsAdmin>
           <UserIcon user={this.state.me} navigate={this.props.navigate} />
         </ul>
       </div>

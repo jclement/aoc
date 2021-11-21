@@ -147,6 +147,7 @@ class QuestionPosterComponent extends React.Component {
           id="ques_body"
           className="form-control"
           disabled={this.state.submitting}
+          rows="20"
           value={this.state.body}
           onChange={this.updaters.body}
           placeholder="For the sake of your sanity, copy-paste"></textarea>

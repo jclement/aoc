@@ -1,6 +1,6 @@
 // true if running local/dev
 // false in prod
-const isSqlite = false;
+const isSqlite = true;
 
 const toUtc = dateStr => (
   isSqlite ?

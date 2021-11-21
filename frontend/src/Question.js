@@ -1,5 +1,7 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
+import {Prism as SyntaxHighlighter} from 'react-syntax-highlighter'
+import {dark} from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { Header } from './Styling';
 import Tagger from './Tagger';
 import { popSuccess, handleError } from './handleError';
@@ -227,16 +229,34 @@ class QuestionComponent extends React.Component {
 
     const question = this.state.question;
     return (<div>
-      <div className={`card${question.is_active ? '' : ' text-white bg-secondary'}`}>
-        <div className="card-body">
-          <h1 className="card-title">{question.title}</h1>
+      <div>
+          <h1>{question.title}</h1>
           <Tagger
             tags={this.state.tags}
             userTags={this.state.userTags}
             addTag={this.addTag}
             removeTag={this.removeTag}
             editable={(this.state.question && this.state.question.is_active) ? true : false} />
-          <ReactMarkdown className="card-text">{question.body}</ReactMarkdown>
+          <ReactMarkdown 
+          className="card-text"
+          components={{
+            code({node, inline, className, children, ...props}) {
+              const match = /language-(\w+)/.exec(className || '')
+              return !inline && match ? (
+                <SyntaxHighlighter
+                  children={String(children).replace(/\n$/, '')}
+                  style={dark}
+                  language={match[1]}
+                  PreTag="div"
+                  {...props}
+                />
+              ) : (
+                <code className={className} {...props}>
+                  {children}
+                </code>
+              )
+            }
+          }}>{question.body}</ReactMarkdown>
         </div>
         <div className="card-footer">
           <AnswerBox
@@ -248,14 +268,13 @@ class QuestionComponent extends React.Component {
             expectedAnswer={this.state.expectedAnswer}
             submitting={this.state.submitting}/>
         </div>
-      </div>
     </div>);
   }
 }
 
 const Question = () => {
   const { day } = useParams();
-  return (<QuestionComponent day={day}/>);
+  return (<QuestionComponent day={day}  />);
 }
 
 export default Question;
