@@ -80,8 +80,7 @@ class App extends React.Component {
 
             <Route
               path="question/:day"
-              element={<RequireAuth><Question user={this.state.user} /></RequireAuth>}>
-            </Route>
+              element={<RequireAuth><Question /></RequireAuth>} />
 
             <Route
               path="postquestion"
@@ -89,13 +88,11 @@ class App extends React.Component {
 
             <Route
               path="editquestion"
-              element={<RequireAuth><AdminQuestionList /></RequireAuth>}>
-            </Route>
+              element={<RequireAuth><AdminQuestionList /></RequireAuth>} />
 
             <Route
               path="editquestion/:qid"
-              element={<RequireAuth><QuestionEditor /></RequireAuth>}>
-            </Route>
+              element={<RequireAuth><QuestionEditor /></RequireAuth>} />
 
             <Route path="*" element={<FourOhFour />} />
           </Route>
