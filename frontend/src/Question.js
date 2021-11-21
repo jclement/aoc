@@ -227,6 +227,9 @@ class QuestionComponent extends React.Component {
         <ReactMarkdown
           className="card-text"
           components={{
+            img({alt, src, title}) {
+              return <img alt={alt} src={src} title={title} className="img-fluid" />
+            },
             code({node, inline, className, children, ...props}) {
               const match = /language-(\w+)/.exec(className || '')
               return !inline && match ? (
