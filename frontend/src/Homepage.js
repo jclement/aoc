@@ -20,7 +20,7 @@ export default class Homepage extends React.Component {
       <div className="row row-cols-2">
         <div className="col-12 col-sm-12 col-md-8">
           <QuestionList />
-          <Intro />
+          <div className="d-none d-sm-none d-md-block"><Intro /></div>
         </div>
         <div className="col-12 col-sm-12 col-md-4">
           <Leaderboard user={this.props.user} />
