@@ -94,7 +94,7 @@ async def email_authentication_initiate(request: schemas.InitiateEmailLoginReque
         mailer.send_message(
         settings.mail_from,
         [email],
-        subject='Robot Prime says, "AUTHENTICATE YOURSELF!"',
+        subject=f'Robot Prime says, "AUTHENTICATE YOURSELF!"{(" (" + settings.mail_label + ")") if settings.mail_label else ""}' ,
         html=f"""
         <h1>Advent of Quorum Robot Login</h1>
         <p>GREETINGS ROBOTIC RECRUIT!</p>
