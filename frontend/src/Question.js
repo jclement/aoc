@@ -4,6 +4,7 @@ import {Prism as SyntaxHighlighter} from 'react-syntax-highlighter'
 import {dark} from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { Header } from './Styling';
 import Tagger from './Tagger';
+import TagCloudWrapper from './TagCloudWrapper';
 import { popSuccess, handleError } from './handleError';
 import { useParams } from 'react-router-dom';
 import { authenticationService } from './_services/authentication.service';
@@ -127,11 +128,11 @@ class QuestionComponent extends React.Component {
       ]).then(responses => {
         const prev = responses[0];
         const expected = responses[2];
-        let tags = responses[1].map(t => t.tag);
+        // let tags = responses[1].map(t => t.tag);
         this.setState(
           {
             prevAnswer: prev ? prev.response : '',
-            tags,
+            tags: responses[1],
             userTags: (prev ? prev.tags : []),
             expectedAnswer: expected ? expected.answer : ''
           }
@@ -226,6 +227,9 @@ class QuestionComponent extends React.Component {
     return (<div>
       <div>
         <h1>{question.title}</h1>
+        {!this.state.question.is_active ?
+          <TagCloudWrapper tags={this.state.tags} /> :
+          null }
         <ReactMarkdown
           className="card-text"
           components={{
@@ -256,7 +260,7 @@ class QuestionComponent extends React.Component {
           userTags={this.state.userTags}
           addTag={this.addTag}
           removeTag={this.removeTag}
-          editable={(this.state.question && this.state.question.is_active) ? true : false} />
+          editable={this.state.question.is_active ? true : false} />
         <br/>
         <AnswerBox
           submitAnswer={this.submitAnswer}
