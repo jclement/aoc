@@ -477,12 +477,13 @@ def retrieve_leaderboard(db=Depends(get_db)):
     users = {}
     for u, q, r in db.query(models.User, models.Question, models.Response)\
         .outerjoin(models.Response, models.Response.user_id == models.User.id)\
-        .outerjoin(models.Question, and_(models.Question.id == models.Response.question_id, datetime.datetime.utcnow() >= models.Question.deactivate_date))\
+        .outerjoin(models.Question, models.Question.id == models.Response.question_id)\
             .all():
         if not u.is_admin:
             if not u in users:
                 users[u] = 0
-            users[u] += calculate_score(q, r)
+            if q and q.is_complete():
+                users[u] += calculate_score(q, r)
         else:
             users[u] = 999999
     leader = sorted(users.items(), key=lambda x: x[1])
