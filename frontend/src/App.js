@@ -1,16 +1,16 @@
 import React from "react";
-import Leaderboard from "./Leaderboard";
-import QuestionList from "./QuestionList";
-import EmptyQuestion from "./EmptyQuestion";
+import Homepage from "./Homepage";
+import AdminQuestionList from "./AdminQuestionList";
 import Question from "./Question";
 import PostQuestion from "./PostQuestion";
+import QuestionEditor from "./QuestionEditor";
 import FourOhFour from "./FourOhFour";
 import NavBar from "./NavBar";
 import Login from "./Login";
 import Profile from "./Profile";
 import { authenticationService } from "./_services/authentication.service";
 import { BrowserRouter, Outlet, Routes, Route } from "react-router-dom";
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 class AppComponent extends React.Component {
@@ -29,7 +29,7 @@ class AppComponent extends React.Component {
     <div>
       <NavBar />
       <br />
-      <div className="container-lg">
+      <div className="container-fluid">
         <Outlet />
       </div>
       <ToastContainer />
@@ -62,10 +62,13 @@ class App extends React.Component {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<AppComponent />}>
-            <Route index element={<Leaderboard user={this.state.user} />} />
-            <Route path="postquestion" element={<PostQuestion />} />
+            <Route
+              index
+              element={<Homepage
+              user={this.state.user} />} />
 
             <Route path="login" element={<Login />} />
+
             <Route
               path="profile"
               element={
@@ -76,23 +79,20 @@ class App extends React.Component {
             />
 
             <Route
-              path="questions"
-              element={
-                <RequireAuth>
-                  <QuestionList />
-                </RequireAuth>
-              }
-            >
-              <Route index element={<EmptyQuestion />} />
-              <Route
-                path=":day"
-                element={
-                  <RequireAuth>
-                    <Question />
-                  </RequireAuth>
-                }
-              />
-            </Route>
+              path="question/:day"
+              element={<RequireAuth><Question /></RequireAuth>} />
+
+            <Route
+              path="postquestion"
+              element={<RequireAuth><PostQuestion /></RequireAuth>} />
+
+            <Route
+              path="editquestion"
+              element={<RequireAuth><AdminQuestionList /></RequireAuth>} />
+
+            <Route
+              path="editquestion/:qid"
+              element={<RequireAuth><QuestionEditor /></RequireAuth>} />
 
             <Route path="*" element={<FourOhFour />} />
           </Route>

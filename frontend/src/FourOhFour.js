@@ -1,5 +1,5 @@
 import React from 'react';
-import Header from './Header';
+import { Header } from './Styling';
 import { Link } from 'react-router-dom';
 
 class LinkBack extends React.Component {

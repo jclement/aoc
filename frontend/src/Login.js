@@ -1,5 +1,5 @@
 import React from "react";
-import Header from "./Header";
+import { Header } from "./Styling";
 import { authenticationService } from "./_services/authentication.service";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';

@@ -32,7 +32,7 @@ class UserIcon extends React.Component {
           className="userIcon"
           src={`https://robohash.org/${this.props.user.id}.png?size=50x50`}
           alt={this.props.user.username} />
-          {this.props.user.username}
+        {this.props.user.username}
       </span>
       <ul className="dropdown-menu">
         <li>

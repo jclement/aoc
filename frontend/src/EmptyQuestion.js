@@ -1,6 +1,6 @@
 import React from 'react';
 import './Question.css';
-import Header from './Header';
+import { Header } from './Styling';
 
 class EmptyQuestionComponent extends React.Component {
   render = () => (<div className="full-height">

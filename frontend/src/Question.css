@@ -22,3 +22,8 @@
   border-top-right-radius: 50rem;
   border-bottom-right-radius: 50rem;
 }
+
+.question-sidebar .nav>.nav-link:hover {
+  background-color: #0d6efd;
+  color: #f8f9fa;
+}
