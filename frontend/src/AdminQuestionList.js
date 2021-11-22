@@ -4,7 +4,8 @@ import './App.css';
 import './Question.css';
 import { authenticationService } from './_services/authentication.service';
 import { Link } from "react-router-dom";
-import {fromUtc} from "./dateHandling";
+import {fromUtc, parseToLocal} from "./dateHandling";
+import Countdown from 'react-countdown';
 
 // todo: indicator of whether you answered it (participated)
 
@@ -24,18 +25,12 @@ class AdminQuestionListComponent extends React.Component {
     );
   }
 
-  roundedNumDays = question => {
-    const daysLeft = (Date.parse(question.deactivate_date)-Date.now()) / (1000*60*60*24);
-    return Math.round(100 * daysLeft) / 100;
-  }
-  daysRemaining = question => (`${this.roundedNumDays(question)} days remaining`)
-
   namedStatus = question => (Date.now() > Date.parse(question.deactivate_date) ? "Complete" : "Inactive")
 
   renderQuestionCard = question => (
     <tr key={question.id}>
       <td><Link to={question.id}>{question.title}</Link></td>
-      <td>{question.is_active ? this.daysRemaining(question) : this.namedStatus(question)}</td>
+      <td>{question.is_active ? <Countdown date={parseToLocal(question.deactivate_date)}>Inactive</Countdown> : this.namedStatus(question)}</td>
       <td>{fromUtc(question.activate_date)}</td>
       <td>{fromUtc(question.deactivate_date)}</td>
     </tr>);

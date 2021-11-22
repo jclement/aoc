@@ -8,6 +8,7 @@ import TagCloudWrapper from './TagCloudWrapper';
 import { popSuccess, handleError } from './handleError';
 import { useParams } from 'react-router-dom';
 import { authenticationService } from './_services/authentication.service';
+import { timeRemaining } from './dateHandling';
 
 class WaitHeader extends React.Component {
   render = () => (<Header>Please Wait...</Header>)
@@ -227,6 +228,7 @@ class QuestionComponent extends React.Component {
     return (<div>
       <div>
         <h1>{question.title}</h1>
+        {this.state.question.is_active && <div class="alert alert-dark">{timeRemaining(question.deactivate_date)} remaining</div>}
         {!this.state.question.is_active ?
           <TagCloudWrapper tags={this.state.tags} /> :
           null }
