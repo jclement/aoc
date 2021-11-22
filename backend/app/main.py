@@ -102,6 +102,7 @@ async def email_authentication_initiate(request: schemas.InitiateEmailLoginReque
         <p>If this was you, welcome!  Please click <a href="{settings.site_root}/login?email={quote(email)}&secret={token}">this link</a> to verify your identity and login.</p>
         <p>Alternatively, if copy-paste is your thing, you can copy this following "magic authentication token" into the appropriate box on the website.</p>
         <pre>{token}</pre>
+        <p>You have 10 minutes...</p>
         <p>Sincerely,</p>
         <p>Robot Prime, Master of Ceremonies and Chief Authentication Officer</p>
         """,
