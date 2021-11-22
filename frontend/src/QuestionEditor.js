@@ -7,7 +7,7 @@ import { authenticationService } from './_services/authentication.service';
 
 class QuestionInput extends React.Component {
   render() {
-    return (<div className="col-lg-6">
+    return (<div className="col-md-6">
       <b><label htmlFor={this.props.id}>{this.props.label}</label></b>
       <input
         type={this.props.isDate ? 'datetime-local' : 'text'}

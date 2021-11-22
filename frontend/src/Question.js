@@ -17,7 +17,12 @@ class ExpectedAnswer extends React.Component {
     if (!this.props.expectedAnswer) {
       return null;
     }
-    return (<p>Expected Answer: <b>{this.props.expectedAnswer}</b></p>);
+    return (<div className="row">
+      <div className="col-md-6"/>
+      <div className="col-md-6">
+        <p>Expected Answer: <b>{this.props.expectedAnswer}</b></p>
+      </div>
+    </div>);
   }
 }
 
@@ -49,7 +54,7 @@ class AnswerBox extends React.Component {
   renderNonEditableAnswer = () => (<input
     type="text"
     className="form-control"
-    value={`Your Answer: ${this.props.answer || '---'}`}
+    value={`Your Answer: ${this.props.prevAnswer || '---'}`}
     disabled />)
 
   componentDidUpdate = (prevProps, prevState) => {
@@ -59,20 +64,23 @@ class AnswerBox extends React.Component {
   }
 
   render() {
-    return (<form onSubmit={this.submitAnswer}>
-      <div className="input-group">
-        {this.props.question.is_active ?
-          <AnswerText
-            answer={this.state.answer}
-            updateAnswer={this.updateAnswer}
-            submitting={this.props.submitting} /> :
-          this.renderNonEditableAnswer()
-        }
-        {
-          (this.props.question.is_active && this.allowSubmit()) ?
-            (<button type="submit" className="btn btn-primary">Submit</button>) :
-            null
-        }
+    return (<form onSubmit={this.submitAnswer} className="row">
+      <div className="col-md-6" />
+      <div className="col-md-6">
+        <div className="input-group">
+          {this.props.question.is_active ?
+            <AnswerText
+              answer={this.state.answer}
+              updateAnswer={this.updateAnswer}
+              submitting={this.props.submitting} /> :
+            this.renderNonEditableAnswer()
+          }
+          {
+            (this.props.question.is_active && this.allowSubmit()) ?
+              (<button type="submit" className="btn btn-primary">Submit</button>) :
+              null
+          }
+        </div>
       </div>
     </form>);
   }
@@ -218,12 +226,6 @@ class QuestionComponent extends React.Component {
     return (<div>
       <div>
         <h1>{question.title}</h1>
-        <Tagger
-          tags={this.state.tags}
-          userTags={this.state.userTags}
-          addTag={this.addTag}
-          removeTag={this.removeTag}
-          editable={(this.state.question && this.state.question.is_active) ? true : false} />
         <ReactMarkdown
           className="card-text"
           components={{
@@ -249,6 +251,13 @@ class QuestionComponent extends React.Component {
           }}>{question.body}</ReactMarkdown>
       </div>
       <div className="card-footer">
+        <Tagger
+          tags={this.state.tags}
+          userTags={this.state.userTags}
+          addTag={this.addTag}
+          removeTag={this.removeTag}
+          editable={(this.state.question && this.state.question.is_active) ? true : false} />
+        <br/>
         <AnswerBox
           submitAnswer={this.submitAnswer}
           question={question}

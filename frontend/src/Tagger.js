@@ -4,16 +4,17 @@ class BaseTag extends React.Component {
   render = () => (<span className="badge rounded-pill bg-secondary text-light">{this.props.children}</span>);
 }
 
-class QuestionTagCollection extends React.Component {
-  renderTag = (tagTxt, tagNum) => (<BaseTag
-    key={tagNum}
-    tagNum={tagNum}>{tagTxt}</BaseTag>)
-
-  render() {
-    if (!this.props.tags || !this.props.tags.length) { return (<br/>); }
-    return (<div id="question-tags">{this.props.tags.map(this.renderTag)}</div>);
-  };
-}
+// to be replaced by a tag cloud
+// class QuestionTagCollection extends React.Component {
+//   renderTag = (tagTxt, tagNum) => (<BaseTag
+//     key={tagNum}
+//     tagNum={tagNum}>{tagTxt}</BaseTag>)
+//
+//   render() {
+//     if (!this.props.tags || !this.props.tags.length) { return (<br/>); }
+//     return (<div id="question-tags">{this.props.tags.map(this.renderTag)}</div>);
+//   };
+// }
 
 class SkittleTag extends React.Component {
   constructor(props) {
@@ -109,9 +110,9 @@ class TagAdder extends React.Component {
   }
 }
 
+// <QuestionTagCollection tags={this.props.tags}/>
 class Tagger extends React.Component {
   render = () => (<div>
-    <QuestionTagCollection tags={this.props.tags}/>
     <UserTagCollection
       tags={this.props.userTags}
       removeTag={this.props.removeTag}/>
