@@ -21,7 +21,7 @@ class NavComponent extends React.Component {
   render() {
     const isAdmin = this.state.me && this.state.me.is_admin
 
-    return (<nav className="navbar navbar-expand-md navbar-dark bg-dark">
+    return (<nav className={"navbar navbar-expand-md navbar-dark " + (isAdmin ? "bg-danger": "bg-dark")}>
       <div className="container-fluid">
         <Link className="navbar-brand" to="/">Advent of Quorum 2021</Link>
         <button

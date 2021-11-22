@@ -1,4 +1,6 @@
 import React from "react";
+import { ButtonBar } from './Styling';
+import { popError, popSuccess } from './handleError';
 import { authenticationService } from "./_services/authentication.service";
 import { toast } from 'react-toastify';
 
@@ -26,13 +28,13 @@ class Profile extends React.Component {
       .then((data) => {
         if (data.result) {
           authenticationService.refreshUser();
-          toast("Your profile has been updated.", {type: "success", theme: "colored"});
+          popSuccess("Your profile has been updated.");
         } else {
           this.setState({
             //error: data.message,
             username: this.props.user.username,
           });
-          toast("Nope! " + data.message, {type: "error", theme: "colored"});
+          popError("Nope! " + data.message);
         }
       });
     event.preventDefault();
@@ -86,13 +88,12 @@ class Profile extends React.Component {
           ) : (
             ""
           )}
-          <button
-            type="submit"
-            onClick={this.onSubmit.bind(this)}
-            className="btn btn-primary"
-          >
-            Update Profile
-          </button>
+          <ButtonBar>
+            <button
+              type="submit"
+              onClick={this.onSubmit.bind(this)}
+              className="btn btn-primary">Update Profile</button>
+          </ButtonBar>
         </form>
       </div>
     </div>

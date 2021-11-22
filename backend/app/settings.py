@@ -13,5 +13,6 @@ class Settings(BaseSettings):
     mailgun_apikey: str=None
     mailgun_pubkey: str=None
     mailgun_domain: str=None
+    mail_label: str = ""
 
 settings = Settings()

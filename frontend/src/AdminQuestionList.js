@@ -4,6 +4,7 @@ import './App.css';
 import './Question.css';
 import { authenticationService } from './_services/authentication.service';
 import { Link } from "react-router-dom";
+import {fromUtc} from "./dateHandling";
 
 // todo: indicator of whether you answered it (participated)
 
@@ -35,8 +36,8 @@ class AdminQuestionListComponent extends React.Component {
     <tr key={question.id}>
       <td><Link to={question.id}>{question.title}</Link></td>
       <td>{question.is_active ? this.daysRemaining(question) : this.namedStatus(question)}</td>
-      <td>{question.activate_date}</td>
-      <td>{question.deactivate_date}</td>
+      <td>{fromUtc(question.activate_date)}</td>
+      <td>{fromUtc(question.deactivate_date)}</td>
     </tr>);
 
   render = () => (
