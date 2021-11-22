@@ -14,6 +14,7 @@ export default class Homepage extends React.Component {
   render = () => (<div>
     {!this.props.user && <div>
       <h1>Advent of Quorum Leaderboard</h1>
+      <p class="alert alert-primary">Perhaps you wish to <a href="/login">Login</a> so you can participate in the fun?</p>
       <Leaderboard user={this.props.user} />
     </div>}
     {this.props.user && <div className="container-fluid">

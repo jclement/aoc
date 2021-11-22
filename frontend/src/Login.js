@@ -80,6 +80,7 @@ class LoginComponent extends React.Component {
   render = () => (
     <div>
       <Header>Advent of Quorum 2021!</Header>
+      {!this.state.email_sent && <p class="alert alert-dark">Enter your email address to sign-in/create an account.  An email will be sent to this address to authenticate you.</p>}
       <form>
         <div className="row mb-3">
           <label htmlFor="inputEmail" className="col-sm-2 col-form-label">
@@ -98,7 +99,7 @@ class LoginComponent extends React.Component {
         </div>
         {this.state.email_sent && (
           <div>
-            <div className="alert alert-info">
+            <div className="alert alert-success">
               A super secret authentication email has been sent to the supplied
               email address. Either copy-and-paste the code from that email into
               the box below, or click the link in the email and prove your
