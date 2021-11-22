@@ -9,6 +9,7 @@ import { popSuccess, handleError } from './handleError';
 import { useParams } from 'react-router-dom';
 import { authenticationService } from './_services/authentication.service';
 import { timeRemaining } from './dateHandling';
+import rehypeRaw from 'rehype-raw'
 
 class WaitHeader extends React.Component {
   render = () => (<Header>Please Wait...</Header>)
@@ -234,6 +235,7 @@ class QuestionComponent extends React.Component {
           null }
         <ReactMarkdown
           className="card-text"
+          rehypePlugins={[rehypeRaw]}
           components={{
             img({alt, src, title}) {
               return <img alt={alt} src={src} title={title} className="img-fluid" />
