@@ -4,7 +4,6 @@ import './Question.css';
 import { authenticationService } from './_services/authentication.service';
 import { Link } from "react-router-dom";
 import { timeRemaining } from "./dateHandling";
-import { timer } from 'rxjs';
 
 // todo: indicator of whether you answered it (participated)
 

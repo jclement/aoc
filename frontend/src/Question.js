@@ -230,7 +230,7 @@ class QuestionComponent extends React.Component {
       <div>
         <h1>{question.title}</h1>
         {this.state.question.is_active && <div class="alert alert-dark">{timeRemaining(question.deactivate_date)} remaining</div>}
-        {!this.state.question.is_active ?
+        {!this.state.question.is_active && this.state.tags.length > 0 ?
           <TagCloudWrapper tags={this.state.tags} /> :
           null }
         <ReactMarkdown
