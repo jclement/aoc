@@ -14,7 +14,7 @@ from validate_email import validate_email
 from . import models, schemas, util
 from .database import engine, get_db, SessionLocal
 from .settings import settings
-
+from sqlalchemy import and_
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
@@ -477,7 +477,7 @@ def retrieve_leaderboard(db=Depends(get_db)):
     users = {}
     for u, q, r in db.query(models.User, models.Question, models.Response)\
         .outerjoin(models.Response, models.Response.user_id == models.User.id)\
-        .outerjoin(models.Question, models.Question.id == models.Response.question_id)\
+        .outerjoin(models.Question, and_(models.Question.id == models.Response.question_id, datetime.datetime.utcnow() >= models.Question.deactivate_date))\
             .all():
         if not u.is_admin:
             if not u in users:
