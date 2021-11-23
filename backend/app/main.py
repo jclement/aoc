@@ -14,7 +14,7 @@ from validate_email import validate_email
 from . import models, schemas, util
 from .database import engine, get_db, SessionLocal
 from .settings import settings
-
+from sqlalchemy import and_
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
@@ -482,7 +482,8 @@ def retrieve_leaderboard(db=Depends(get_db)):
         if not u.is_admin:
             if not u in users:
                 users[u] = 0
-            users[u] += calculate_score(q, r)
+            if q and q.is_complete():
+                users[u] += calculate_score(q, r)
         else:
             users[u] = 999999
     leader = sorted(users.items(), key=lambda x: x[1])
@@ -520,3 +521,22 @@ def unlock_safe(request: UnlockRequest, db=Depends(get_db)):
             success=False
         )
 
+
+class CalculateRequest(BaseModel):
+    width: float
+    height: float
+    length: float
+
+class CalculateResponse(BaseModel):
+    success: bool
+    message: Optional[str]
+    paper_required: Optional[int]
+    
+
+@app.post("/util/calculate_wrap", tags=["Sample"], response_model=CalculateResponse)
+def calculate_wrap(request: CalculateRequest):
+    """
+    API that takes present dimensions (in meters) and returns wrapping paper required in 
+    square feet (rounded up to the next whole number).
+    """
+    return CalculateResponse(success=False, message="API not implemented.  This is your job!")

@@ -33,6 +33,9 @@ class Question(Base):
     activate_date = Column(DateTime, nullable=False)
     deactivate_date = Column(DateTime, nullable=False)
 
+    def is_complete(self):
+        return datetime.datetime.utcnow() >= self.deactivate_date
+
     def is_visible(self):
         return datetime.datetime.utcnow() >= self.activate_date
 
