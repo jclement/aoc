@@ -521,3 +521,22 @@ def unlock_safe(request: UnlockRequest, db=Depends(get_db)):
             success=False
         )
 
+
+class CalculateRequest(BaseModel):
+    width: float
+    height: float
+    length: float
+
+class CalculateResponse(BaseModel):
+    success: bool
+    message: Optional[str]
+    paper_required: Optional[int]
+    
+
+@app.post("/util/calculate_wrap", tags=["Sample"], response_model=CalculateResponse)
+def calculate_wrap(request: CalculateRequest):
+    """
+    API that takes present dimensions (in meters) and returns wrapping paper required in 
+    square feet (rounded up to the next whole number).
+    """
+    return CalculateResponse(success=False, message="API not implemented.  This is your job!")
