@@ -21,7 +21,8 @@ class QuestionComponent extends React.Component {
       score: null,
       tags: [],
       userTags: [],
-      submitting: false
+      submitting: false,
+      user: null
     };
   }
 
@@ -31,6 +32,14 @@ class QuestionComponent extends React.Component {
   }
 
   componentDidMount() {
+  }
+  componentDidMount() {
+    authenticationService.user.subscribe((x) => {
+      if (x !== undefined) {
+        this.setState({ user: x });
+      }
+    });
+
     const apiRoot = `/api/questions/${this.props.day}`;
     Promise.all([
       authenticationService.httpGet(apiRoot),
@@ -117,6 +126,9 @@ class QuestionComponent extends React.Component {
       return (<Header>Please Wait...</Header>);
     }
     const question = this.state.question;
+    var body = question.body;
+    body = body.replace('{{id}}', this.state.user.id);
+    body = body.replace('{{name}}', this.state.user.username);
     return (<div>
       <div>
         <h1>{question.title}</h1>
@@ -147,7 +159,7 @@ class QuestionComponent extends React.Component {
                 </code>
               )
             }
-          }}>{question.body}</ReactMarkdown>
+          }}>{body}</ReactMarkdown>
       </div>
 
       {this.state.question.is_complete && <div className="card">
