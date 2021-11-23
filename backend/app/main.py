@@ -303,6 +303,22 @@ def retrieve_answer(question_id, current_user=Depends(authenticated_user), db=De
         raise HTTPException(404)
     return schemas.Answer(answer=question.answer)
 
+@app.get("/questions/{question_id}/score", tags=["Questions"], response_model=schemas.Score)
+def retrieve_score(question_id, current_user=Depends(authenticated_user), db=Depends(get_db)):
+    """
+    Retrieve the answer for a question.  Note that non-admin users may only retrieve answers for completed question
+    """
+    tmp = db.query(models.Response, models.Question)\
+        .filter(
+            models.Response.user_id == models.User.id,
+            models.Question.id == question_id,
+            datetime.datetime.utcnow() >= models.Question.deactivate_date,
+        )\
+        .join(models.Question, models.Question.id == models.Response.question_id).first()
+    if not tmp:
+        return schemas.Score(score=0)
+    return schemas.Score(score=calculate_score(tmp[1], tmp[0]))
+
 @app.get("/questions/{question_id}/tags", tags=["Questions"], response_model=List[schemas.Tag])
 def retrieve_tags_for_question(question_id, current_user=Depends(authenticated_user), db=Depends(get_db)):
     responses = db.query(models.Response).filter(
@@ -494,49 +510,3 @@ def retrieve_leaderboard(db=Depends(get_db)):
         is_admin=x[0].is_admin,
         score=x[1],
     ) for x in leader]
-
-# =================== CHALLENGE =========================
-
-class UnlockRequest(BaseModel):
-    code: str = "55555"
-
-class UnlockResponse(BaseModel):
-    success: bool
-    secret_message: Optional[str]
-
-@app.post("/safe/unlock", tags=["Safe"], response_model=UnlockResponse)
-def unlock_safe(request: UnlockRequest, db=Depends(get_db)):
-    """
-    Helpful API to unlock (and display contents of) Santa's safe
-    """
-    if len(request.code) != 5:
-        raise HTTPException(500, detail="Code must be 5 digits")
-    if request.code == "90210":
-        return UnlockResponse(
-            success= True,
-            secret_message= "The safe word is 'peaches'",
-        )
-    else:
-        return UnlockResponse(
-            success=False
-        )
-
-
-class CalculateRequest(BaseModel):
-    width: float
-    height: float
-    length: float
-
-class CalculateResponse(BaseModel):
-    success: bool
-    message: Optional[str]
-    paper_required: Optional[int]
-    
-
-@app.post("/util/calculate_wrap", tags=["Sample"], response_model=CalculateResponse)
-def calculate_wrap(request: CalculateRequest):
-    """
-    API that takes present dimensions (in meters) and returns wrapping paper required in 
-    square feet (rounded up to the next whole number).
-    """
-    return CalculateResponse(success=False, message="API not implemented.  This is your job!")

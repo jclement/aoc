@@ -42,6 +42,7 @@ class QuestionSummary(BaseModel):
     deactivate_date: datetime.datetime
     is_active: bool
     is_visible: bool
+    is_complete: bool
 
     @classmethod
     def createFromOrm(cls, q: models.Question):
@@ -52,6 +53,7 @@ class QuestionSummary(BaseModel):
             deactivate_date = q.deactivate_date,
             is_active = q.is_active(),
             is_visible = q.is_visible(),
+            is_complete = q.is_complete(),
         )
 
 class WritableQuestionDetail(BaseModel):
@@ -64,6 +66,7 @@ class QuestionDetail(WritableQuestionDetail):
     id: str
     is_active: bool
     is_visible: bool
+    is_complete: bool
 
     @classmethod
     def createFromOrm(cls, q: models.Question):
@@ -74,6 +77,7 @@ class QuestionDetail(WritableQuestionDetail):
             deactivate_date = q.deactivate_date,
             is_active = q.is_active(),
             is_visible = q.is_visible(),
+            is_complete = q.is_complete(),
             body = q.body,
         )
 

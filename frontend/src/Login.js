@@ -1,5 +1,5 @@
 import React from "react";
-import { Header } from "./Styling";
+import { Header, ButtonBar } from "./Styling";
 import { authenticationService } from "./_services/authentication.service";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
@@ -128,23 +128,19 @@ class LoginComponent extends React.Component {
         ) : (
           ""
         )}
-        {!this.state.email_sent ? (
-          <button
-            type="submit"
-            onClick={this.sendEmail.bind(this)}
-            className="btn btn-primary"
-          >
-            Send Email
-          </button>
-        ) : (
-          <button
-            type="submit"
-            onClick={this.login.bind(this)}
-            className="btn btn-primary"
-          >
-            Login
-          </button>
-        )}
+        <ButtonBar>
+          {this.state.email_sent ? (
+            <button
+              type="submit"
+              onClick={this.login.bind(this)}
+              className="btn btn-primary">Login</button>
+            ) : (
+            <button
+              type="submit"
+              onClick={this.sendEmail.bind(this)}
+              className="btn btn-primary">Send Email</button>
+          )}
+        </ButtonBar>
       </form>
     </div>
   );

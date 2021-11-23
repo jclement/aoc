@@ -23,7 +23,15 @@
   border-bottom-right-radius: 50rem;
 }
 
-.question-sidebar .nav>.nav-link:hover {
+.autocompletions {
+  list-style-type: none;
+  position: absolute;
+  z-index: 1000;
+  max-height: 25em;
+  max-width: 250px;
+}
+
+.autocompletions li:hover {
   background-color: #0d6efd;
   color: #f8f9fa;
 }

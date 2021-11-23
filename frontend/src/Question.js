@@ -11,91 +11,14 @@ import { authenticationService } from './_services/authentication.service';
 import { timeRemaining } from './dateHandling';
 import rehypeRaw from 'rehype-raw'
 
-class WaitHeader extends React.Component {
-  render = () => (<Header>Please Wait...</Header>)
-}
-
-class ExpectedAnswer extends React.Component {
-  render() {
-    if (!this.props.expectedAnswer) {
-      return null;
-    }
-    return (<div className="row">
-      <div className="col-md-6"/>
-      <div className="col-md-6">
-        <p>Expected Answer: <b>{this.props.expectedAnswer}</b></p>
-      </div>
-    </div>);
-  }
-}
-
-class AnswerText extends React.Component {
-  render = () => (<input
-    type="text"
-    className="form-control"
-    placeholder="Your Answer"
-    value={this.props.answer}
-    disabled={this.props.submitting}
-    onChange={this.props.updateAnswer} />)
-}
-
-class AnswerBox extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { answer: '' };
-  }
-
-  submitAnswer = evt => {
-    evt.preventDefault();
-    this.props.submitAnswer(this.state.answer);
-  }
-
-  updateAnswer = evt => this.setState({ answer: evt.target.value })
-
-  allowSubmit = () => (this.state.answer && this.state.answer.length) ? true : false
-
-  renderNonEditableAnswer = () => (<input
-    type="text"
-    className="form-control"
-    value={`Your Answer: ${this.props.prevAnswer || '---'}`}
-    disabled />)
-
-  componentDidUpdate = (prevProps, prevState) => {
-    if (this.props.prevAnswer !== prevProps.prevAnswer) {
-      this.setState({ answer: this.props.prevAnswer });
-    }
-  }
-
-  render() {
-    return (<form onSubmit={this.submitAnswer} className="row">
-      <div className="col-md-6" />
-      <div className="col-md-6">
-        <div className="input-group">
-          {this.props.question.is_active ?
-            <AnswerText
-              answer={this.state.answer}
-              updateAnswer={this.updateAnswer}
-              submitting={this.props.submitting} /> :
-            this.renderNonEditableAnswer()
-          }
-          {
-            (this.props.question.is_active && this.allowSubmit()) ?
-              (<button type="submit" className="btn btn-primary">Submit</button>) :
-              null
-          }
-        </div>
-      </div>
-    </form>);
-  }
-}
-
 class QuestionComponent extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       question: null,
-      prevAnswer: '',
+      answer: '',
       expectedAnswer: null,
+      score: null,
       tags: [],
       userTags: [],
       submitting: false
@@ -107,71 +30,42 @@ class QuestionComponent extends React.Component {
     handleError(error);
   }
 
-  fetchQuestionMeta = () => {
-    let prevRespGetter = authenticationService
-      .httpGet(`/api/questions/${this.props.day}/response`);
-
-    let tagRespGetter = authenticationService
-      .httpGet(`/api/questions/${this.props.day}/tags`);
-
-    let correctRespGetter = this.state.question.is_active ?
-      null :
-      authenticationService.httpGet(`/api/questions/${this.props.day}/answer`);
-
-    Promise.all(
-      [prevRespGetter, tagRespGetter, correctRespGetter]
-    ).then(results => {
-      let correctResp = results[2];
+  componentDidMount() {
+    const apiRoot = `/api/questions/${this.props.day}`;
+    Promise.all([
+      authenticationService.httpGet(apiRoot),
+      authenticationService.httpGet(`${apiRoot}/response`),
+      authenticationService.httpGet(`${apiRoot}/tags`),
+      authenticationService.httpGet(`${apiRoot}/answer`),
+      authenticationService.httpGet(`${apiRoot}/score`)
+    ]).then(results => {
+      let correctResp = results[3];
 
       Promise.all([
-        results[0].json(),                      // prev response
-        results[1].json(),                      // tags
-        correctResp ? correctResp.json() : null // correct response (if old question)
+        results[0].json(),                      // question response
+        results[1].json(),                      // prev response
+        results[2].json(),                      // tags
+        correctResp ? correctResp.json() : null, // correct response (if old question)
+        results[4].json() // score
       ]).then(responses => {
-        const prev = responses[0];
-        const expected = responses[2];
-        // let tags = responses[1].map(t => t.tag);
+        const prev = responses[1];
+        const expected = responses[3];
         this.setState(
           {
-            prevAnswer: prev ? prev.response : '',
-            tags: responses[1],
+            question: responses[0],
+            answer: prev ? prev.response : '',
+            tags: responses[2],
             userTags: (prev ? prev.tags : []),
-            expectedAnswer: expected ? expected.answer : ''
+            expectedAnswer: expected ? expected.answer : '',
+            score: responses[4].score
           }
         )
       }).catch(this.catchError);
     });
   }
 
-  fetchQuestion = () => {
-    authenticationService.httpGet(
-      `/api/questions/${this.props.day}`
-    ).then(
-      resp => {
-        if (!resp.ok) {
-          throw new Error(`${resp.status} - ${resp.statusText}`);
-        } else {
-          return resp.json();
-        }
-      }
-    ).then(
-      data => this.setState(
-        {
-          expectedAnswer: null,
-          question: data,
-          prevAnswer: '',
-        },
-        this.fetchQuestionMeta
-      )
-    ).catch(this.catchError);
-
-    return (<WaitHeader/>);
-  }
-
-  submitAnswer = answer => {
-    if (!answer) { return; }
-
-    const ans = answer.trim();
+  submitAnswer = (evt) => {
+    const ans = this.state.answer.trim();
     if (!ans.length) { return; }
 
     this.setState({ submitting: true });
@@ -186,26 +80,20 @@ class QuestionComponent extends React.Component {
       resp => resp.json()
     ).then(
       () => {
-        this.setState({
-          question: null,
-          prevAnswer: '',
-          tags: [],
-          submitting: false
-        });
+        this.setState({ submitting: false });
         popSuccess('Submitted!');
       }
     ).catch(this.catchError);
   }
 
-  initFetchQuestion = () => {
-    this.fetchQuestion();
-    return (<WaitHeader />);
-  }
-
-  tagify = newTag => newTag.replace(/\W+/gi, '').toLowerCase()
+  tagify = newTag => newTag.replace(/\W+/gi, '').toLowerCase().trim()
 
   addTag = newTag => {
     const formattedTag = this.tagify(newTag);
+    if (!formattedTag || !formattedTag.length) {
+      return;
+    }
+
     const hasThisTag = tag => tag === formattedTag;
     if (!this.state.userTags.find(hasThisTag)) {
       this.setState({
@@ -220,16 +108,19 @@ class QuestionComponent extends React.Component {
     });
   }
 
+  onAnswerChange = (evt) => {
+    this.setState({"answer": evt.target.value});
+  }
+
   render() {
     if (!this.state.question) {
-      return this.initFetchQuestion();
+      return (<Header>Please Wait...</Header>);
     }
-
     const question = this.state.question;
     return (<div>
       <div>
         <h1>{question.title}</h1>
-        {this.state.question.is_active && <div class="alert alert-dark">{timeRemaining(question.deactivate_date)} remaining</div>}
+        {this.state.question.is_active && <div className="alert alert-dark">{timeRemaining(question.deactivate_date)} remaining</div>}
         {!this.state.question.is_active && this.state.tags.length > 0 ?
           <TagCloudWrapper tags={this.state.tags} /> :
           null }
@@ -258,24 +149,62 @@ class QuestionComponent extends React.Component {
             }
           }}>{question.body}</ReactMarkdown>
       </div>
-      <div className="card-footer">
-        <Tagger
-          tags={this.state.tags}
-          userTags={this.state.userTags}
-          addTag={this.addTag}
-          removeTag={this.removeTag}
-          editable={this.state.question.is_active ? true : false} />
-        <br/>
-        <AnswerBox
-          submitAnswer={this.submitAnswer}
-          question={question}
-          prevAnswer={this.state.prevAnswer}
-          submitting={this.state.submitting} />
-        <ExpectedAnswer
-          expectedAnswer={this.state.expectedAnswer}
-          submitting={this.state.submitting}/>
+
+      {this.state.question.is_complete && <div className="card">
+        <div className="card-header bg-warning">Results for Your Response</div>
+        <div className="card-body">
+          <table>
+            <tr><th>Your response:</th><td>{this.state.answer}</td></tr>
+            <tr><th>Correct response:&nbsp;</th><td>{this.state.expectedAnswer}</td></tr>
+            <tr><th>Points Awarded:</th><td>{this.state.score}</td></tr>
+            <tr><th>Your tags:</th><td>
+              {this.state.userTags.map(t => {
+                return <span className="badge rounded-pill bg-primary" style={{marginRight: "5px"}}>{t}</span>
+              })}
+            </td></tr>
+          </table>
+        </div>
+        </div>}
+
+      {this.state.question.is_active && <div className="card">
+        <div className="card-header bg-primary text-white">Your Response</div>
+        <div className="card-body">
+            <div className="row mb-3">
+              <label htmlFor="tags" className="col-sm-2 col-form-label">
+                Tags:
+              </label>
+              <div id="tags" className="col-sm-10">
+                <Tagger
+                  tags={this.state.tags}
+                  userTags={this.state.userTags}
+                  addTag={this.addTag}
+                  removeTag={this.removeTag}
+                  editable={this.state.question.is_active ? true : false}
+                  questionId={this.props.day} />
+              </div>
+            </div>
+            <div className="row mb-3">
+              <label htmlFor="answer" className="col-sm-2 col-form-label">
+                Answer:
+              </label>
+              <div id="answer" className="col-sm-10">
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Your Answer"
+                  value={this.state.answer}
+                  disabled={this.state.submitting}
+                  onChange={this.onAnswerChange} />
+                </div>
+              </div>
+        </div>
+        <div className="card-footer">
+          <button className="btn btn-primary" disabled={!this.state.answer || this.state.submitting} onClick={this.submitAnswer}>Submit Answer and Tags</button>
+        </div>
+        </div>
+      }
       </div>
-    </div>);
+    );
   }
 }
 
