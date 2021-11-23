@@ -151,7 +151,7 @@ class QuestionComponent extends React.Component {
       </div>
 
       {this.state.question.is_complete && <div className="card">
-        <div className="card-header">Results for Your Response</div>
+        <div className="card-header bg-warning">Results for Your Response</div>
         <div className="card-body">
           <table>
             <tr><th>Your response:</th><td>{this.state.answer}</td></tr>
@@ -167,7 +167,7 @@ class QuestionComponent extends React.Component {
         </div>}
 
       {this.state.question.is_active && <div className="card">
-        <div className="card-header">Your Response</div>
+        <div className="card-header bg-primary text-white">Your Response</div>
         <div className="card-body">
             <div className="row mb-3">
               <label htmlFor="tags" className="col-sm-2 col-form-label">
