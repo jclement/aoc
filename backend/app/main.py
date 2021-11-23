@@ -303,6 +303,22 @@ def retrieve_answer(question_id, current_user=Depends(authenticated_user), db=De
         raise HTTPException(404)
     return schemas.Answer(answer=question.answer)
 
+@app.get("/questions/{question_id}/score", tags=["Questions"], response_model=schemas.Score)
+def retrieve_score(question_id, current_user=Depends(authenticated_user), db=Depends(get_db)):
+    """
+    Retrieve the answer for a question.  Note that non-admin users may only retrieve answers for completed question
+    """
+    tmp = db.query(models.Response, models.Question)\
+        .filter(
+            models.Response.user_id == models.User.id,
+            models.Question.id == question_id,
+            datetime.datetime.utcnow() >= models.Question.deactivate_date,
+        )\
+        .join(models.Question, models.Question.id == models.Response.question_id).first()
+    if not tmp:
+        return schemas.Score(score=0)
+    return schemas.Score(score=calculate_score(tmp[1], tmp[0]))
+
 @app.get("/questions/{question_id}/tags", tags=["Questions"], response_model=List[schemas.Tag])
 def retrieve_tags_for_question(question_id, current_user=Depends(authenticated_user), db=Depends(get_db)):
     responses = db.query(models.Response).filter(
