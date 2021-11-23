@@ -11,10 +11,6 @@ import { authenticationService } from './_services/authentication.service';
 import { timeRemaining } from './dateHandling';
 import rehypeRaw from 'rehype-raw'
 
-class WaitHeader extends React.Component {
-  render = () => (<Header>Please Wait...</Header>)
-}
-
 class ExpectedAnswer extends React.Component {
   render() {
     if (!this.props.expectedAnswer) {
@@ -67,7 +63,7 @@ class AnswerBox extends React.Component {
   }
 
   render() {
-    return (<form onSubmit={this.submitAnswer} className="row">
+    return (<form className="row">
       <div className="col-md-6" />
       <div className="col-md-6">
         <div className="input-group">
@@ -80,7 +76,10 @@ class AnswerBox extends React.Component {
           }
           {
             (this.props.question.is_active && this.allowSubmit()) ?
-              (<button type="submit" className="btn btn-primary">Submit</button>) :
+              (<button
+                type="submit"
+                className="btn btn-primary"
+                onClick={this.submitAnswer}>Submit</button>) :
               null
           }
         </div>
@@ -107,65 +106,35 @@ class QuestionComponent extends React.Component {
     handleError(error);
   }
 
-  fetchQuestionMeta = () => {
-    let prevRespGetter = authenticationService
-      .httpGet(`/api/questions/${this.props.day}/response`);
-
-    let tagRespGetter = authenticationService
-      .httpGet(`/api/questions/${this.props.day}/tags`);
-
-    let correctRespGetter = this.state.question.is_active ?
-      null :
-      authenticationService.httpGet(`/api/questions/${this.props.day}/answer`);
-
-    Promise.all(
-      [prevRespGetter, tagRespGetter, correctRespGetter]
-    ).then(results => {
-      let correctResp = results[2];
+  componentDidMount() {
+    const apiRoot = `/api/questions/${this.props.day}`;
+    Promise.all([
+      authenticationService.httpGet(apiRoot),
+      authenticationService.httpGet(`${apiRoot}/response`),
+      authenticationService.httpGet(`${apiRoot}/tags`),
+      authenticationService.httpGet(`${apiRoot}/answer`)
+    ]).then(results => {
+      let correctResp = results[3];
 
       Promise.all([
-        results[0].json(),                      // prev response
-        results[1].json(),                      // tags
+        results[0].json(),                      // question response
+        results[1].json(),                      // prev response
+        results[2].json(),                      // tags
         correctResp ? correctResp.json() : null // correct response (if old question)
       ]).then(responses => {
-        const prev = responses[0];
-        const expected = responses[2];
-        // let tags = responses[1].map(t => t.tag);
+        const prev = responses[1];
+        const expected = responses[3];
         this.setState(
           {
+            question: responses[0],
             prevAnswer: prev ? prev.response : '',
-            tags: responses[1],
+            tags: responses[2],
             userTags: (prev ? prev.tags : []),
             expectedAnswer: expected ? expected.answer : ''
           }
         )
       }).catch(this.catchError);
     });
-  }
-
-  fetchQuestion = () => {
-    authenticationService.httpGet(
-      `/api/questions/${this.props.day}`
-    ).then(
-      resp => {
-        if (!resp.ok) {
-          throw new Error(`${resp.status} - ${resp.statusText}`);
-        } else {
-          return resp.json();
-        }
-      }
-    ).then(
-      data => this.setState(
-        {
-          expectedAnswer: null,
-          question: data,
-          prevAnswer: '',
-        },
-        this.fetchQuestionMeta
-      )
-    ).catch(this.catchError);
-
-    return (<WaitHeader/>);
   }
 
   submitAnswer = answer => {
@@ -186,26 +155,20 @@ class QuestionComponent extends React.Component {
       resp => resp.json()
     ).then(
       () => {
-        this.setState({
-          question: null,
-          prevAnswer: '',
-          tags: [],
-          submitting: false
-        });
+        this.setState({ submitting: false });
         popSuccess('Submitted!');
       }
     ).catch(this.catchError);
   }
 
-  initFetchQuestion = () => {
-    this.fetchQuestion();
-    return (<WaitHeader />);
-  }
-
-  tagify = newTag => newTag.replace(/\W+/gi, '').toLowerCase()
+  tagify = newTag => newTag.replace(/\W+/gi, '').toLowerCase().trim()
 
   addTag = newTag => {
     const formattedTag = this.tagify(newTag);
+    if (!formattedTag || !formattedTag.length) {
+      return;
+    }
+
     const hasThisTag = tag => tag === formattedTag;
     if (!this.state.userTags.find(hasThisTag)) {
       this.setState({
@@ -222,14 +185,14 @@ class QuestionComponent extends React.Component {
 
   render() {
     if (!this.state.question) {
-      return this.initFetchQuestion();
+      return (<Header>Please Wait...</Header>);
     }
 
     const question = this.state.question;
     return (<div>
       <div>
         <h1>{question.title}</h1>
-        {this.state.question.is_active && <div class="alert alert-dark">{timeRemaining(question.deactivate_date)} remaining</div>}
+        {this.state.question.is_active && <div className="alert alert-dark">{timeRemaining(question.deactivate_date)} remaining</div>}
         {!this.state.question.is_active && this.state.tags.length > 0 ?
           <TagCloudWrapper tags={this.state.tags} /> :
           null }
@@ -264,7 +227,8 @@ class QuestionComponent extends React.Component {
           userTags={this.state.userTags}
           addTag={this.addTag}
           removeTag={this.removeTag}
-          editable={this.state.question.is_active ? true : false} />
+          editable={this.state.question.is_active ? true : false}
+          questionId={this.props.day} />
         <br/>
         <AnswerBox
           submitAnswer={this.submitAnswer}

@@ -1,20 +1,133 @@
 import React from 'react';
 
-class BaseTag extends React.Component {
-  render = () => (<span className="badge rounded-pill bg-secondary text-light">{this.props.children}</span>);
+class CompletionItem extends React.Component {
+  completionClass = () => 'list-group-item clickable' + (this.props.isSelected ? ' bg-primary text-light' : '')
+
+  addTag = evt => {
+    evt.preventDefault();
+    this.props.addTag(this.props.completion);
+  }
+
+  render = () => (<li
+    className={this.completionClass()}
+    onClick={this.addTag}>{this.props.completion}</li>)
 }
 
-// to be replaced by a tag cloud
-// class QuestionTagCollection extends React.Component {
-//   renderTag = (tagTxt, tagNum) => (<BaseTag
-//     key={tagNum}
-//     tagNum={tagNum}>{tagTxt}</BaseTag>)
-//
-//   render() {
-//     if (!this.props.tags || !this.props.tags.length) { return (<br/>); }
-//     return (<div id="question-tags">{this.props.tags.map(this.renderTag)}</div>);
-//   };
-// }
+class AutoComplete extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      txt: '',
+      tags: [],
+      completions: [],
+      focused: false,
+      selectedIndex: 0
+    };
+  }
+
+  componentDidMount() {
+    this.setState({
+      tags: this.props.tags.map(t => t.tag).sort()
+    });
+  }
+
+  updateTxt = evt => {
+    const txtVal = evt.target.value;
+    const filterTerm = txtVal.toLowerCase().trim();
+
+    this.setState({
+      txt: txtVal,
+      selectedIndex: 0,
+      completions: (filterTerm.length ?
+        this.state.tags.filter(t => t.indexOf(filterTerm) > -1) :
+        [])
+    });
+  }
+
+  gotFocus = () => this.setState({ focused: true })
+  lostFocus = () => {
+    window.setTimeout(() => this.setState({ focused: false }), 100);
+  }
+
+  bumpSelection = (evt, incr) => {
+    evt.preventDefault();
+
+    const completionCount = this.state.completions.length;
+    this.setState({
+      selectedIndex: (completionCount ?
+        (this.state.selectedIndex + incr + completionCount) % completionCount :
+        0
+      )
+    });
+  }
+
+  addTag = newTag => {
+    this.setState(
+      { txt: '', completions: [] },
+      () => this.props.addTag(newTag)
+    );
+  }
+
+  renderCompletion = (completion, i) => (<CompletionItem
+    key={completion}
+    completion={completion}
+    isSelected={i === this.state.selectedIndex}
+    addTag={this.addTag} />)
+
+  addStateTag = evt => {
+    if (evt && evt.preventDefault) {
+      evt.preventDefault();
+    }
+    this.addTag(this.state.txt);
+  }
+
+  handleKeyDown = evt => {
+    if (evt.key === 'Enter') {
+      evt.preventDefault();
+
+      if (this.state.completions.length) {
+        const selectedTag = this.state.completions[this.state.selectedIndex];
+        this.addTag(this.state.completions[this.state.selectedIndex]);
+      } else {
+        this.addStateTag();
+      }
+    } else if (evt.key === 'ArrowUp') {
+      this.bumpSelection(evt, -1);
+    } else if (evt.key === 'ArrowDown') {
+      this.bumpSelection(evt, 1);
+    }
+  }
+
+  render() {
+    return (<div className="col-md-4">
+      <div className="float-end">
+        <form className="btn-group">
+          <input
+            type="text"
+            className="form-control"
+            placeholder="+ New Tag"
+            value={this.state.txt}
+            onChange={this.updateTxt}
+            onFocus={this.gotFocus}
+            onBlur={this.lostFocus}
+            onKeyDown={this.handleKeyDown}
+            disabled={!this.props.editable} />
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={this.addStateTag}>+</button>
+        </form>
+        {
+          this.state.completions.length && this.state.focused ?
+            (<ul className="autocompletions list-group">
+              {this.state.completions.map(this.renderCompletion)}
+            </ul>) :
+            null
+        }
+      </div>
+    </div>);
+  }
+}
 
 class SkittleTag extends React.Component {
   constructor(props) {
@@ -92,31 +205,23 @@ class TagAdder extends React.Component {
 
     return (<div className="row">
       <div className="col-md-8" />
-      <div className="col-md-4">
-        <form className="input-group">
-          <input
-            type="text"
-            className="form-control"
-            value={this.state.newTag}
-            onChange={this.updateNewTag}
-            placeholder="+ New Tag"/>
-          <button
-            type="submit"
-            className="btn btn-primary"
-            onClick={this.addTag}>+</button>
-        </form>
-      </div>
+      <AutoComplete
+        tags={this.props.tags}
+        addTag={this.props.addTag}
+        editable={this.props.editable} />
     </div>);
   }
 }
 
-// <QuestionTagCollection tags={this.props.tags}/>
 class Tagger extends React.Component {
   render = () => (<div>
     <UserTagCollection
       tags={this.props.userTags}
-      removeTag={this.props.removeTag}/>
-    <TagAdder addTag={this.props.addTag} editable={this.props.editable}/>
+      removeTag={this.props.removeTag} />
+    <TagAdder
+      tags={this.props.tags}
+      addTag={this.props.addTag}
+      editable={this.props.editable} />
   </div>)
 }
 
