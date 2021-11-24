@@ -2,7 +2,6 @@ import React from "react";
 import { ButtonBar } from './Styling';
 import { popError, popSuccess } from './handleError';
 import { authenticationService } from "./_services/authentication.service";
-import { toast } from 'react-toastify';
 
 class Profile extends React.Component {
   constructor(props) {
@@ -11,7 +10,7 @@ class Profile extends React.Component {
       id: props.user.id,
       email: props.user.email,
       username: props.user.username,
-      error: "",
+      error: ""
     };
   }
 

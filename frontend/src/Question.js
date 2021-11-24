@@ -2,7 +2,7 @@ import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import {Prism as SyntaxHighlighter} from 'react-syntax-highlighter'
 import {dark} from 'react-syntax-highlighter/dist/esm/styles/prism'
-import { Header } from './Styling';
+import { Header, ButtonBar } from './Styling';
 import Tagger from './Tagger';
 import TagCloudWrapper from './TagCloudWrapper';
 import { popSuccess, handleError } from './handleError';
@@ -32,8 +32,6 @@ class QuestionComponent extends React.Component {
   }
 
   componentDidMount() {
-  }
-  componentDidMount() {
     authenticationService.user.subscribe((x) => {
       if (x !== undefined) {
         this.setState({ user: x });
@@ -51,9 +49,9 @@ class QuestionComponent extends React.Component {
       let correctResp = results[3];
 
       Promise.all([
-        results[0].json(),                      // question response
-        results[1].json(),                      // prev response
-        results[2].json(),                      // tags
+        results[0].json(),                       // question response
+        results[1].json(),                       // prev response
+        results[2].json(),                       // tags
         correctResp ? correctResp.json() : null, // correct response (if old question)
         results[4].json() // score
       ]).then(responses => {
@@ -191,8 +189,7 @@ class QuestionComponent extends React.Component {
                   userTags={this.state.userTags}
                   addTag={this.addTag}
                   removeTag={this.removeTag}
-                  editable={this.state.question.is_active ? true : false}
-                  questionId={this.props.day} />
+                  editable={this.state.question.is_active ? true : false} />
               </div>
             </div>
             <div className="row mb-3">
@@ -211,7 +208,12 @@ class QuestionComponent extends React.Component {
               </div>
         </div>
         <div className="card-footer">
-          <button className="btn btn-primary" disabled={!this.state.answer || this.state.submitting} onClick={this.submitAnswer}>Submit Answer and Tags</button>
+          <ButtonBar>
+            <button
+              className="btn btn-primary"
+              disabled={!this.state.answer || this.state.submitting}
+              onClick={this.submitAnswer}>Submit Answer and Tags</button>
+          </ButtonBar>
         </div>
         </div>
       }
