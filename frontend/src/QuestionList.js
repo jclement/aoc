@@ -24,7 +24,7 @@ class QuestionListComponent extends React.Component {
     );
   }
 
-  namedStatus = question => (Date.now() > Date.parse(question.deactivate_date) ? 'Complete' : 'Inactive')
+  namedStatus = question => (Date.now() > parseToLocal(question.deactivate_date) ? 'Complete' : 'Inactive')
 
   plural = n => (n > 1 ? 's' : '')
   wordify = (unit, n) => (n ? `${n} ${unit}${this.plural(n)}` : '')

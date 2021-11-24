@@ -8,8 +8,9 @@ import TagCloudWrapper from './TagCloudWrapper';
 import { popSuccess, handleError } from './handleError';
 import { useParams } from 'react-router-dom';
 import { authenticationService } from './_services/authentication.service';
-import { timeRemaining } from './dateHandling';
+import { parseToLocal } from './dateHandling';
 import rehypeRaw from 'rehype-raw'
+import Countdown from 'react-countdown';
 
 class QuestionComponent extends React.Component {
   constructor(props) {
@@ -31,13 +32,7 @@ class QuestionComponent extends React.Component {
     handleError(error);
   }
 
-  componentDidMount() {
-    authenticationService.user.subscribe((x) => {
-      if (x !== undefined) {
-        this.setState({ user: x });
-      }
-    });
-
+  fetchQuestion = () => {
     const apiRoot = `/api/questions/${this.props.day}`;
     Promise.all([
       authenticationService.httpGet(apiRoot),
@@ -64,11 +59,22 @@ class QuestionComponent extends React.Component {
             tags: responses[2],
             userTags: (prev ? prev.tags : []),
             expectedAnswer: expected ? expected.answer : '',
-            score: responses[4].score
+            score: responses[4].score,
+            submitting: false
           }
         )
       }).catch(this.catchError);
     });
+  }
+
+  componentDidMount() {
+    authenticationService.user.subscribe((x) => {
+      if (x !== undefined) {
+        this.setState({ user: x });
+      }
+    });
+
+    this.fetchQuestion();
   }
 
   submitAnswer = (evt) => {
@@ -119,6 +125,27 @@ class QuestionComponent extends React.Component {
     this.setState({"answer": evt.target.value});
   }
 
+  shutErDown = () => {
+    this.setState(
+      { submitting: true },
+      this.fetchQuestion
+    );
+  }
+
+  plural = n => (n > 1 ? 's' : '')
+  wordify = (unit, n) => (n ? `${n} ${unit}${this.plural(n)}` : '')
+  renderer = ({ days, hours, minutes, seconds, completed }) => {
+    if (completed) {
+      return (<span>Complete</span>);
+    }
+    return [
+      this.wordify('day', days),
+      this.wordify('hour', hours),
+      this.wordify('minute', minutes),
+      this.wordify('second', seconds)
+    ].filter(s => !!s.length).join(' ') + ' remaining';
+  }
+
   render() {
     if (!this.state.question) {
       return (<Header>Please Wait...</Header>);
@@ -130,10 +157,16 @@ class QuestionComponent extends React.Component {
     return (<div>
       <div>
         <h1>{question.title}</h1>
-        {this.state.question.is_active && <div className="alert alert-dark">{timeRemaining(question.deactivate_date)} remaining</div>}
-        {!this.state.question.is_active && this.state.tags.length > 0 ?
-          <TagCloudWrapper tags={this.state.tags} /> :
-          null }
+        {
+          this.state.question.is_active ?
+            (<div className="alert alert-dark">
+              <Countdown
+                date={parseToLocal(question.deactivate_date)}
+                renderer={this.renderer}
+                onComplete={this.shutErDown} />
+            </div>) :
+            (<TagCloudWrapper tags={this.state.tags} />)
+        }
         <ReactMarkdown
           className="card-text"
           rehypePlugins={[rehypeRaw]}

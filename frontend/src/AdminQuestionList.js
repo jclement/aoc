@@ -3,7 +3,7 @@ import './App.css';
 import './Question.css';
 import { authenticationService } from './_services/authentication.service';
 import { Link } from "react-router-dom";
-import {fromUtc, parseToLocal} from "./dateHandling";
+import { fromUtc, parseToLocal } from "./dateHandling";
 import Countdown from 'react-countdown';
 
 // todo: indicator of whether you answered it (participated)
@@ -24,7 +24,7 @@ class AdminQuestionListComponent extends React.Component {
     );
   }
 
-  namedStatus = question => (Date.now() > Date.parse(question.deactivate_date) ? 'Complete' : 'Inactive')
+  namedStatus = question => (Date.now() > parseToLocal(question.deactivate_date) ? 'Complete' : 'Inactive')
 
   renderQuestionCard = question => (
     <tr key={question.id}>
