@@ -1,7 +1,7 @@
 import React from 'react';
 
 class CompletionItem extends React.Component {
-  completionClass = () => 'list-group-item clickable' + (this.props.isSelected ? ' bg-primary text-light' : '')
+  completionClass = () => 'list-group-item clickable' + (this.props.isSelected ? ' selected' : '')
 
   addTag = evt => {
     evt.preventDefault();
@@ -25,9 +25,14 @@ class AutoComplete extends React.Component {
     };
   }
 
+  toSearchableTag = t => ({
+    tag: t.tag,
+    searched: t.tag.toLowerCase()
+  })
+
   componentDidMount() {
     this.setState({
-      tags: this.props.tags.map(t => t.tag).sort()
+      tags: this.props.tags.sort().map(this.toSearchableTag)
     });
   }
 
@@ -39,14 +44,19 @@ class AutoComplete extends React.Component {
       txt: txtVal,
       selectedIndex: 0,
       completions: (filterTerm.length ?
-        this.state.tags.filter(t => t.indexOf(filterTerm) > -1) :
-        [])
+        (
+          this.state.tags
+            .filter(t => t.searched.indexOf(filterTerm) > -1)
+            .map(t => t.tag)
+        ) :
+        []
+      )
     });
   }
 
   gotFocus = () => this.setState({ focused: true })
   lostFocus = () => {
-    window.setTimeout(() => this.setState({ focused: false }), 100);
+    window.setTimeout(() => this.setState({ focused: false }), 250);
   }
 
   bumpSelection = (evt, incr) => {
@@ -86,7 +96,6 @@ class AutoComplete extends React.Component {
       evt.preventDefault();
 
       if (this.state.completions.length) {
-        const selectedTag = this.state.completions[this.state.selectedIndex];
         this.addTag(this.state.completions[this.state.selectedIndex]);
       } else {
         this.addStateTag();
@@ -119,7 +128,7 @@ class AutoComplete extends React.Component {
         </form>
         {
           this.state.completions.length && this.state.focused ?
-            (<ul className="autocompletions list-group">
+            (<ul className="autocompletions list-group border border-success">
               {this.state.completions.map(this.renderCompletion)}
             </ul>) :
             null

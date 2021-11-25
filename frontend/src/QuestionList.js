@@ -3,7 +3,8 @@ import './App.css';
 import './Question.css';
 import { authenticationService } from './_services/authentication.service';
 import { Link } from "react-router-dom";
-import { timeRemaining } from "./dateHandling";
+import { parseToLocal } from "./dateHandling";
+import Countdown from 'react-countdown';
 
 // todo: indicator of whether you answered it (participated)
 
@@ -23,12 +24,32 @@ class QuestionListComponent extends React.Component {
     );
   }
 
-  namedStatus = question => (Date.now() > Date.parse(question.deactivate_date) ? "Complete" : "Inactive")
+  namedStatus = question => (Date.now() > parseToLocal(question.deactivate_date) ? 'Complete' : 'Inactive')
+
+  plural = n => (n > 1 ? 's' : '')
+  wordify = (unit, n) => (n ? `${n} ${unit}${this.plural(n)}` : '')
+  renderer = ({ days, hours, minutes, seconds, completed }) => {
+    if (completed) {
+      return (<span>Complete</span>);
+    }
+    return [
+      this.wordify('day', days),
+      this.wordify('hour', hours),
+      this.wordify('minute', minutes),
+      this.wordify('second', seconds)
+    ].filter(s => !!s.length).join(' ');
+  }
 
   renderQuestionCard = question => (
     <tr key={question.id} className={question.is_active ? "table-success" : ""}>
       <td><Link to={"question/" + question.id}>{question.title}</Link></td>
-      <td>{question.is_active ? <span>{timeRemaining(question.deactivate_date)} remaining</span> : this.namedStatus(question)}</td>
+      <td>{
+        question.is_active ?
+          <Countdown
+            date={parseToLocal(question.deactivate_date)}
+            renderer={this.renderer} /> :
+          <span>{this.namedStatus(question)}</span>
+      }</td>
     </tr>);
 
   render = () => (

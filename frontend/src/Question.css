@@ -31,7 +31,17 @@
   max-width: 250px;
 }
 
-.autocompletions li:hover {
-  background-color: #0d6efd;
+.autocompletions > li {
+  color: #198754;
+}
+
+.autocompletions li:hover, .autocompletions .selected {
+  /* background-color: #0d6efd; */
+  /* background-color: #dc3545; */
+  background-color: #198754;
   color: #f8f9fa;
+}
+
+.userTag {
+  margin-right: 5px;
 }
