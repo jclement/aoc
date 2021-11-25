@@ -12,6 +12,12 @@ import { parseToLocal } from './dateHandling';
 import rehypeRaw from 'rehype-raw'
 import Countdown from 'react-countdown';
 
+class MyTag extends React.Component {
+  render = () => (<span className="badge rounded-pill bg-primary userTag">
+    {this.props.children}
+  </span>)
+}
+
 class QuestionComponent extends React.Component {
   constructor(props) {
     super(props);
@@ -99,16 +105,13 @@ class QuestionComponent extends React.Component {
     ).catch(this.catchError);
   }
 
-  tagify = newTag => newTag.replace(/\W+/gi, '').toLowerCase().trim()
-
   addTag = newTag => {
-    const formattedTag = this.tagify(newTag);
+    const formattedTag = newTag.trim();
     if (!formattedTag || !formattedTag.length) {
       return;
     }
 
-    const hasThisTag = tag => tag === formattedTag;
-    if (!this.state.userTags.find(hasThisTag)) {
+    if (!this.state.userTags.find(t => t === formattedTag)) {
       this.setState({
         userTags: this.state.userTags.concat([formattedTag])
       });
@@ -196,16 +199,15 @@ class QuestionComponent extends React.Component {
       {this.state.question.is_complete && <div className="card">
         <div className="card-header bg-warning">Results for Your Response</div>
         <div className="card-body">
-          <table>
+          <table><tbody>
             <tr><th>Your response:</th><td>{this.state.answer}</td></tr>
             <tr><th>Correct response:&nbsp;</th><td>{this.state.expectedAnswer}</td></tr>
             <tr><th>Points Awarded:</th><td>{this.state.score}</td></tr>
-            <tr><th>Your tags:</th><td>
-              {this.state.userTags.map(t => {
-                return <span className="badge rounded-pill bg-primary" style={{marginRight: "5px"}}>{t}</span>
-              })}
-            </td></tr>
-          </table>
+            <tr>
+              <th>Your tags:</th>
+              <td>{this.state.userTags.map(t => <MyTag key={t}>{t}</MyTag>)}</td>
+            </tr>
+          </tbody></table>
         </div>
         </div>}
 

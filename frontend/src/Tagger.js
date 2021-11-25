@@ -25,9 +25,14 @@ class AutoComplete extends React.Component {
     };
   }
 
+  toSearchableTag = t => ({
+    tag: t,
+    searched: t.toLowerCase()
+  })
+
   componentDidMount() {
     this.setState({
-      tags: this.props.tags.map(t => t.tag).sort()
+      tags: this.props.tags.sort().map(this.toSearchableTag)
     });
   }
 
@@ -39,8 +44,13 @@ class AutoComplete extends React.Component {
       txt: txtVal,
       selectedIndex: 0,
       completions: (filterTerm.length ?
-        this.state.tags.filter(t => t.indexOf(filterTerm) > -1) :
-        [])
+        (
+          this.state.tags
+            .filter(t => t.searched.indexOf(filterTerm) > -1)
+            .map(t => t.tag)
+        ) :
+        []
+      )
     });
   }
 
@@ -213,12 +223,21 @@ class TagAdder extends React.Component {
 }
 
 class Tagger extends React.Component {
+  constructor(props) {
+    super(props);
+
+    const allTags = props.tags.map(t => t.tag);
+    this.state = {
+      nonUserTags: allTags.filter(t => props.userTags.indexOf(t) < 0)
+    }
+  }
+
   render = () => (<div>
     <UserTagCollection
       tags={this.props.userTags}
       removeTag={this.props.removeTag} />
     <TagAdder
-      tags={this.props.tags}
+      tags={this.state.nonUserTags}
       addTag={this.props.addTag}
       editable={this.props.editable} />
   </div>)
