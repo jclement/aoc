@@ -155,8 +155,8 @@ class QuestionComponent extends React.Component {
     }
     const question = this.state.question;
     var body = question.body;
-    body = body.replace('{{id}}', this.state.user.id);
-    body = body.replace('{{name}}', this.state.user.username);
+    body = body.replaceAll('{{id}}', this.state.user.id);
+    body = body.replaceAll('{{name}}', this.state.user.username);
     return (<div>
       <div>
         <h1>{question.title}</h1>
