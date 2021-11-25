@@ -18,6 +18,10 @@ class LoginComponent extends React.Component {
       this.state.email = searchParams.get("email");
       this.state.secret = searchParams.get("secret");
       this.state.email_sent = true;
+
+      // attempt login
+      this.login(null);
+
     }
   }
 
@@ -66,7 +70,7 @@ class LoginComponent extends React.Component {
         }
       );
 
-    event.preventDefault();
+    event?.preventDefault();
   }
 
   onEmailChange(event) {
