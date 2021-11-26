@@ -2,7 +2,9 @@
 
 ## Ideas
 
-Robohash for profile pics, rather than uploads.  
+<strike>Robohash for profile pics, rather than uploads.</strike>
+
+Robohashes are now served from <code>https://robots.adventofquorum.org</code>!
 
 ## Server
 

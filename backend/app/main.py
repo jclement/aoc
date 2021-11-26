@@ -97,7 +97,7 @@ async def email_authentication_initiate(request: schemas.InitiateEmailLoginReque
         subject=f'Robot Prime says, "AUTHENTICATE YOURSELF!"{(" (" + settings.mail_label + ")") if settings.mail_label else ""}' ,
         html=f"""
         <h1>Advent of Quorum Robot Login</h1>
-        <p>GREETINGS ROBOTIC RECRUIT!</p>
+        <p>GREETINGS RECRUIT!</p>
         <p>You, or someone claiming to be you, has attempted to login to the <b>Advent of Quorum</b> website.</p>
         <p>If this was you, welcome!  Please click <a href="{settings.site_root}/login?email={quote(email)}&secret={token}">this link</a> to verify your identity and login.</p>
         <p>Alternatively, if copy-paste is your thing, you can copy this following "magic authentication token" into the appropriate box on the website.</p>
