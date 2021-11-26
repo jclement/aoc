@@ -1,5 +1,24 @@
 import React from 'react';
 
+class debouncer {
+  constructor() {
+    this.timer = null;
+  }
+
+  hold = handler => {
+    if (this.timer !== null) {
+      window.clearTimeout(this.timer);
+    }
+    this.timer = window.setTimeout(
+      () => {
+        handler();
+        this.timer = null;
+      },
+      250
+    );
+  }
+}
+
 class CompletionItem extends React.Component {
   completionClass = () => 'list-group-item clickable' + (this.props.isSelected ? ' selected' : '')
 
@@ -23,35 +42,39 @@ class AutoComplete extends React.Component {
       focused: false,
       selectedIndex: 0
     };
+    this.debouncer = new debouncer();
   }
 
-  toSearchableTag = t => ({
-    tag: t.tag,
-    searched: t.tag.toLowerCase()
-  })
-
   componentDidMount() {
-    this.setState({
-      tags: this.props.tags.sort().map(this.toSearchableTag)
+    const toSearchableTag = t => ({
+      tag: t.tag,
+      searched: t.tag.toLowerCase()
     });
+    this.setState({
+      tags: this.props.tags.sort().map(toSearchableTag)
+    });
+  }
+
+  getCompletions = txtVal => {
+    const filterTerm = txtVal.toLowerCase().trim();
+    if (!filterTerm.length) { return []; }
+
+    return (this.state.tags
+      .filter(t => t.searched.indexOf(filterTerm) > -1)
+      .map(t => t.tag));
   }
 
   updateTxt = evt => {
     const txtVal = evt.target.value;
-    const filterTerm = txtVal.toLowerCase().trim();
-
-    this.setState({
-      txt: txtVal,
-      selectedIndex: 0,
-      completions: (filterTerm.length ?
-        (
-          this.state.tags
-            .filter(t => t.searched.indexOf(filterTerm) > -1)
-            .map(t => t.tag)
-        ) :
-        []
+    this.setState(
+      {
+        txt: txtVal,
+        selectedIndex: 0
+      },
+      () => this.debouncer.hold(
+        () => this.setState({ completions: this.getCompletions(txtVal) })
       )
-    });
+    );
   }
 
   gotFocus = () => this.setState({ focused: true })
