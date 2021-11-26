@@ -29,7 +29,7 @@ export default class Leaderboard extends React.Component {
       <td>
         <img
           className="userIcon"
-          src={`https://robohash.straybits.org/${row.user_id}.png?size=50x50`}
+          src={`https://robohash.org/${row.user_id}.png?size=50x50`}
           alt={row.username}
         />
         &nbsp;
