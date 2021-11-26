@@ -46,7 +46,7 @@ class Profile extends React.Component {
       <div>
         <center>
           <img
-            src={`https://robohash.org/${this.props.user.id}.png?size=150x150`}
+            src={`https://robohash.straybits.org/${this.props.user.id}.png?size=150x150`}
             alt={this.props.user.username}
           />
         </center>
