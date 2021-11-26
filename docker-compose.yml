@@ -14,7 +14,9 @@ services:
     build: ./backend
     env_file:
       - .env
-    command: uvicorn backend.main:app --root-path /api --proxy-headers --host 0.0.0.0 --port 8000
+    environment: 
+      - ROOT_PATH=/api
+    #command: uvicorn backend.main:app --root-path /api --proxy-headers --host 0.0.0.0 --port 8000
     depends_on: 
       - db
 
@@ -24,8 +26,8 @@ services:
     env_file:
       - .env
     ports:
-      - "80:80"
-      - "443:443"
+      - "9080:80"
+      #- "443:443"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
       - caddy-data:/data

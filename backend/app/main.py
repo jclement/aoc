@@ -4,7 +4,6 @@ from fastapi.exceptions import HTTPException
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
-from pydantic import BaseModel
 from urllib.parse import quote
 import jwt
 import datetime
@@ -14,10 +13,11 @@ from validate_email import validate_email
 from . import models, schemas, util
 from .database import engine, get_db, SessionLocal
 from .settings import settings
-from sqlalchemy import and_
+import os
+
 models.Base.metadata.create_all(bind=engine)
 
-app = FastAPI()
+app = FastAPI(root_path=os.environ.get('ROOT_PATH'))
 
 app.add_middleware(
     CORSMiddleware,
