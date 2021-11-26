@@ -1,22 +1,18 @@
 import React from 'react';
 
-class debouncer {
-  constructor() {
-    this.timer = null;
-  }
+function debounce250(handler) {
+  let timer = null;
+  let fnRun = () => {
+    handler();
+    timer = null;
+  };
 
-  hold = handler => {
-    if (this.timer !== null) {
-      window.clearTimeout(this.timer);
+  return () => {
+    if (timer !== null) {
+      window.clearTimeout(timer);
     }
-    this.timer = window.setTimeout(
-      () => {
-        handler();
-        this.timer = null;
-      },
-      250
-    );
-  }
+    timer = window.setTimeout(fnRun, 250);
+  };
 }
 
 class CompletionItem extends React.Component {
@@ -42,7 +38,8 @@ class AutoComplete extends React.Component {
       focused: false,
       selectedIndex: 0
     };
-    this.debouncer = new debouncer();
+
+    this.delayedShowCompletions = debounce250(this.showCompletions);
   }
 
   componentDidMount() {
@@ -55,25 +52,25 @@ class AutoComplete extends React.Component {
     });
   }
 
-  getCompletions = txtVal => {
-    const filterTerm = txtVal.toLowerCase().trim();
-    if (!filterTerm.length) { return []; }
-
-    return (this.state.tags
-      .filter(t => t.searched.indexOf(filterTerm) > -1)
-      .map(t => t.tag));
+  showCompletions = () => {
+    const filterTerm = this.state.txt.toLowerCase().trim();
+    if (!filterTerm.length) {
+      this.setState({ completions: [] });
+    } else {
+      const completions = (this.state.tags
+        .filter(t => t.searched.indexOf(filterTerm) > -1)
+        .map(t => t.tag));
+      this.setState({ completions });
+    }
   }
 
   updateTxt = evt => {
-    const txtVal = evt.target.value;
     this.setState(
       {
-        txt: txtVal,
+        txt: evt.target.value,
         selectedIndex: 0
       },
-      () => this.debouncer.hold(
-        () => this.setState({ completions: this.getCompletions(txtVal) })
-      )
+      this.delayedShowCompletions
     );
   }
 
