@@ -128,8 +128,8 @@ class AutoComplete extends React.Component {
   }
 
   render() {
-    return (<div className="col-md-4">
-      <div className="float-end">
+    return (<div>
+      <div>
         <form className="btn-group">
           <input
             type="text"
@@ -199,11 +199,9 @@ class UserTagCollection extends React.Component {
   render() {
     if (!this.props.tags || !this.props.tags.length) { return null; }
 
-    return (<div className="card">
-      <div className="card-body bg-light">
+    return (<div className="tags">
         <div className="float-end" id="user-tags">
           {this.props.tags.map(this.renderTag)}
-        </div>
       </div>
     </div>);
   };
@@ -232,8 +230,7 @@ class TagAdder extends React.Component {
   render() {
     if (!this.props.editable) { return null; }
 
-    return (<div className="row">
-      <div className="col-md-8" />
+    return (<div>
       <AutoComplete
         tags={this.props.tags}
         addTag={this.props.addTag}
