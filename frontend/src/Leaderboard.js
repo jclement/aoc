@@ -34,7 +34,10 @@ export default class Leaderboard extends React.Component {
         />
         &nbsp;
         {row.is_admin ? <span className="badge rounded-pill bg-dark">admin</span>:""}
-        &nbsp;{row.username}&nbsp;
+        &nbsp;
+        {this.props.user?.is_admin && <a href={"mailto:" + row.email}>{row.username}</a>}
+        {!this.props.user?.is_admin && <span>{row.username}</span>}
+        &nbsp;
       </td>
       <td className="text-end">{row.score.toLocaleString("en-US")}</td>
     </tr>

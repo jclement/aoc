@@ -33,6 +33,7 @@ class LeaderboardEntry(BaseModel):
     user_id: str
     username: str
     is_admin: bool
+    email: str
     score: int
 
 class QuestionSummary(BaseModel):
