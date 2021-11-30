@@ -16,3 +16,10 @@ blockquote{
   border-left: 4px solid #ccc;
   padding-left: 10px;
 }
+
+.leaderboard td {
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

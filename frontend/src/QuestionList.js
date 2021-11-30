@@ -43,7 +43,7 @@ class QuestionListComponent extends React.Component {
   renderQuestionCard = question => (
     <tr key={question.id} className={question.is_active ? "table-success" : ""}>
       <td><Link to={"question/" + question.id}>{question.title}</Link></td>
-      <td>{
+      <td style={{width: "350px"}}>{
         question.is_active ?
           <Countdown
             date={parseToLocal(question.deactivate_date)}

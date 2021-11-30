@@ -41,7 +41,7 @@ export default class Leaderboard extends React.Component {
   );
   render = () => (
     <div className="App">
-      <table className="table table-striped table-sm">
+      <table className="table table-striped table-sm leaderboard">
         {this.headers}
         <tbody>{this.state.data.map(this.renderRow)}</tbody>
       </table>
