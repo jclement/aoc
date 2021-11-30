@@ -153,10 +153,13 @@ class QuestionComponent extends React.Component {
     if (!this.state.question) {
       return (<Header>Please Wait...</Header>);
     }
+    function replaceAll(str, find, replace) {
+      return str.replace(new RegExp(find, 'g'), replace);
+    }
     const question = this.state.question;
     var body = question.body;
-    body = body.replaceAll('{{id}}', this.state.user.id);
-    body = body.replaceAll('{{name}}', this.state.user.username);
+    body = replaceAll(body, '{{id}}', this.state.user.id);
+    body = replaceAll(body,'{{name}}', this.state.user.username);
     return (<div>
       <div>
         <h1>{question.title}</h1>
