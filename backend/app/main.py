@@ -502,8 +502,7 @@ def retrieve_leaderboard(db=Depends(get_db)):
                 users[u] += calculate_score(q, r)
         else:
             users[u] = 999999
-    leader = sorted(users.items(), key=lambda x: x[1])
-    leader.reverse()
+    leader = sorted(users.items(), key=lambda x: (-1 * x[1], x[0].username.upper()))
     return [schemas.LeaderboardEntry(
         user_id=x[0].id,
         username=x[0].username,
