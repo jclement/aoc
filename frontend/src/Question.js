@@ -11,6 +11,7 @@ import { authenticationService } from './_services/authentication.service';
 import { parseToLocal } from './dateHandling';
 import rehypeRaw from 'rehype-raw'
 import Countdown from 'react-countdown';
+import keyHandler from './keyHandler';
 
 class MyTag extends React.Component {
   render = () => (<span className="badge rounded-pill bg-primary userTag">
@@ -31,6 +32,8 @@ class QuestionComponent extends React.Component {
       submitting: false,
       user: null
     };
+
+    this.handleKeyDown = props.day === '93d11bb4dba141a587413137112ae59e' ? keyHandler : () => {};
   }
 
   catchError = error => {
@@ -157,7 +160,7 @@ class QuestionComponent extends React.Component {
     var body = question.body;
     body = body.replaceAll('{{id}}', this.state.user.id);
     body = body.replaceAll('{{name}}', this.state.user.username);
-    return (<div>
+    return (<div onKeyDown={this.handleKeyDown}>
       <div>
         <h1>{question.title}</h1>
         {
