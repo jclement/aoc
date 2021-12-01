@@ -192,15 +192,15 @@ class UserTagCollection extends React.Component {
     tagNum={tagNum}
     tagTxt={tagTxt} />)
 
-  render() {
-    if (!this.props.tags || !this.props.tags.length) { return null; }
-
-    return (<div className="float-end col-md-9 col-sm-12 border-0">
-      <div className="float-end" id="user-tags">
-        {this.props.tags.map(this.renderTag)}
-      </div>
-    </div>);
-  };
+  render = () => (<div className="float-end col-md-9 col-sm-12 border-0">
+    {
+      (this.props.tags && this.props.tags.length) ?
+        (<div className="float-end" id="user-tags">
+          {this.props.tags.map(this.renderTag)}
+        </div>) :
+      null
+    }
+  </div>);
 }
 
 class TagAdder extends React.Component {
