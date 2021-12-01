@@ -127,35 +127,31 @@ class AutoComplete extends React.Component {
     }
   }
 
-  render() {
-    return (<div>
-      <div>
-        <form className="btn-group">
-          <input
-            type="text"
-            className="form-control"
-            placeholder="+ New Tag"
-            value={this.state.txt}
-            onChange={this.updateTxt}
-            onFocus={this.gotFocus}
-            onBlur={this.lostFocus}
-            onKeyDown={this.handleKeyDown}
-            disabled={!this.props.editable} />
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={this.addStateTag}>+</button>
-        </form>
-        {
-          this.state.completions.length && this.state.focused ?
-            (<ul className="autocompletions list-group border border-success">
-              {this.state.completions.map(this.renderCompletion)}
-            </ul>) :
-            null
-        }
-      </div>
-    </div>);
-  }
+  render = () => (<div className="float-end">
+    <form className="btn-group">
+      <input
+        type="text"
+        className="form-control"
+        placeholder="+ New Tag"
+        value={this.state.txt}
+        onChange={this.updateTxt}
+        onFocus={this.gotFocus}
+        onBlur={this.lostFocus}
+        onKeyDown={this.handleKeyDown}
+        disabled={!this.props.editable} />
+      <button
+        type="button"
+        className="btn btn-primary"
+        onClick={this.addStateTag}>+</button>
+    </form>
+    {
+      this.state.completions.length && this.state.focused ?
+        (<ul className="autocompletions list-group border border-success">
+          {this.state.completions.map(this.renderCompletion)}
+        </ul>) :
+        null
+    }
+  </div>)
 }
 
 class SkittleTag extends React.Component {
@@ -199,9 +195,9 @@ class UserTagCollection extends React.Component {
   render() {
     if (!this.props.tags || !this.props.tags.length) { return null; }
 
-    return (<div className="tags">
-        <div className="float-end" id="user-tags">
-          {this.props.tags.map(this.renderTag)}
+    return (<div className="float-end col-md-9 col-sm-12 border-0">
+      <div className="float-end" id="user-tags">
+        {this.props.tags.map(this.renderTag)}
       </div>
     </div>);
   };
@@ -230,7 +226,7 @@ class TagAdder extends React.Component {
   render() {
     if (!this.props.editable) { return null; }
 
-    return (<div>
+    return (<div className="col-md-3 col-sm-12">
       <AutoComplete
         tags={this.props.tags}
         addTag={this.props.addTag}
@@ -240,7 +236,7 @@ class TagAdder extends React.Component {
 }
 
 class Tagger extends React.Component {
-  render = () => (<div>
+  render = () => (<div className="row">
     <UserTagCollection
       tags={this.props.userTags}
       removeTag={this.props.removeTag} />
