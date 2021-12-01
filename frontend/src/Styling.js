@@ -13,4 +13,4 @@ class ButtonBar extends React.Component {
   </div>)
 }
 
-export { Header, ButtonBar};
+export { Header, ButtonBar };
