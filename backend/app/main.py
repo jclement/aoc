@@ -310,7 +310,7 @@ def retrieve_score(question_id, current_user=Depends(authenticated_user), db=Dep
     """
     tmp = db.query(models.Response, models.Question)\
         .filter(
-            models.Response.user_id == models.User.id,
+            models.Response.user_id == current_user.id,
             models.Question.id == question_id,
             datetime.datetime.utcnow() >= models.Question.deactivate_date,
         )\
@@ -417,6 +417,8 @@ def post_comment_for_question(question_id, request:schemas.WriteableComment, cur
 
 @app.get("/questions/{question_id}/responses", tags=["Response"], response_model=List[schemas.UserResponse])
 def retrieve_responses(question_id, current_user=Depends(authenticated_user), db=Depends(get_db)):
+    if not current_user.is_admin:
+        raise HTTPException(400)
     responses = db.query(models.Response, models.User).filter(
         models.Response.question_id == question_id,
     ).join(models.User, models.User.id == models.Response.user_id).all()
