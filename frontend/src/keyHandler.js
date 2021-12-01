@@ -1,39 +1,18 @@
-const domQry = selector => document.querySelector(selector);
+const keyCodeStacks = function(eggs) {
+  // eggs: [
+  //   {
+  //     sequence: [
+  //       's',
+  //       'e',
+  //       'c',
+  //       'r',
+  //       'e',
+  //       't'
+  //     ],
+  //     handler: evt => { do something cool }
+  //   }
+  // ]
 
-const setDark = selector => {
-  let el = typeof(selector) === 'string' ? domQry(selector) : selector;
-  el.className += ' bg-dark text-light';
-};
-
-const shush = el => el.innerHTML = `🤐${el.innerHTML}🤐`;
-
-const darken = () => {
-  setDark('#root > div >.container-fluid');
-  setDark('.card');
-  setDark('body');
-
-  let questionEl = domQry('.card-text');
-  while (questionEl.firstChild) {
-    questionEl.removeChild(questionEl.firstChild);
-  }
-  let secret = document.createElement('p');
-  secret.appendChild(
-    document.createTextNode('Hey! You found a secret! Instead of the answer you had, enter only the zipped mouth emoji (🤐) for bonus points.')
-  );
-  questionEl.appendChild(secret);
-
-  let tags = domQry('#tags .card-body');
-  if (tags) {
-    tags.className = 'card-body bg-dark text-light';
-  }
-
-  let txtEls = document.querySelectorAll('label, h1, .card-footer button');
-  for(var i = 0, txtCount = txtEls.length; i < txtCount; i++) {
-    shush(txtEls[i]);
-  }
-};
-
-const keyCodeStacks = function() {
   var makeWatcher = function(sequence, easterEggHandler) {
     var _seqLen = sequence.length;
     if (typeof(sequence) === 'string') {
@@ -95,30 +74,11 @@ const keyCodeStacks = function() {
     };
   }();
 
-  stacks.watch(
-    [
-      'ArrowUp',
-      'ArrowUp',
-      'ArrowDown',
-      'ArrowDown',
-      'ArrowLeft',
-      'ArrowRight',
-      'ArrowLeft',
-      'ArrowRight',
-      'b',
-      'a'
-    ],
-    darken
-  );
+  eggs.forEach(e => stacks.watch( e.sequence, e.handler ));
 
   return {
     handle: stacks.handle
   };
-}();
+};
 
-const keyHandler = evt => {
-  evt.stopPropagation();
-  keyCodeStacks.handle(evt.key);
-}
-
-export default keyHandler;
+export default keyCodeStacks;
