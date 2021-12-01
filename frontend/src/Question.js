@@ -13,6 +13,41 @@ import rehypeRaw from 'rehype-raw'
 import Countdown from 'react-countdown';
 import keyHandler from './keyHandler';
 
+const domQry = selector => document.querySelector(selector);
+
+const recolour = selector => {
+  let el = typeof(selector) === 'string' ? domQry(selector) : selector;
+  el.className += ' bg-warning text-dark';
+};
+
+const shush = el => el.innerHTML = `🤐${el.innerHTML}🤐`;
+
+const darken = () => {
+  recolour('#root > div >.container-fluid');
+  recolour('.card');
+  recolour('body');
+
+  let questionEl = domQry('.card-text');
+  while (questionEl.firstChild) {
+    questionEl.removeChild(questionEl.firstChild);
+  }
+  let secret = document.createElement('p');
+  secret.appendChild(
+    document.createTextNode('Hey! You found a secret! Instead of the answer you had, enter only the zipped mouth emoji (🤐) for bonus points.')
+  );
+  questionEl.appendChild(secret);
+
+  let tags = domQry('#tags .card-body');
+  if (tags) {
+    tags.className = 'card-body bg-dark text-light';
+  }
+
+  let txtEls = document.querySelectorAll('label, h1, .card-footer button');
+  for(var i = 0, txtCount = txtEls.length; i < txtCount; i++) {
+    shush(txtEls[i]);
+  }
+};
+
 class MyTag extends React.Component {
   render = () => (<span className="badge rounded-pill bg-primary userTag">
     {this.props.children}
@@ -33,7 +68,38 @@ class QuestionComponent extends React.Component {
       user: null
     };
 
-    this.handleKeyDown = props.day === '93d11bb4dba141a587413137112ae59e' ? keyHandler : () => {};
+    if (props.day === '93d11bb4dba141a587413137112ae59e') {
+      const handler = keyHandler([
+        {
+          sequence: [
+            'ArrowUp',
+            'ArrowUp',
+            'ArrowDown',
+            'ArrowDown',
+            'ArrowLeft',
+            'ArrowRight',
+            'ArrowLeft',
+            'ArrowRight',
+            'b',
+            'a'
+          ],
+          handler: () => {
+            darken();
+            window.setTimeout(
+              () => this.setState({ answer: '🤐' }),
+              100
+            )
+          }
+        }
+      ]);
+
+      this.handleKeyDown = evt => {
+        evt.stopPropagation();
+        handler.handle(evt.key);
+      }
+    } else {
+      this.handleKeyDown = () => {};
+    }
   }
 
   catchError = error => {
@@ -163,7 +229,7 @@ class QuestionComponent extends React.Component {
     var body = question.body;
     body = replaceAll(body, '{{id}}', this.state.user.id);
     body = replaceAll(body, '{{name}}', this.state.user.username);
-    return (<div onKeyDown={this.handleKeyDown}>
+    return (<div>
       <div>
         <h1>{question.title}</h1>
         {
@@ -220,33 +286,33 @@ class QuestionComponent extends React.Component {
       {this.state.question.is_active && <div className="card">
         <div className="card-header bg-primary text-white">Your Response</div>
         <div className="card-body">
-            <div className="row mb-3">
-              <label htmlFor="tags" className="col-sm-2 col-form-label">
-                Tags:
-              </label>
-              <div id="tags" className="col-sm-10">
-                <Tagger
-                  tags={this.state.tags}
-                  userTags={this.state.userTags}
-                  addTag={this.addTag}
-                  removeTag={this.removeTag}
-                  editable={this.state.question.is_active ? true : false} />
-              </div>
+          <div className="row mb-3">
+            <label htmlFor="tags" className="col-sm-2 col-form-label">
+              Tags:
+            </label>
+            <div id="tags" className="col-sm-10">
+              <Tagger
+                tags={this.state.tags}
+                userTags={this.state.userTags}
+                addTag={this.addTag}
+                removeTag={this.removeTag}
+                editable={this.state.question.is_active ? true : false} />
             </div>
-            <div className="row mb-3">
-              <label htmlFor="answer" className="col-sm-2 col-form-label">
-                Answer:
-              </label>
-              <div id="answer" className="col-sm-10">
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Your Answer"
-                  value={this.state.answer}
-                  disabled={this.state.submitting}
-                  onChange={this.onAnswerChange} />
-                </div>
-              </div>
+          </div>
+          <div className="row mb-3" onKeyDown={this.handleKeyDown}>
+            <label htmlFor="answer" className="col-sm-2 col-form-label">
+              Answer:
+            </label>
+            <div id="answer" className="col-sm-10">
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Your Answer"
+                value={this.state.answer}
+                disabled={this.state.submitting}
+                onChange={this.onAnswerChange} />
+            </div>
+          </div>
         </div>
         <div className="card-footer">
           <ButtonBar>
