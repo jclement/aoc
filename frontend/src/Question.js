@@ -162,8 +162,8 @@ class QuestionComponent extends React.Component {
     const question = this.state.question;
     var body = question.body;
     body = replaceAll(body, '{{id}}', this.state.user.id);
-    body = replaceAll(body, '{{name}}', this.state.user.username);
-    return (<div onKeyDown={this.handleKeyDown}>
+    body = replaceAll(body,'{{name}}', this.state.user.username);
+    return (<div>
       <div>
         <h1>{question.title}</h1>
         {
