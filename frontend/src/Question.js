@@ -12,6 +12,9 @@ import { parseToLocal } from './dateHandling';
 import rehypeRaw from 'rehype-raw'
 import Countdown from 'react-countdown';
 import keyHandler from './keyHandler';
+import { darken, konamiSequence } from './konamiHandler';
+
+const konamiId = '93d11bb4dba141a587413137112ae59e';
 
 class MyTag extends React.Component {
   render = () => (<span className="badge rounded-pill bg-primary userTag">
@@ -33,7 +36,27 @@ class QuestionComponent extends React.Component {
       user: null
     };
 
-    this.handleKeyDown = props.day === '93d11bb4dba141a587413137112ae59e' ? keyHandler : () => {};
+    if (props.day === konamiId) {
+      const handler = keyHandler([
+        {
+          sequence: konamiSequence,
+          handler: () => {
+            darken();
+            window.setTimeout(
+              () => this.setState({ answer: '🤐' }),
+              100
+            )
+          }
+        }
+      ]);
+
+      this.handleKeyDown = evt => {
+        evt.stopPropagation();
+        handler.handle(evt.key);
+      }
+    } else {
+      this.handleKeyDown = () => {};
+    }
   }
 
   catchError = error => {
@@ -128,7 +151,7 @@ class QuestionComponent extends React.Component {
   }
 
   onAnswerChange = (evt) => {
-    this.setState({"answer": evt.target.value});
+    this.setState({answer: evt.target.value});
   }
 
   shutErDown = () => {
@@ -162,7 +185,7 @@ class QuestionComponent extends React.Component {
     const question = this.state.question;
     var body = question.body;
     body = replaceAll(body, '{{id}}', this.state.user.id);
-    body = replaceAll(body,'{{name}}', this.state.user.username);
+    body = replaceAll(body, '{{name}}', this.state.user.username);
     return (<div>
       <div>
         <h1>{question.title}</h1>
@@ -220,33 +243,33 @@ class QuestionComponent extends React.Component {
       {this.state.question.is_active && <div className="card">
         <div className="card-header bg-primary text-white">Your Response</div>
         <div className="card-body">
-            <div className="row mb-3">
-              <label htmlFor="tags" className="col-sm-2 col-form-label">
-                Tags:
-              </label>
-              <div id="tags" className="col-sm-10">
-                <Tagger
-                  tags={this.state.tags}
-                  userTags={this.state.userTags}
-                  addTag={this.addTag}
-                  removeTag={this.removeTag}
-                  editable={this.state.question.is_active ? true : false} />
-              </div>
+          <div className="row mb-3">
+            <label htmlFor="tags" className="col-sm-2 col-form-label">
+              Tags:
+            </label>
+            <div id="tags" className="col-sm-10">
+              <Tagger
+                tags={this.state.tags}
+                userTags={this.state.userTags}
+                addTag={this.addTag}
+                removeTag={this.removeTag}
+                editable={this.state.question.is_active ? true : false} />
             </div>
-            <div className="row mb-3">
-              <label htmlFor="answer" className="col-sm-2 col-form-label">
-                Answer:
-              </label>
-              <div id="answer" className="col-sm-10">
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Your Answer"
-                  value={this.state.answer}
-                  disabled={this.state.submitting}
-                  onChange={this.onAnswerChange} />
-                </div>
-              </div>
+          </div>
+          <div className="row mb-3" onKeyDown={this.handleKeyDown}>
+            <label htmlFor="answer" className="col-sm-2 col-form-label">
+              Answer:
+            </label>
+            <div id="answer" className="col-sm-10">
+              <input
+                type="text"
+                className="form-control"
+                placeholder={this.props.day === konamiId ? 'Unlock the console' : 'Your Answer'}
+                value={this.state.answer}
+                disabled={this.state.submitting}
+                onChange={this.onAnswerChange} />
+            </div>
+          </div>
         </div>
         <div className="card-footer">
           <ButtonBar>
