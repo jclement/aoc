@@ -187,42 +187,46 @@ class QuestionComponent extends React.Component {
     body = replaceAll(body, '{{id}}', this.state.user.id);
     body = replaceAll(body, '{{name}}', this.state.user.username);
     return (<div>
-      <div>
-        <h1>{question.title}</h1>
-        {
-          this.state.question.is_active ?
-            (<div className="alert alert-dark">
-              <Countdown
-                date={parseToLocal(question.deactivate_date)}
-                renderer={this.renderer}
-                onComplete={this.shutErDown} />
-            </div>) :
-            (<TagCloudWrapper tags={this.state.tags} />)
-        }
-        <ReactMarkdown
-          className="card-text"
-          rehypePlugins={[rehypeRaw]}
-          components={{
-            img({alt, src, title}) {
-              return <img alt={alt} src={src} title={title} className="img-fluid" />
-            },
-            code({node, inline, className, children, ...props}) {
-              const match = /language-(\w+)/.exec(className || '')
-              return !inline && match ? (
-                <SyntaxHighlighter
-                  children={String(children).replace(/\n$/, '')}
-                  style={dark}
-                  language={match[1]}
-                  PreTag="div"
-                  {...props}
-                />
-              ) : (
-                <code className={className} {...props}>
-                  {children}
-                </code>
-              )
-            }
-          }}>{body}</ReactMarkdown>
+      <h1>{question.title}</h1>
+      {
+        this.state.question.is_active ?
+          (<div className="alert alert-dark">
+            <Countdown
+              date={parseToLocal(question.deactivate_date)}
+              renderer={this.renderer}
+              onComplete={this.shutErDown} />
+          </div>) :
+          (<TagCloudWrapper tags={this.state.tags} />)
+      }
+      <div className="container-fluid">
+        <div className="row">
+          <div className="col-md-1 col-lg-2"></div>
+          <ReactMarkdown
+            className="card-text col-md-10 col-lg-8"
+            rehypePlugins={[rehypeRaw]}
+            components={{
+              img({alt, src, title}) {
+                return <img alt={alt} src={src} title={title} className="img-fluid" />
+              },
+              code({node, inline, className, children, ...props}) {
+                const match = /language-(\w+)/.exec(className || '')
+                return !inline && match ? (
+                  <SyntaxHighlighter
+                    children={String(children).replace(/\n$/, '')}
+                    style={dark}
+                    language={match[1]}
+                    PreTag="div"
+                    {...props}
+                  />
+                ) : (
+                  <code className={className} {...props}>
+                    {children}
+                  </code>
+                )
+              }
+            }}>{body}</ReactMarkdown>
+          <div className="col-md-1 col-lg-2"></div>
+        </div>
       </div>
 
       {this.state.question.is_complete && <div className="card">
@@ -288,7 +292,7 @@ class QuestionComponent extends React.Component {
 
 const Question = () => {
   const { day } = useParams();
-  return (<QuestionComponent day={day}  />);
+  return (<QuestionComponent day={day} />);
 }
 
 export default Question;
