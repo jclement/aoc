@@ -29,7 +29,7 @@ class AppComponent extends React.Component {
     <div>
       <NavBar />
       <br />
-      <div className="container-fluid">
+      <div className="container">
         <Outlet />
       </div>
       <ToastContainer />
