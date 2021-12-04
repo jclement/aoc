@@ -1,3 +1,4 @@
+from sqlalchemy.sql.expression import null
 from .database import Base
 from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Boolean,CHAR
 from sqlalchemy.orm import relationship
@@ -15,6 +16,7 @@ class User(Base):
     password = Column(String(200))
     is_admin = Column(Boolean(), nullable=False, default=False)
     created = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+    fav_points = Column(Integer)
 
 class Challenge(Base):
     __tablename__ = 'challenges'
