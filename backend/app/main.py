@@ -509,6 +509,7 @@ def retrieve_leaderboard(db=Depends(get_db)):
         user_id=x[0].id,
         username=x[0].username,
         is_admin=x[0].is_admin,
+        fav_points = x[0].fav_points or 0,
         email=x[0].email,
         score=x[1],
     ) for x in leader]

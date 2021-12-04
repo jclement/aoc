@@ -35,6 +35,7 @@ class LeaderboardEntry(BaseModel):
     is_admin: bool
     email: str
     score: int
+    fav_points: int
 
 class QuestionSummary(BaseModel):
     id: str
