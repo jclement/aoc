@@ -13,7 +13,7 @@ const darken = () => {
     return;
   }
 
-  recolour('#root > div >.container-fluid');
+  recolour('#root > div >.container');
   recolour('.card');
   recolour('body');
 
