@@ -5,7 +5,7 @@ export default class Intro extends React.Component {
   render = () => (<div className="font-monospace">
     <Header>Welcome!</Header>
     <div className="text-center">
-      <img width="300" src="https://upload.erraticbits.ca/inline/mYLB1D/RoboHorse3.png" alt="Horse Prime"/>
+      <img width="300" src="https://stampede.adventofquorum.org/files/inline/M9wffV/RoboHorse3.png" alt="Horse Prime"/>
     </div>
 
     <div className="upper">
