@@ -11,7 +11,7 @@ import datetime
 import secrets
 from mailgun3 import Mailgun
 from validate_email import validate_email
-from . import models, schemas, util
+from . import models, schemas, util, cowboyify
 from .database import engine, get_db, SessionLocal
 from .settings import settings
 from sqlalchemy import and_
@@ -68,7 +68,6 @@ db.close()
 
 # ================== LOGIN APIS ==================
 
-
 @app.post("/email_authenticate/initiate", tags=["Login"], response_model=schemas.Status)
 async def email_authentication_initiate(request: schemas.InitiateEmailLoginRequest, db=Depends(get_db)):
     """
@@ -98,13 +97,13 @@ async def email_authentication_initiate(request: schemas.InitiateEmailLoginReque
         html=f"""
         <h1>Advent of Quorum Login</h1>
         <p>GREETINGS RECRUIT!</p>
-        <p>You, or someone claiming to be you, has attempted to login to the <b>Advent of Quorum</b> website.</p>
+        <p>You, or someone claiming to be you, has attempted to login to the <b>Stampede of Qode</b> website.</p>
         <p>If this was you, welcome!  Please click <a href="{settings.site_root}/login?email={quote(email)}&secret={token}">this link</a> to verify your identity and login.</p>
         <p>Alternatively, if copy-paste is your thing, you can copy this following "magic authentication token" into the appropriate box on the website.</p>
         <pre>{token}</pre>
         <p>You have 10 minutes...</p>
         <p>Sincerely,</p>
-        <p>Robot Prime, Master of Ceremonies and Chief Authentication Officer</p>
+        <p>Horse Prime, Master of Ceremonies and Chief Authentication Officer</p>
         """,
         )
     return schemas.Status(result=True, message="email sent")
@@ -130,7 +129,7 @@ def email_authentication_activate(request: schemas.ActiveateEmailLoginRequest, d
         # create the user if this is the first time seeing them
         if not user:
             user = models.User()
-            user.username = email
+            user.username = cowboyify.cowboyify_email(email)
             user.email = email
             db.add(user)
             db.commit()
