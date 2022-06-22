@@ -95,7 +95,7 @@ async def email_authentication_initiate(request: schemas.InitiateEmailLoginReque
         [email],
         subject=f'Robot Prime says, "AUTHENTICATE YOURSELF!"{(" (" + settings.mail_label + ")") if settings.mail_label else ""}' ,
         html=f"""
-        <h1>Advent of Quorum Login</h1>
+        <h1>Stampede of Qode Login</h1>
         <p>GREETINGS RECRUIT!</p>
         <p>You, or someone claiming to be you, has attempted to login to the <b>Stampede of Qode</b> website.</p>
         <p>If this was you, welcome!  Please click <a href="{settings.site_root}/login?email={quote(email)}&secret={token}">this link</a> to verify your identity and login.</p>
