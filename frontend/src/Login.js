@@ -20,7 +20,7 @@ class LoginComponent extends React.Component {
       this.state.email_sent = true;
 
       // attempt login
-      this.login(null);
+      //this.login(null);
 
     }
   }
