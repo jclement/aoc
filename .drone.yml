@@ -8,7 +8,7 @@ steps:
     repo: registry.erraticbits.ca/aoc-frontend
     tags: 
       - ${DRONE_COMMIT_BRANCH}
-    dockerfile: Dockerfile
+    dockerfile: frontend/Dockerfile
     context: frontend
     registry: registry.erraticbits.ca
     username: jsc
@@ -20,7 +20,7 @@ steps:
     repo: registry.erraticbits.ca/aoc-backend
     tags: 
       - ${DRONE_COMMIT_BRANCH}
-    dockerfile: Dockerfile
+    dockerfile: backend/Dockerfile
     context: backend
     registry: registry.erraticbits.ca
     username: jsc
