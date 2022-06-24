@@ -8,7 +8,8 @@ steps:
     repo: registry.erraticbits.ca/aoc-frontend
     tags: 
       - ${DRONE_COMMIT_BRANCH}
-    dockerfile: frontend/Dockerfile
+    dockerfile: Dockerfile
+    context: frontend
     registry: registry.erraticbits.ca
     username: jsc
     password:
@@ -19,7 +20,8 @@ steps:
     repo: registry.erraticbits.ca/aoc-backend
     tags: 
       - ${DRONE_COMMIT_BRANCH}
-    dockerfile: frontend/Dockerfile
+    dockerfile: Dockerfile
+    context: backend
     registry: registry.erraticbits.ca
     username: jsc
     password:
