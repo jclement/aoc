@@ -34,7 +34,6 @@ def cowboyify(inputName):
   Huckleberry
   Scrawny
   Rawhide
-  Hook Nose
   Ruthless
   Six Shooters
   Rabbit's Foot
@@ -76,14 +75,10 @@ def cowboyify(inputName):
   The Horse Thief
   Scruggs
   Dolarhyde
-  The Coward
-  The Creep
   The Robber
   Esquire
-  The Liar
   The Blacksmith
   The Duke
-  The Drunk
   Three Thumbs
   The Jackal
   The Card Counter
