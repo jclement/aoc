@@ -22,6 +22,69 @@ class MyTag extends React.Component {
   </span>)
 }
 
+class QuestionBody extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { renderedOnce: false };
+  }
+
+  replaceAll = (str, find, replace) => str.replace(new RegExp(find, 'g'), replace);
+
+  processBody = () => {
+    var body = this.replaceAll(
+      this.props.question.body,
+      '{{id}}',
+      this.props.user.id
+    );
+    return this.replaceAll(body, '{{name}}', this.props.user.username);
+  };
+
+  preRenderedResult = null
+
+  preRender = () => {
+    this.preRenderedResult = (<ReactMarkdown
+      className="card-text"
+      rehypePlugins={[rehypeRaw]}
+      components={{
+        img({alt, src, title}) {
+          return <img alt={alt} src={src} title={title} className="img-fluid" />
+        },
+        code({node, inline, className, children, ...props}) {
+          const match = /language-(\w+)/.exec(className || '')
+          return !inline && match ? (
+            <SyntaxHighlighter
+              children={String(children).replace(/\n$/, '')}
+              style={dark}
+              language={match[1]}
+              PreTag="div"
+              {...props}
+            />
+          ) : (
+            <code className={className} {...props}>
+              {children}
+            </code>
+          )
+        }
+      }}>{this.processBody()}</ReactMarkdown>);
+    return this.preRenderedResult;
+  }
+
+  render = () => (<div>
+    <h1>{this.props.question.title}</h1>
+    {
+      this.props.question.is_active ?
+        (<div className="alert alert-dark">
+          <Countdown
+            date={parseToLocal(this.props.question.deactivate_date)}
+            renderer={this.props.renderer}
+            onComplete={this.props.shutErDown} />
+        </div>) :
+        (<TagCloudWrapper tags={this.props.tags} />)
+    }
+    {this.preRenderedResult ? this.preRenderedResult : this.preRender()}
+  </div>)
+}
+
 class QuestionComponent extends React.Component {
   constructor(props) {
     super(props);
@@ -179,53 +242,16 @@ class QuestionComponent extends React.Component {
     if (!this.state.question) {
       return (<Header>Please Wait...</Header>);
     }
-    function replaceAll(str, find, replace) {
-      return str.replace(new RegExp(find, 'g'), replace);
-    }
     const question = this.state.question;
-    var body = question.body;
-    body = replaceAll(body, '{{id}}', this.state.user.id);
-    body = replaceAll(body, '{{name}}', this.state.user.username);
     return (<div>
-      <div>
-        <h1>{question.title}</h1>
-        {
-          this.state.question.is_active ?
-            (<div className="alert alert-dark">
-              <Countdown
-                date={parseToLocal(question.deactivate_date)}
-                renderer={this.renderer}
-                onComplete={this.shutErDown} />
-            </div>) :
-            (<TagCloudWrapper tags={this.state.tags} />)
-        }
-        <ReactMarkdown
-          className="card-text"
-          rehypePlugins={[rehypeRaw]}
-          components={{
-            img({alt, src, title}) {
-              return <img alt={alt} src={src} title={title} className="img-fluid" />
-            },
-            code({node, inline, className, children, ...props}) {
-              const match = /language-(\w+)/.exec(className || '')
-              return !inline && match ? (
-                <SyntaxHighlighter
-                  children={String(children).replace(/\n$/, '')}
-                  style={dark}
-                  language={match[1]}
-                  PreTag="div"
-                  {...props}
-                />
-              ) : (
-                <code className={className} {...props}>
-                  {children}
-                </code>
-              )
-            }
-          }}>{body}</ReactMarkdown>
-      </div>
+      <QuestionBody
+        question={question}
+        renderer={this.renderer}
+        shutErDown={this.shutErDown}
+        tags={this.state.tags}
+        user={this.state.user} />
 
-      {this.state.question.is_complete && <div className="card">
+      {question.is_complete && <div className="card">
         <div className="card-header bg-warning">Results for Your Response</div>
         <div className="card-body">
           <table><tbody>
@@ -240,7 +266,7 @@ class QuestionComponent extends React.Component {
         </div>
         </div>}
 
-      {this.state.question.is_active && <div className="card">
+      {question.is_active && <div className="card">
         <div className="card-header bg-primary text-white">Your Response</div>
         <div className="card-body">
           <div className="row mb-3">
@@ -253,7 +279,7 @@ class QuestionComponent extends React.Component {
                 userTags={this.state.userTags}
                 addTag={this.addTag}
                 removeTag={this.removeTag}
-                editable={this.state.question.is_active ? true : false} />
+                editable={question.is_active ? true : false} />
             </div>
           </div>
           <div className="row mb-3" onKeyDown={this.handleKeyDown}>
