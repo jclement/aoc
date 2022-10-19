@@ -83,7 +83,7 @@ class LoginComponent extends React.Component {
 
   render = () => (
     <div>
-      <Header>Advent of Quorum 2021!</Header>
+      <Header>Advent of Quorum 2022!</Header>
       {!this.state.email_sent && <p className="alert alert-dark">Enter your email address to sign-in/create an account.  An email will be sent to this address to authenticate you.</p>}
       <form>
         <div className="row mb-3">
