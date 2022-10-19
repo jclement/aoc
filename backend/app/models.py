@@ -1,4 +1,3 @@
-from sqlalchemy.sql.expression import null
 from .database import Base
 from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Boolean,CHAR
 from sqlalchemy.orm import relationship
