@@ -16,11 +16,6 @@ steps:
     username: jclement
     password:
       from_secret: DOCKERHUB_KEY
-  when:
-    branch: 
-    - master
-    - staging
-    event: pull_request
 
 - name: build-frontend
   image: plugins/docker
@@ -34,11 +29,6 @@ steps:
     username: jclement
     password:
       from_secret: DOCKERHUB_KEY
-  when:
-    branch: 
-    - master
-    - staging
-    event: pull_request
 
 - name: publish-backend
   image: plugins/docker
@@ -52,8 +42,6 @@ steps:
     password:
       from_secret: DOCKERHUB_KEY
   when:
-    branch: 
-    - master
     event: promote
 
 - name: publish-frontend
@@ -68,6 +56,4 @@ steps:
     password:
       from_secret: DOCKERHUB_KEY
   when:
-    branch: 
-    - master
     event: promote
