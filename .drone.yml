@@ -8,11 +8,14 @@ steps:
   image: plugins/docker
   settings:
     repo: jclement/aoc-backend
-    dryrun: true
+    dry_run: true
     tags:
      - ${DRONE_BRANCH}
     dockerfile: backend/Dockerfile
     context: backend
+    username: jclement
+    password:
+      from_secret: DOCKERHUB_KEY
 
 - name: public-backend
   image: plugins/docker
