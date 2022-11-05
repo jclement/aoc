@@ -1,5 +1,5 @@
 kind: pipeline
-#type: docker
+type: docker
 name: Build Advent of Qode
 
 steps:
@@ -9,7 +9,7 @@ steps:
   volumes:
     - /var/run/docker.sock:/var/run/docker.sock
   commands:
-    - cd backend && docker build . -t jclement/aoc-backend:${DRONE_BRANCH}-${DRONE_BUILD_NUMBER} -t jclement/aoc-backend:${DRONE_BRANCH}-latest
+    - cd backend #&& docker build . -t jclement/aoc-backend:${DRONE_BRANCH}-${DRONE_BUILD_NUMBER} -t jclement/aoc-backend:${DRONE_BRANCH}-latest
 
 - name: publish
   image: docker
@@ -20,7 +20,7 @@ steps:
       from_secret: DOCKERHUB_KEY
   commands:
     - docker login jclement -p ${DOCKERHUB_KEY}
-    - docker push jclement/aoc-backend:${DRONE_BRANCH}-${DRONE_BUILD_NUMBER}
-    - docker push jclement/aoc-backend:${DRONE_BRANCH}-latest
+    #- docker push jclement/aoc-backend:${DRONE_BRANCH}-${DRONE_BUILD_NUMBER}
+    #- docker push jclement/aoc-backend:${DRONE_BRANCH}-latest
   when:
    status: [success]
