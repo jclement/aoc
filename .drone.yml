@@ -3,14 +3,6 @@ type: docker
 name: default
 
 steps:
-- name: build-frontend
-  image: plugins/docker
-  settings:
-    repo: jclement/aoc-frontend
-    tags: 
-      - ${DRONE_COMMIT_BRANCH}
-    dockerfile: frontend/Dockerfile
-    context: frontend
 
 - name: build-backend
   image: plugins/docker
@@ -21,19 +13,19 @@ steps:
     dockerfile: backend/Dockerfile
     context: backend
 
-- name: publish-frontend
-  image: plugins/docker
-  settings:
-    repo: jclement/aoc-frontend
-    username: jclement
-    password:
-      from_secret: DOCKERHUB_KEY
-  when:
-   branch:
-    -master
-    -staging
-   event: 
-    - push
+#- name: publish-frontend
+#  image: plugins/docker
+#  settings:
+#    repo: jclement/aoc-frontend
+#    username: jclement
+#    password:
+#      from_secret: DOCKERHUB_KEY
+#  when:
+#   branch:
+#    -master
+#    -staging
+#   event: 
+#    - push
 
 - name: publish-backend
   image: plugins/docker
