@@ -6,7 +6,7 @@ export default class Intro extends React.Component {
     <Header>Welcome!</Header>
     <div className="text-center">
       <img src="https://www.adventofquorum.org/files/zkdYN0/logo-150.png" alt="advent"/>
-      <img src="https://robots.adventofquorum.org/robotprime.png?size=150x150" alt="Robot Prime"/>
+      <img src="https://robots.adventofqode.org/robotprime.png?size=150x150" alt="Robot Prime"/>
     </div>
 
     <p><code>> ./a.out</code></p>

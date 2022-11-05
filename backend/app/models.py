@@ -60,6 +60,8 @@ class Response(Base):
     question_id = Column(CHAR(32), ForeignKey('questions.id'), nullable=False)
     user_id = Column(CHAR(32), ForeignKey('users.id'), nullable=False)
     response = Column(String())
+    solution_lang = Column(String())
+    solution = Column(String())
     bonus_points = Column(Integer, nullable=False, default=0)
     response_date = Column(
         DateTime, nullable=False, default=datetime.datetime.utcnow)

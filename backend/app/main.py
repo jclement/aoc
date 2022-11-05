@@ -96,9 +96,9 @@ async def email_authentication_initiate(request: schemas.InitiateEmailLoginReque
         [email],
         subject=f'Robot Prime says, "AUTHENTICATE YOURSELF!"{(" (" + settings.mail_label + ")") if settings.mail_label else ""}' ,
         html=f"""
-        <h1>Advent of Quorum Login</h1>
+        <h1>{settings.site_name}</h1>
         <p>GREETINGS RECRUIT!</p>
-        <p>You, or someone claiming to be you, has attempted to login to the <b>Advent of Quorum</b> website.</p>
+        <p>You, or someone claiming to be you, has attempted to login to the <b>{settings.site_name}</b> website.</p>
         <p>If this was you, welcome!  Please click <a href="{settings.site_root}/login?email={quote(email)}&secret={token}">this link</a> to verify your identity and login.</p>
         <p>Alternatively, if copy-paste is your thing, you can copy this following "magic authentication token" into the appropriate box on the website.</p>
         <pre>{token}</pre>
@@ -175,8 +175,18 @@ def validate_login_token(token=Depends(oauth2_scheme), db=Depends(get_db)):
         message="Not logged in" if user is None else "Logged in"
     )
 
-# =================== ME APIS =========================
+# =================== SITE INFORMATION APIS =========================
 
+@app.get("/site", response_model=schemas.SiteInfo, tags=["Site Information"])
+def get_site():
+    """
+    Get information about the site
+    """
+    return schemas.SiteInfo(
+        name=settings.site_name,
+    )
+
+# =================== ME APIS =========================
 
 @app.get("/me", response_model=schemas.User, tags=["Current User"])
 def get_current_user_info(user=Depends(authenticated_user)):

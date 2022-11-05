@@ -92,6 +92,8 @@ class Score(BaseModel):
 class Response(BaseModel):
     response: str
     tags: List[str]
+    solution: str
+    solution_lang: str
 
 class UserResponse(Response):
     user_id: str
@@ -109,3 +111,6 @@ class ActiveateEmailLoginRequest(BaseModel):
 class Tag(BaseModel):
     tag: str
     count: int
+
+class SiteInfo(BaseModel):
+    name: str

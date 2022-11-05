@@ -2,6 +2,7 @@ from hashlib import pbkdf2_hmac
 from pydantic import BaseSettings
 
 class Settings(BaseSettings):
+    site_name = "Advent of Qode"
     secret_key: str = "development"
     admin_email: str = "admin"
     admin_password: str = "admin"

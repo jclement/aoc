@@ -46,7 +46,7 @@ class Profile extends React.Component {
       <div>
         <center>
           <img
-            src={`https://robots.adventofquorum.org/${this.props.user.id}.png?size=150x150`}
+            src={`https://robots.adventofqode.org/${this.props.user.id}.png?size=150x150`}
             alt={this.props.user.username}
           />
         </center>

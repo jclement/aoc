@@ -1,5 +1,6 @@
 import React from 'react';
 import { authenticationService } from './_services/authentication.service';
+import { site } from './_services/site.service';
 import { Link, useNavigate } from 'react-router-dom';
 import UserIcon from './UserIcon';
 
@@ -8,11 +9,15 @@ class NavComponent extends React.Component {
     super(props);
     this.state = {
       token: null,
-      me: null
+      me: null,
+      site: null
     };
   }
 
   componentDidMount() {
+    site.subscribe((x) => {
+      this.setState({ site: x });
+    });
     authenticationService.user.subscribe(data => {
       this.setState({ me: data });
     });
@@ -23,7 +28,7 @@ class NavComponent extends React.Component {
 
     return (<nav className={"navbar navbar-expand-md navbar-dark " + (isAdmin ? "bg-danger": "bg-dark")}>
       <div className="container-fluid">
-        <Link className="navbar-brand" to="/">Advent of Quorum 2022</Link>
+        <Link className="navbar-brand" to="/">{this.state.site?.name}</Link>
         <button
           className="navbar-toggler"
           type="button"
