@@ -6,8 +6,6 @@ steps:
 
 - name: build-images
   image: plugins/docker
-  volumes:
-    - /var/run/docker.sock:/var/run/docker.sock
   commands:
     - cd backend #&& docker build . -t jclement/aoc-backend:${DRONE_BRANCH}-${DRONE_BUILD_NUMBER} -t jclement/aoc-backend:${DRONE_BRANCH}-latest
 
