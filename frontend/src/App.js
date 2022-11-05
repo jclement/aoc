@@ -9,6 +9,7 @@ import NavBar from "./NavBar";
 import Login from "./Login";
 import Profile from "./Profile";
 import { authenticationService } from "./_services/authentication.service";
+import { site } from "./_services/site.service";
 import { BrowserRouter, Outlet, Routes, Route } from "react-router-dom";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -16,7 +17,7 @@ import 'react-toastify/dist/ReactToastify.css';
 class AppComponent extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { user: null };
+    this.state = { user: null};
   }
 
   componentDidMount() {
@@ -40,10 +41,17 @@ class AppComponent extends React.Component {
 class App extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { user: null, auth_initialized: false };
+    this.state = { 
+      user: null, 
+      auth_initialized: false,
+      site: null,
+     };
   }
 
   componentDidMount() {
+    site.subscribe((x) => {
+      this.setState({ site: x });
+    });
     authenticationService.user.subscribe((x) => {
       if (x !== undefined) {
         this.setState({ user: x, auth_initialized: true });
@@ -65,6 +73,7 @@ class App extends React.Component {
             <Route
               index
               element={<Homepage
+              name={this.state.site?.name}
               user={this.state.user} />} />
 
             <Route path="login" element={<Login />} />
