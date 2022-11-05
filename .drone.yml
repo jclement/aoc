@@ -30,8 +30,6 @@ steps:
    branch:
     -master
     -staging
-   event: 
-    - push
 
 #- name: build-frontend
 #  image: plugins/docker
