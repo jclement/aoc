@@ -31,18 +31,4 @@ steps:
       from_secret: DOCKERHUB_KEY
   when:
     branch: ["master"]
-
-- name: deploy
-  image: plugins/docker
-  settings:
-    repo: jclement/aoc-frontend
-    tags:
-     - "${DRONE_BRANCH}_${DRONE_COMMIT}"
-    dockerfile: frontend/Dockerfile
-    context: frontend
-    username: jclement
-    password:
-      from_secret: DOCKERHUB_KEY
-  when:
-    branch: ["master"]
-    event: [push]
+    #event: [push]
