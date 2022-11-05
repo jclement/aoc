@@ -14,8 +14,23 @@ steps:
     dockerfile: backend/Dockerfile
     context: backend
 
+- name: build-frontend
+  image: plugins/docker
+  settings:
+    repo: jclement/aoc-frontend
+    dry_run: true
+    tags: 
+      - ${DRONE_COMMIT_BRANCH}
+    dockerfile: frontend/Dockerfile
+    context: frontend
+
 - name: publish-backend
   image: plugins/docker
+  when:
+   branch:
+    - master
+   event:
+    - push
   settings:
     repo: jclement/aoc-backend
     dry_run: false
@@ -27,13 +42,20 @@ steps:
     password:
       from_secret: DOCKERHUB_KEY
 
-#- name: build-frontend
-#  image: plugins/docker
-#  settings:
-#    dry_run: true
-#    repo: jclement/aoc-frontend
-#    tags: 
-#      - ${DRONE_COMMIT_BRANCH}
-#    dockerfile: frontend/Dockerfile
-#    context: frontned
-
+- name: publish-frontend
+  image: plugins/docker
+  when:
+   branch:
+    - master
+   event:
+    - push
+  settings:
+    repo: jclement/aoc-frontend
+    dry_run: false
+    tags: 
+      - ${DRONE_COMMIT_BRANCH}
+    dockerfile: frontend/Dockerfile
+    context: frontend
+    username: jclement
+    password:
+      from_secret: DOCKERHUB_KEY
