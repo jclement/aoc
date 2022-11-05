@@ -32,10 +32,17 @@ steps:
   when:
     branch: ["master"]
 
-- name: deploy-production
-    image: plugins/docker
-    commands:
-      - echo "${DRONE_BRANCH}_${DRONE_COMMIT}"
-    when:
-      branch: ["master"]
-      event: [push]
+- name: deploy
+  image: plugins/docker
+  settings:
+    repo: jclement/aoc-frontend
+    tags:
+     - "${DRONE_BRANCH}_${DRONE_COMMIT}"
+    dockerfile: frontend/Dockerfile
+    context: frontend
+    username: jclement
+    password:
+      from_secret: DOCKERHUB_KEY
+  when:
+    branch: ["master"]
+    event: [push]
