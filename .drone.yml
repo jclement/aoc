@@ -12,7 +12,7 @@ steps:
     context: frontend
     username: jclement
     password:
-      from_secret: DOCKER_SECRET
+      from_secret: DOCKERHUB_KEY
 - name: publish-backend
   image: plugins/docker
   settings:
@@ -23,4 +23,4 @@ steps:
     context: backend
     username: jclement
     password:
-      from_secret: DOCKER_SECRET
+      from_secret: DOCKERHUB_KEY
