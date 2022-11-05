@@ -8,21 +8,17 @@ steps:
   image: plugins/docker
   settings:
     repo: jclement/aoc-backend
-    auto_tag: true
+    dryrun: true
+    tags:
+     - ${DRONE_BRANCH}
     dockerfile: backend/Dockerfile
     context: backend
+
+- name: public-backend
+  image: plugins/docker
+  settings:
+    repo: jclement/aoc-backend
     username: jclement
     password:
       from_secret: DOCKERHUB_KEY
 
-- name: build-frontend
-  image: plugins/docker
-  settings:
-    repo: jclement/aoc-frontend
-    dry_run: true
-    auto_tag: true
-    dockerfile: frontend/Dockerfile
-    context: frontend
-    username: jclement
-    password:
-      from_secret: DOCKERHUB_KEY
