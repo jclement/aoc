@@ -7,11 +7,15 @@ steps:
 - name: build-backend
   image: plugins/docker
   settings:
+    repo: jclement/aoc-backend
     dry_run: true
     tags:
      - ${DRONE_BRANCH}
     dockerfile: backend/Dockerfile
     context: backend
+    username: jclement
+    password:
+      from_secret: DOCKERHUB_KEY
   when:
     branch: 
     - master
