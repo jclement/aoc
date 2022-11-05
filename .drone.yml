@@ -26,10 +26,6 @@ steps:
     username: jclement
     password:
       from_secret: DOCKERHUB_KEY
-  when:
-   branch:
-    -master
-    -staging
 
 #- name: build-frontend
 #  image: plugins/docker
