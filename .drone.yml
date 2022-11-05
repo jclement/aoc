@@ -7,7 +7,7 @@ steps:
 - name: build-images
   image: plugins/docker
   commands:
-    - cd backend #&& docker build . -t jclement/aoc-backend:${DRONE_BRANCH}-${DRONE_BUILD_NUMBER} -t jclement/aoc-backend:${DRONE_BRANCH}-latest
+    - cd backend && docker build . -t jclement/aoc-backend:${DRONE_BRANCH}-${DRONE_BUILD_NUMBER} -t jclement/aoc-backend:${DRONE_BRANCH}-latest
 
 #- name: publish
 #  image: docker
