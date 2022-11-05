@@ -22,6 +22,24 @@ steps:
     - staging
     event: pull_request
 
+- name: build-frontend
+  image: plugins/docker
+  settings:
+    repo: jclement/aoc-frontend
+    dry_run: true
+    tags:
+     - ${DRONE_BRANCH}
+    dockerfile: frontend/Dockerfile
+    context: frontend
+    username: jclement
+    password:
+      from_secret: DOCKERHUB_KEY
+  when:
+    branch: 
+    - master
+    - staging
+    event: pull_request
+
 - name: publish-backend
   image: plugins/docker
   settings:
@@ -30,6 +48,23 @@ steps:
      - ${DRONE_BRANCH}
     dockerfile: backend/Dockerfile
     context: backend
+    username: jclement
+    password:
+      from_secret: DOCKERHUB_KEY
+  when:
+    branch: 
+    - master
+    - staging
+    event: push
+
+- name: publish-frontend
+  image: plugins/docker
+  settings:
+    repo: jclement/aoc-frontend
+    tags:
+     - ${DRONE_BRANCH}
+    dockerfile: frontend/Dockerfile
+    context: frontend
     username: jclement
     password:
       from_secret: DOCKERHUB_KEY
