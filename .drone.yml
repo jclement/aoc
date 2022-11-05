@@ -4,56 +4,38 @@ name: Build Advent of Qode
 
 steps:
 
-- name: build-backend
-  image: plugins/docker
-  settings:
-    repo: jclement/aoc-backend
-    dry_run: true
-    tags:
-     - ${DRONE_BRANCH}
-    dockerfile: backend/Dockerfile
-    context: backend
-    username: jclement
-    password:
-      from_secret: DOCKERHUB_KEY
-
-- name: build-frontend
-  image: plugins/docker
-  settings:
-    repo: jclement/aoc-frontend
-    dry_run: true
-    tags:
-     - ${DRONE_BRANCH}
-    dockerfile: frontend/Dockerfile
-    context: frontend
-    username: jclement
-    password:
-      from_secret: DOCKERHUB_KEY
-
 - name: publish-backend
   image: plugins/docker
   settings:
     repo: jclement/aoc-backend
     tags:
-     - ${DRONE_DEPLOY_TO}
+     - "${DRONE_BRANCH}_${DRONE_COMMIT}"
     dockerfile: backend/Dockerfile
     context: backend
     username: jclement
     password:
       from_secret: DOCKERHUB_KEY
   when:
-    event: promote
+    branch: ["master"]
 
 - name: publish-frontend
   image: plugins/docker
   settings:
     repo: jclement/aoc-frontend
     tags:
-     - ${DRONE_DEPLOY_TO}
+     - "${DRONE_BRANCH}_${DRONE_COMMIT}"
     dockerfile: frontend/Dockerfile
     context: frontend
     username: jclement
     password:
       from_secret: DOCKERHUB_KEY
   when:
-    event: promote
+    branch: ["master"]
+
+- name: deploy
+    image: williamyeh/ansible:ubuntu16.04
+    commands:
+      - echo "${DRONE_BRANCH}_${DRONE_COMMIT}"
+    when:
+      branch: ["master"]
+      event: [push]
