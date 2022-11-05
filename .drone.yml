@@ -1,0 +1,26 @@
+kind: pipeline
+type: docker
+name: default
+steps:
+- name: publish-frontend
+  image: plugins/docker
+  settings:
+    repo: jclement/aoc-frontend
+    tags: 
+      - ${DRONE_COMMIT_BRANCH}
+    dockerfile: frontend/Dockerfile
+    context: frontend
+    username: jclement
+    password:
+      from_secret: DOCKER_SECRET
+- name: publish-backend
+  image: plugins/docker
+  settings:
+    repo: jclement/aoc-backend
+    tags: 
+      - ${DRONE_COMMIT_BRANCH}
+    dockerfile: backend/Dockerfile
+    context: backend
+    username: jclement
+    password:
+      from_secret: DOCKER_SECRET
