@@ -32,8 +32,8 @@ steps:
   when:
     branch: ["master"]
 
-- name: deploy
-    image: williamyeh/ansible:ubuntu16.04
+- name: deploy-production
+    image: plugins/docker
     commands:
       - echo "${DRONE_BRANCH}_${DRONE_COMMIT}"
     when:
