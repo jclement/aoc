@@ -29,8 +29,10 @@ steps:
   when:
    branch:
     - master
+   target:
+    - production
    event:
-    - push
+    - promote
   settings:
     repo: jclement/aoc-backend
     dry_run: false
@@ -47,8 +49,10 @@ steps:
   when:
    branch:
     - master
+   target:
+    - production
    event:
-    - push
+    - promote
   settings:
     repo: jclement/aoc-frontend
     dry_run: false
