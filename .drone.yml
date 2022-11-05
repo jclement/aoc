@@ -8,6 +8,19 @@ steps:
   image: plugins/docker
   settings:
     repo: jclement/aoc-backend
+    dry_run: true
+    tags:
+     - latest
+    dockerfile: backend/Dockerfile
+    context: backend
+    username: jclement
+    password:
+      from_secret: DOCKERHUB_KEY
+
+- name: publish-backend
+  image: plugins/docker
+  settings:
+    repo: jclement/aoc-backend
     tags:
      - latest
     dockerfile: backend/Dockerfile
@@ -16,5 +29,4 @@ steps:
     password:
       from_secret: DOCKERHUB_KEY
   when:
-   branch: master
-
+   target: production
