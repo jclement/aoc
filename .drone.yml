@@ -45,7 +45,7 @@ steps:
   settings:
     repo: jclement/aoc-backend
     tags:
-     - ${DRONE_BRANCH}
+     - ${DRONE_DEPLOY_TO}
     dockerfile: backend/Dockerfile
     context: backend
     username: jclement
@@ -54,15 +54,14 @@ steps:
   when:
     branch: 
     - master
-    - staging
-    event: push
+    event: promote
 
 - name: publish-frontend
   image: plugins/docker
   settings:
     repo: jclement/aoc-frontend
     tags:
-     - ${DRONE_BRANCH}
+     - ${DRONE_DEPLOY_TO}
     dockerfile: frontend/Dockerfile
     context: frontend
     username: jclement
@@ -71,5 +70,4 @@ steps:
   when:
     branch: 
     - master
-    - staging
-    event: push
+    event: promote
