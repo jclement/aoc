@@ -1,4 +1,6 @@
-# Advent of Code
+# Advent of Qode
+
+[![Build Status](https://drone-gh.erraticbits.ca/api/badges/jclement/aoc/status.svg)](https://drone-gh.erraticbits.ca/jclement/aoc)
 
 ## Ideas
 
