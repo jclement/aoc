@@ -6,11 +6,15 @@ steps:
 
 - name: build-images
   image: docker
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
   commands:
     - cd backend && docker build . -t jclement/aoc-backend:${DRONE_BRANCH}-${DRONE_BUILD_NUMBER} -t jclement/aoc-backend:${DRONE_BRANCH}-latest
 
 - name: publish
   image: docker
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
   environment:
     DOCKERHUB_KEY:
       from_secret: DOCKERHUB_KEY
