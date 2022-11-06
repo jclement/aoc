@@ -1,6 +1,5 @@
 kind: pipeline
 type: docker
-name: Build Advent of Qode
 
 steps:
 

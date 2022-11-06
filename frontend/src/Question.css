@@ -23,6 +23,28 @@
   border-bottom-right-radius: 50rem;
 }
 
+#codeEditor {
+  width: 100% !important;
+}
+
+.hint {
+  font-size: 0.6em;
+  margin: auto;
+  opacity: 70%;
+}
+
+
+.hint {
+  font-size: 0.6em;
+  margin: auto;
+  opacity: 70%;
+}
+
+.card-solution pre {
+  margin: 0 !important;
+  font-size: 8pt !important;
+}
+
 .autocompletions {
   list-style-type: none;
   position: absolute;

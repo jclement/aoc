@@ -1,11 +1,12 @@
 import React from 'react';
+import AceEditor from "react-ace";
 import ReactMarkdown from 'react-markdown';
 import {Prism as SyntaxHighlighter} from 'react-syntax-highlighter'
 import {dark} from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { Header, ButtonBar } from './Styling';
 import Tagger from './Tagger';
 import TagCloudWrapper from './TagCloudWrapper';
-import { popSuccess, handleError } from './handleError';
+import { popSuccess, popError, handleError } from './handleError';
 import { useParams } from 'react-router-dom';
 import { authenticationService } from './_services/authentication.service';
 import { parseToLocal } from './dateHandling';
@@ -13,8 +14,32 @@ import rehypeRaw from 'rehype-raw'
 import Countdown from 'react-countdown';
 import keyHandler from './keyHandler';
 import { darken, konamiSequence } from './konamiHandler';
+import "ace-builds/src-noconflict/theme-github";
+import "ace-builds/src-noconflict/mode-python";
+import "ace-builds/src-noconflict/mode-csharp";
+import "ace-builds/src-noconflict/mode-golang";
+import "ace-builds/src-noconflict/mode-java";
+import "ace-builds/src-noconflict/mode-javascript";
+import "ace-builds/src-noconflict/mode-typescript";
+import "ace-builds/src-noconflict/mode-rust";
+import "ace-builds/src-noconflict/mode-perl";
+import "ace-builds/src-noconflict/mode-lua";
+import "ace-builds/src-noconflict/ext-language_tools"
+
 
 const konamiId = '93d11bb4dba141a587413137112ae59e';
+const solutionLanguages = {
+  'text':'text',
+  'csharp':'csharp',
+  'python':'python',
+  'golang':'go',
+  'java':'java',
+  'javascript':'javascript',
+  'typescript':'typescript',
+  'rust':'rust',
+  'lua':'lua',
+  'perl':'perl'
+};
 
 class MyTag extends React.Component {
   render = () => (<span className="badge rounded-pill bg-primary userTag">
@@ -91,10 +116,13 @@ class QuestionComponent extends React.Component {
     this.state = {
       question: null,
       answer: '',
+      solution: '',
+      solution_lang: '',
       expectedAnswer: null,
       score: null,
       tags: [],
       userTags: [],
+      solutions:[],
       submitting: false,
       user: null
     };
@@ -134,7 +162,8 @@ class QuestionComponent extends React.Component {
       authenticationService.httpGet(`${apiRoot}/response`),
       authenticationService.httpGet(`${apiRoot}/tags`),
       authenticationService.httpGet(`${apiRoot}/answer`),
-      authenticationService.httpGet(`${apiRoot}/score`)
+      authenticationService.httpGet(`${apiRoot}/score`),
+      authenticationService.httpGet(`${apiRoot}/solutions`)
     ]).then(results => {
       let correctResp = results[3];
 
@@ -143,7 +172,8 @@ class QuestionComponent extends React.Component {
         results[1].json(),                       // prev response
         results[2].json(),                       // tags
         correctResp ? correctResp.json() : null, // correct response (if old question)
-        results[4].json() // score
+        results[4].json(), // score
+        results[5].json() // score
       ]).then(responses => {
         const prev = responses[1];
         const expected = responses[3];
@@ -151,10 +181,13 @@ class QuestionComponent extends React.Component {
           {
             question: responses[0],
             answer: prev ? prev.response : '',
+            solution: prev ? prev.solution : '',
+            solution_lang: prev ? prev.solution_lang : '',
             tags: responses[2],
             userTags: (prev ? prev.tags : []),
             expectedAnswer: expected ? expected.answer : '',
             score: responses[4].score,
+            solutions: responses[5],
             submitting: false
           }
         )
@@ -174,7 +207,7 @@ class QuestionComponent extends React.Component {
 
   submitAnswer = (evt) => {
     const ans = this.state.answer.trim();
-    if (!ans.length) { return; }
+    //if (!ans.length) { return; }
 
     this.setState({ submitting: true });
 
@@ -182,14 +215,21 @@ class QuestionComponent extends React.Component {
       `/api/questions/${this.props.day}/response`,
       {
         response: ans,
+        solution: this.state.solution,
+        solution_lang: this.state.solution_lang,
         tags: this.state.userTags
       }
     ).then(
       resp => resp.json()
     ).then(
-      () => {
+      (r) => {
         this.setState({ submitting: false });
-        popSuccess('Submitted!');
+        if (r.result) {
+          popSuccess('Submitted!');
+        } else {
+          popError('Failed! ' + r.message);
+
+        }
       }
     ).catch(this.catchError);
   }
@@ -215,6 +255,14 @@ class QuestionComponent extends React.Component {
 
   onAnswerChange = (evt) => {
     this.setState({answer: evt.target.value});
+  }
+
+  onSolutionChange = (v) => {
+    this.setState({solution: v});
+  }
+
+  onSolutionLangChange = (v) => {
+    this.setState({solution_lang: v.target.value});
   }
 
   shutErDown = () => {
@@ -252,7 +300,7 @@ class QuestionComponent extends React.Component {
         user={this.state.user} />
 
       {question.is_complete && <div className="card">
-        <div className="card-header bg-warning">Results for Your Response</div>
+        <div className="card-header bg-warning">Results for your response</div>
         <div className="card-body">
           <table><tbody>
             <tr><th>Your response:</th><td>{this.state.answer}</td></tr>
@@ -266,9 +314,42 @@ class QuestionComponent extends React.Component {
         </div>
         </div>}
 
+      {question.is_complete && <div>
+        <br></br>
+        <br></br>
+        <h2>Solutions...</h2>
+       {this.state.solutions.map((s) => 
+        <div className="card card-solution" key={s.user_id}>
+        <div className="card-header bg-default"><img
+          src={`https://robots.adventofqode.org/${s.user_id}.png?size=30x30`}
+          alt={s.username} />{s.username} &nbsp;
+          <div className="badge rounded-pill bg-dark">{s.points} pts</div>
+        </div>
+        <SyntaxHighlighter language={solutionLanguages[s.solution_lang]} showLineNumbers={true}>
+          {s.solution}
+        </SyntaxHighlighter>
+        </div>
+        )}
+        </div>}
+
       {question.is_active && <div className="card">
         <div className="card-header bg-primary text-white">Your Response</div>
         <div className="card-body">
+          <div className="row mb-3" onKeyDown={this.handleKeyDown}>
+            <label htmlFor="answer" className="col-sm-2 col-form-label">
+              Answer:
+            </label>
+            <div id="answer" className="col-sm-10">
+              <input
+                type="text"
+                className="form-control"
+                placeholder={this.props.day === konamiId ? 'Unlock the console' : 'Your Answer'}
+                value={this.state.answer}
+                disabled={this.state.submitting}
+                onChange={this.onAnswerChange} />
+            </div>
+          </div>
+          <hr/>
           <div className="row mb-3">
             <label htmlFor="tags" className="col-sm-2 col-form-label">
               Tags:
@@ -282,18 +363,29 @@ class QuestionComponent extends React.Component {
                 editable={question.is_active ? true : false} />
             </div>
           </div>
-          <div className="row mb-3" onKeyDown={this.handleKeyDown}>
-            <label htmlFor="answer" className="col-sm-2 col-form-label">
-              Answer:
+          <hr/>
+          <div className="row mb-3 hint">
+            Optionally, if you are proud of your code, feel free to post it below.
+          </div>
+          <div className="row mb-3">
+            <label htmlFor="solution" className="col-sm-2 col-form-label">
+              Your Code:
             </label>
-            <div id="answer" className="col-sm-10">
-              <input
-                type="text"
-                className="form-control"
-                placeholder={this.props.day === konamiId ? 'Unlock the console' : 'Your Answer'}
-                value={this.state.answer}
-                disabled={this.state.submitting}
-                onChange={this.onAnswerChange} />
+            <div id="solution" className="col-sm-10">
+              <AceEditor
+                mode={this.state.solution_lang}
+                theme="github"
+                value={this.state.solution}
+                onChange={this.onSolutionChange}
+                name="codeEditor"
+                editorProps={{ $blockScrolling: true }}
+              /><br/>
+              <select className="form-select" value={this.state.solution_lang} onChange={this.onSolutionLangChange}>
+                {Object.keys(solutionLanguages).map((lang) => 
+                <option key={lang} value={lang}>{lang}</option>
+                )}
+              </select>
+
             </div>
           </div>
         </div>

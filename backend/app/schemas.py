@@ -92,8 +92,8 @@ class Score(BaseModel):
 class Response(BaseModel):
     response: str
     tags: List[str]
-    solution: str
-    solution_lang: str
+    solution: Optional[str]
+    solution_lang: Optional[str]
 
 class UserResponse(Response):
     user_id: str
@@ -114,3 +114,10 @@ class Tag(BaseModel):
 
 class SiteInfo(BaseModel):
     name: str
+
+class Solution(BaseModel):
+    user_id: str
+    username: str
+    solution: Optional[str]
+    solution_lang: Optional[str]
+    points: int

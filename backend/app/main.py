@@ -316,7 +316,7 @@ def retrieve_answer(question_id, current_user=Depends(authenticated_user), db=De
 @app.get("/questions/{question_id}/score", tags=["Questions"], response_model=schemas.Score)
 def retrieve_score(question_id, current_user=Depends(authenticated_user), db=Depends(get_db)):
     """
-    Retrieve the answer for a question.  Note that non-admin users may only retrieve answers for completed question
+    Retrieve the user's score for this question
     """
     tmp = db.query(models.Response, models.Question)\
         .filter(
@@ -424,6 +424,23 @@ def post_comment_for_question(question_id, request:schemas.WriteableComment, cur
 
 # =================== RESPONSE APIS =========================
 
+@app.get("/questions/{question_id}/solutions", tags=["Response"], response_model=List[schemas.Solution])
+def retrieve_solutions(question_id, current_user=Depends(authenticated_user), db=Depends(get_db)):
+    question = db.query(models.Question).filter(
+        models.Question.id == question_id).first()
+    if not question:
+        raise HTTPException(404)
+    responses = db.query(models.Response, models.User).filter(
+        models.Response.question_id == question_id,
+        current_user.is_admin or datetime.datetime.utcnow() >= models.Question.deactivate_date,
+    ).join(models.User, models.User.id == models.Response.user_id).all()
+    return [schemas.Solution(
+        user_id = u.id,
+        username = u.username,
+        solution = r.solution, 
+        solution_lang = r.solution_lang, 
+        points = calculate_score(question, r)
+    ) for r,u in responses]
 
 @app.get("/questions/{question_id}/responses", tags=["Response"], response_model=List[schemas.UserResponse])
 def retrieve_responses(question_id, current_user=Depends(authenticated_user), db=Depends(get_db)):
@@ -455,6 +472,8 @@ def retrieve_response(question_id, current_user=Depends(authenticated_user), db=
         return None
     return schemas.Response(
         response=resp.response,
+        solution=resp.solution,
+        solution_lang=resp.solution_lang,
         tags=[x.tag for x in resp.tags],
     )
 
@@ -473,7 +492,9 @@ def post_response(question_id, response: schemas.Response, current_user=Depends(
     if not question:
         raise HTTPException(404)
     if not question.is_active():
-        return schemas.Status(result=False, message="question is not active")
+        return schemas.Status(result=False, message="Question is not active.")
+    if len(response.solution)> 16000 :
+        return schemas.Status(result=False, message="Solution is too big.  Save some bytes for the rest of us!")
     resp = db.query(models.Response).filter(
         models.Response.question_id == question_id,
         models.Response.user_id == current_user.id,
@@ -482,12 +503,16 @@ def post_response(question_id, response: schemas.Response, current_user=Depends(
     if resp:
         resp.response = response.response
         resp.response_date = datetime.datetime.utcnow()
+        resp.solution = response.solution
+        resp.solution_lang = response.solution_lang
         resp.tags = [models.Tag(tag=x) for x in list(dict.fromkeys(response.tags))]
     else:
         resp = models.Response()
         resp.question_id = question_id
         resp.user_id = current_user.id
         resp.response = response.response
+        resp.solution = response.solution
+        resp.solution_lang = response.solution_lang
         resp.tags = [models.Tag(tag=x) for x in list(dict.fromkeys(response.tags))]
         db.add(resp)
     db.commit()
