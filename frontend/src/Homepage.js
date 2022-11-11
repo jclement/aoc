@@ -54,7 +54,7 @@ export default class Homepage extends React.Component {
         </span>
        </div>
        <br/>
-       { this.props.user==null && <p className="alert alert-primary">Perhaps you should <a href="/login">Login</a> so that you can participate when adventure begins?</p>}
+       { this.props.user==null && <p className="alert alert-primary">Perhaps you should <a href="/login">Login</a> so that you can participate when the adventure begins?</p>}
        </div>;
     } else if (this.props.user) {
       return <div className="container-fluid">
