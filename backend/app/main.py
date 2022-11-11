@@ -81,7 +81,7 @@ async def email_authentication_initiate(request: schemas.InitiateEmailLoginReque
         if not email.endswith(settings.restrict_domain):
             return schemas.Status(result=False, message="not a valid email domain")
 
-    token = secrets.token_hex(32)
+    token = secrets.token_hex(6)
     ch = models.Challenge()
     ch.email = email
     ch.secret = token
