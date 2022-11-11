@@ -35,6 +35,16 @@
   font-weight:900;
 }
 
+@media (max-width: 500px) {
+  #countdown > h1 {
+    font-size: 1em;
+  }
+
+  #countdown > p {
+    font-size: 0.8em;
+  }
+}
+
 .App-header {
   background-color: #282c34;
   min-height: 100vh;

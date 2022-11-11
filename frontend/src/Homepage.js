@@ -31,7 +31,7 @@ export default class Homepage extends React.Component {
       this.wordify('hour', hours),
       this.wordify('minute', minutes),
       this.wordify('second', seconds)
-    ].filter(s => !!s.length).join(' ') + ' remaining';
+    ].filter(s => !!s.length).join(' ');
   }
 
   render() {
