@@ -36,8 +36,8 @@ export default class Leaderboard extends React.Component {
         &nbsp;
         {row.is_admin ? <span className="badge rounded-pill bg-dark">admin</span>:""}
         &nbsp;
-        {this.props.user?.is_admin && <a href={"mailto:" + row.email}>{row.username}</a>}
-        {!this.props.user?.is_admin && <span>{row.username}</span>}
+        {this.props.user?.is_admin && <a data-bonusimg={row.bonus_image} href={"mailto:" + row.email}>{row.username}</a>}
+        {!this.props.user?.is_admin && <span data-bonusimg={row.bonus_image}>{row.username}</span>}
         {row.fav_points > 0 && <span style={{margin: "5px"}} className="badge rounded-pill bg-danger">{row.fav_points} <i className="fas fa-heart"></i></span>}
         &nbsp;
       </td>
