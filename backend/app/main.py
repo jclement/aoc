@@ -86,10 +86,6 @@ async def email_authentication_initiate(request: schemas.InitiateEmailLoginReque
     ch.email = email
     ch.secret = token
 
-    # something more elegant for team bucketing would be super
-    if email.endswith("@quorumsoftware.com"):
-        ch.team="Quorum";
-
     db.add(ch)
     db.commit()
 
@@ -136,6 +132,11 @@ def email_authentication_activate(request: schemas.ActiveateEmailLoginRequest, d
             user = models.User()
             user.username = email
             user.email = email
+
+            # something more elegant for team bucketing would be super
+            if email.endswith("@quorumsoftware.com"):
+                user.team="quorum";
+
             db.add(user)
             db.commit()
 
