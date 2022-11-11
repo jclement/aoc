@@ -14,7 +14,7 @@ from validate_email import validate_email
 from . import models, schemas, util
 from .database import engine, get_db, SessionLocal
 from .settings import settings
-from sqlalchemy import and_
+from sqlalchemy import and_, or_, func
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
@@ -52,7 +52,6 @@ def authenticated_user(token=Depends(oauth2_scheme), db=Depends(get_db)):
         raise HTTPException(401)
     return user
 
-
 # ================== BOOTSTRAP ADMIN USER ==================
 
 db = SessionLocal()
@@ -86,6 +85,11 @@ async def email_authentication_initiate(request: schemas.InitiateEmailLoginReque
     ch = models.Challenge()
     ch.email = email
     ch.secret = token
+
+    # something more elegant for team bucketing would be super
+    if email.endswith("@quorumsoftware.com"):
+        ch.team="Quorum";
+
     db.add(ch)
     db.commit()
 
@@ -182,8 +186,14 @@ def get_site():
     """
     Get information about the site
     """
+    startDate = None
+    try:
+        startDate = db.query(func.min(models.Question.activate_date)).first()[0]
+    except:
+        pass
     return schemas.SiteInfo(
         name=settings.site_name,
+        start_date=startDate
     )
 
 # =================== ME APIS =========================
@@ -197,6 +207,7 @@ def get_current_user_info(user=Depends(authenticated_user)):
         id=user.id,
         username=user.username,
         is_admin=user.is_admin,
+        team=user.team,
         email=user.email,
     )
 
@@ -523,7 +534,7 @@ def post_response(question_id, response: schemas.Response, current_user=Depends(
 
 
 @app.get("/leaderboard", tags=["Leaderboard"], response_model=List[schemas.LeaderboardEntry])
-def retrieve_leaderboard(db=Depends(get_db)):
+def retrieve_leaderboard(db=Depends(get_db), current_user=Depends(authenticated_user)):
     """
     Remember the scoreboard on PACMAN?  This is like that.  Only with longer high-score names.
     """
@@ -531,6 +542,7 @@ def retrieve_leaderboard(db=Depends(get_db)):
     for u, q, r in db.query(models.User, models.Question, models.Response)\
         .outerjoin(models.Response, models.Response.user_id == models.User.id)\
         .outerjoin(models.Question, models.Question.id == models.Response.question_id)\
+        .where(or_(current_user.is_admin, models.User.is_admin, models.User.team == current_user.team))\
             .all():
         if not u.is_admin:
             if not u in users:
@@ -545,6 +557,8 @@ def retrieve_leaderboard(db=Depends(get_db)):
         username=x[0].username,
         is_admin=x[0].is_admin,
         fav_points = x[0].fav_points or 0,
-        email=x[0].email,
+        email=x[0].email if current_user.is_admin else None,
+        team=x[0].team,
+        bonus_image=x[0].bonus_image,
         score=x[1],
     ) for x in leader]

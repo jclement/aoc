@@ -1,5 +1,6 @@
 import React from "react";
 import "./App.css";
+import { authenticationService } from './_services/authentication.service';
 
 export default class Leaderboard extends React.Component {
   constructor(props) {
@@ -9,7 +10,7 @@ export default class Leaderboard extends React.Component {
     };
   }
   componentDidMount() {
-    fetch("/api/leaderboard")
+    authenticationService.httpGet('/api/leaderboard')
       .then((response) => response.json())
       .then((data) => this.setState({ data: data }));
   }

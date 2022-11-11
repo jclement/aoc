@@ -17,6 +17,7 @@ class WriteableUser(BaseModel):
 class User(WriteableUser):
     id: str
     is_admin: bool
+    team: Optional[str]
     email: str
 
 class WriteableComment(BaseModel):
@@ -33,7 +34,9 @@ class LeaderboardEntry(BaseModel):
     user_id: str
     username: str
     is_admin: bool
-    email: str
+    email: Optional[str]
+    team: Optional[str]
+    bonus_image: Optional[str]
     score: int
     fav_points: int
 
@@ -114,6 +117,7 @@ class Tag(BaseModel):
 
 class SiteInfo(BaseModel):
     name: str
+    start_date: Optional[datetime.datetime]
 
 class Solution(BaseModel):
     user_id: str

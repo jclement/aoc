@@ -13,6 +13,8 @@ class User(Base):
     username = Column(String(80), unique=True, nullable=False)
     email = Column(String(120), unique=True, nullable=False)
     password = Column(String(200))
+    team = Column(String(100))
+    bonus_image = Column(String(100))
     is_admin = Column(Boolean(), nullable=False, default=False)
     created = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
     fav_points = Column(Integer)

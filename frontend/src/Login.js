@@ -1,6 +1,7 @@
 import React from "react";
 import { Header, ButtonBar } from "./Styling";
 import { authenticationService } from "./_services/authentication.service";
+import { site} from "./_services/site.service";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 
@@ -11,6 +12,7 @@ class LoginComponent extends React.Component {
       email: "",
       email_sent: false,
       secret: "",
+      site: null,
     };
 
     const [searchParams] = props.params;
@@ -23,6 +25,12 @@ class LoginComponent extends React.Component {
       //this.login(null);
 
     }
+  }
+
+  componentDidMount() {
+    site.subscribe((x) => {
+      this.setState({ site: x });
+    });
   }
 
   sendEmail(event) {
@@ -83,7 +91,7 @@ class LoginComponent extends React.Component {
 
   render = () => (
     <div>
-      <Header>Advent of Quorum 2022!</Header>
+      <Header>{this.state.site?.name}</Header>
       {!this.state.email_sent && <p className="alert alert-dark">Enter your email address to sign-in/create an account.  An email will be sent to this address to authenticate you.</p>}
       <form>
         <div className="row mb-3">

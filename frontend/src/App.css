@@ -10,6 +10,31 @@
   }
 }
 
+.center {
+  text-align: center;
+}
+
+#countdown { 
+  position: relative;
+  display:inline-block; /* resize span to content */
+}
+
+#countdown > h1 {
+  position: absolute;
+  bottom: 30px;
+  left: 10px;
+  color: white;
+  font-weight:900;
+}
+
+#countdown > p {
+  position: absolute;
+  bottom: 0px;
+  left: 10px;
+  color: white;
+  font-weight:900;
+}
+
 .App-header {
   background-color: #282c34;
   min-height: 100vh;

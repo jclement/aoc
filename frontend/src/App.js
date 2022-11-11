@@ -74,6 +74,7 @@ class App extends React.Component {
               index
               element={<Homepage
               name={this.state.site?.name}
+              start_date={this.state.site?.start_date}
               user={this.state.user} />} />
 
             <Route path="login" element={<Login />} />
