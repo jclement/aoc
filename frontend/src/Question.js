@@ -318,7 +318,7 @@ class QuestionComponent extends React.Component {
         <br></br>
         <br></br>
         <h2>Solutions...</h2>
-       {this.state.solutions.map((s) => 
+       {this.state.solutions.filter((s) => s.solution).map((s) => 
         <div className="card card-solution" key={s.user_id}>
         <div className="card-header bg-default"><img
           src={`https://robots.adventofqode.org/${s.user_id}.png?size=30x30`}
@@ -363,31 +363,34 @@ class QuestionComponent extends React.Component {
                 editable={question.is_active ? true : false} />
             </div>
           </div>
-          <hr/>
-          <div className="row mb-3 hint">
-            Optionally, if you are proud of your code, feel free to post it below.
-          </div>
-          <div className="row mb-3">
-            <label htmlFor="solution" className="col-sm-2 col-form-label">
-              Your Code:
-            </label>
-            <div id="solution" className="col-sm-10">
-              <AceEditor
-                mode={this.state.solution_lang}
-                theme="github"
-                value={this.state.solution}
-                onChange={this.onSolutionChange}
-                name="codeEditor"
-                editorProps={{ $blockScrolling: true }}
-              /><br/>
-              <select className="form-select" value={this.state.solution_lang} onChange={this.onSolutionLangChange}>
-                {Object.keys(solutionLanguages).map((lang) => 
-                <option key={lang} value={lang}>{lang}</option>
-                )}
-              </select>
 
+          { this.state.user.is_admin && <div>
+            <hr/>
+            <div className="row mb-3 hint">
+              Optionally, if you are proud of your code, feel free to post it below.
             </div>
-          </div>
+            <div className="row mb-3">
+              <label htmlFor="solution" className="col-sm-2 col-form-label">
+                Your Code:
+              </label>
+              <div id="solution" className="col-sm-10">
+                <AceEditor
+                  mode={this.state.solution_lang}
+                  theme="github"
+                  value={this.state.solution}
+                  onChange={this.onSolutionChange}
+                  name="codeEditor"
+                  editorProps={{ $blockScrolling: true }}
+                /><br/>
+                <select className="form-select" value={this.state.solution_lang} onChange={this.onSolutionLangChange}>
+                  {Object.keys(solutionLanguages).map((lang) => 
+                  <option key={lang} value={lang}>{lang}</option>
+                  )}
+                </select>
+              </div>
+            </div>
+          </div>}
+
         </div>
         <div className="card-footer">
           <ButtonBar>
