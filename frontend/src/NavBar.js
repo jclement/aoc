@@ -41,7 +41,7 @@ class NavComponent extends React.Component {
         </button>
         <div  id="navbarContent" className="collapse navbar-collapse">
           <ul className="navbar-nav">
-            <a href="https://teams.microsoft.com/l/team/19%3ajlXlzIhH2H71MsHX7wKcjboZx8ti5w-b5s34IJYysM41%40thread.tacv2/conversations?groupId=01351aa0-8d38-4cd9-986e-0a9a0642efb2&tenantId=ce68f836-c221-45ef-866b-38cda86b3d5e" className="nav-link">AoQ Support Group</a>
+            {this.state.me?.team === "quorum" && <a href="https://teams.microsoft.com/l/team/19%3ajlXlzIhH2H71MsHX7wKcjboZx8ti5w-b5s34IJYysM41%40thread.tacv2/conversations?groupId=01351aa0-8d38-4cd9-986e-0a9a0642efb2&tenantId=ce68f836-c221-45ef-866b-38cda86b3d5e" className="nav-link">AoQ Support Group</a>}
             {isAdmin && <Link to="editquestion" className="nav-link">Manage Questions</Link>}
             {isAdmin && <Link to="postquestion" className="nav-link">New Question</Link>}
             {isAdmin && <a href="/files/" className="nav-link">Post Files</a>}
