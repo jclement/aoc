@@ -39,7 +39,7 @@ export default class Homepage extends React.Component {
     if (!this.props.start_date) {
       // empty system, not much we can show
       return <div>Nothing to see yet</div>;
-    } else if (startDate > new Date()) {
+    } else if (startDate > new Date() && !this.props.user?.is_admin) {
       // waiting for the first question to become active
       return <div><div className="center">
         <span id="countdown">
