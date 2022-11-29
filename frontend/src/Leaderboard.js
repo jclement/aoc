@@ -39,6 +39,7 @@ export default class Leaderboard extends React.Component {
         <td>
           <img
             className="userIcon"
+            loading="lazy"
             src={`https://robots.adventofqode.org/${row.user_id}.png?size=50x50`}
             alt={row.username}
           />
