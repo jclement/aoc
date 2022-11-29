@@ -14,7 +14,7 @@
   text-align: center;
 }
 
-#countdown { 
+#countdown {
   position: relative;
   display:inline-block; /* resize span to content */
 }
@@ -87,4 +87,14 @@
 
 .upper {
   text-transform: uppercase;
+}
+
+.gallery-thumbnail img {
+  max-height: 400px;
+  max-width: 250px;
+  min-width: 200px;
+}
+
+.gallery-thumbnail {
+  width: 250px;
 }

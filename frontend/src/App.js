@@ -7,6 +7,7 @@ import QuestionEditor from "./QuestionEditor";
 import FourOhFour from "./FourOhFour";
 import NavBar from "./NavBar";
 import Login from "./Login";
+import Gallery from "./Gallery";
 import Profile from "./Profile";
 import { authenticationService } from "./_services/authentication.service";
 import { site } from "./_services/site.service";
@@ -41,12 +42,15 @@ class AppComponent extends React.Component {
 class App extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { 
-      user: null, 
+    this.state = {
+      user: null,
       auth_initialized: false,
       site: null,
+      userBonusImage: null
      };
   }
+
+  cacheBonusImage = imgUrl => this.setState({ userBonusImage: imgUrl })
 
   componentDidMount() {
     site.subscribe((x) => {
@@ -73,9 +77,11 @@ class App extends React.Component {
             <Route
               index
               element={<Homepage
-              name={this.state.site?.name}
-              start_date={this.state.site?.start_date}
-              user={this.state.user} />} />
+                name={this.state.site?.name}
+                start_date={this.state.site?.start_date}
+                user={this.state.user}
+                userBonusImage={this.state.userBonusImage}
+                cacheBonusImage={this.cacheBonusImage} />} />
 
             <Route path="login" element={<Login />} />
 
@@ -83,10 +89,16 @@ class App extends React.Component {
               path="profile"
               element={
                 <RequireAuth>
-                  <Profile user={this.state.user} />
+                  <Profile
+                    user={this.state.user}
+                    userBonusImage={this.state.userBonusImage}/>
                 </RequireAuth>
               }
             />
+
+            <Route
+              path="gallery"
+              element={<RequireAuth><Gallery /></RequireAuth>} />
 
             <Route
               path="question/:day"

@@ -41,12 +41,19 @@ class Profile extends React.Component {
     return true;
   }
 
+  profilePicUrl = () => {
+    if (typeof(this.props.userBonusImage) === 'string') {
+      return this.props.userBonusImage;
+    }
+    return `https://robots.adventofqode.org/${this.props.user.id}.png?size=150x150`;
+  }
+
   render = () => (
     <div>
       <div>
         <center>
           <img
-            src={`https://robots.adventofqode.org/${this.props.user.id}.png?size=150x150`}
+            src={this.profilePicUrl()}
             alt={this.props.user.username}
           />
         </center>
