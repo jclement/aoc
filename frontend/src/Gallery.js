@@ -1,6 +1,5 @@
 import React from "react";
 import "./App.css";
-import { Link } from "react-router-dom";
 import VerifiedCheck from "./VerifiedCheck";
 import { authenticationService } from './_services/authentication.service';
 
@@ -12,7 +11,7 @@ class UserImage extends React.Component {
         <VerifiedCheck user={this.props.user} />
       </div>
       <div>
-        <a href={this.props.user.bonus_image} target="_blank">
+        <a href={this.props.user.bonus_image} target="_blank" rel="noreferrer">
           <img
             src={this.props.user.bonus_image}
             className="mugshot"
