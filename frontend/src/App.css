@@ -89,7 +89,7 @@
   text-transform: uppercase;
 }
 
-.gallery-thumbnail img {
+.gallery-thumbnail .mugshot {
   max-height: 400px;
   max-width: 250px;
   min-width: 200px;

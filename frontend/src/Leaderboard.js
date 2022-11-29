@@ -43,7 +43,8 @@ export default class Leaderboard extends React.Component {
             alt={row.username}
           />
           &nbsp;
-          {row.is_admin ? <span className="badge rounded-pill bg-dark">admin</span>:""}
+          {row.is_admin ? <span className="badge rounded-pill bg-dark">admin</span> : ""}
+          {row.is_admin ? <span><img src="verified16.png" alt="verified"/></span> : null}
           &nbsp;
           {this.props.user?.is_admin && <a data-bonusimg={row.bonus_image} href={"mailto:" + row.email}>{row.username}</a>}
           {!this.props.user?.is_admin && <span data-bonusimg={row.bonus_image}>{row.username}</span>}
