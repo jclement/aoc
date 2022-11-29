@@ -9,7 +9,7 @@ class UserImage extends React.Component {
     return (<div className="gallery-thumbnail p-3 m-2 text-center">
       <div className="font-monospace pb-3">
         <span>{this.props.user.username}</span>
-        {this.props.user.is_admin ? <VerifiedCheck /> : null}
+        <VerifiedCheck user={this.props.user} />
       </div>
       <div>
         <a href={this.props.user.bonus_image} target="_blank">
