@@ -1,6 +1,7 @@
 import React from "react";
 import "./App.css";
 import { Link } from "react-router-dom";
+import VerifiedCheck from "./VerifiedCheck";
 import { authenticationService } from './_services/authentication.service';
 
 export default class Leaderboard extends React.Component {
@@ -44,7 +45,7 @@ export default class Leaderboard extends React.Component {
           />
           &nbsp;
           {row.is_admin ? <span className="badge rounded-pill bg-dark">admin</span> : ""}
-          {row.is_admin ? <span><img src="verified16.png" alt="verified"/></span> : null}
+          {row.is_admin ? <VerifiedCheck /> : null}
           &nbsp;
           {this.props.user?.is_admin && <a data-bonusimg={row.bonus_image} href={"mailto:" + row.email}>{row.username}</a>}
           {!this.props.user?.is_admin && <span data-bonusimg={row.bonus_image}>{row.username}</span>}
