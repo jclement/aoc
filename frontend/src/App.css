@@ -14,7 +14,7 @@
   text-align: center;
 }
 
-#countdown { 
+#countdown {
   position: relative;
   display:inline-block; /* resize span to content */
 }
@@ -87,4 +87,10 @@
 
 .upper {
   text-transform: uppercase;
+}
+
+.gallery-thumbnail .mugshot {
+  max-height: 400px;
+  max-width: 250px;
+  min-width: 200px;
 }

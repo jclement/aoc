@@ -41,33 +41,39 @@ export default class Homepage extends React.Component {
       return <div>Nothing to see yet</div>;
     } else if (startDate > new Date() && !this.props.user?.is_admin) {
       // waiting for the first question to become active
-      return <div><div className="center">
-        <span id="countdown">
-        <img src="/countdown.png" alt="countdown" className="img-fluid" />
-        <h1>The adventure begins in ...</h1>
-        <p>
-        <Countdown
-          date={startDate}
-          renderer={this.renderer}
-          onComplete={this.timerComplete} />
-          </p>
-        </span>
-       </div>
-       <br/>
-       { this.props.user==null && <p className="alert alert-primary">Perhaps you should <a href="/login">Login</a> so that you can participate when the adventure begins?</p>}
-       </div>;
+      return (<div>
+        <div className="center">
+          <span id="countdown">
+          <img src="/countdown.png" alt="countdown" className="img-fluid" />
+            <h1>The adventure begins in ...</h1>
+            <p>
+              <Countdown
+                date={startDate}
+                renderer={this.renderer}
+                onComplete={this.timerComplete} />
+            </p>
+          </span>
+        </div>
+        <br/>
+        { this.props.user==null && <p className="alert alert-primary">Perhaps you should <a href="/login">Login</a> so that you can participate when the adventure begins?</p>}
+      </div>);
     } else if (this.props.user) {
-      return <div className="container-fluid">
-      <div className="row row-cols-2">
-        <div className="col-12 col-sm-12 col-md-8">
-          <QuestionList />
-          <div className="d-none d-sm-none d-md-block"><Intro /></div>
+      return (<div className="container-fluid">
+        <div className="row row-cols-2">
+          <div className="col-12 col-sm-12 col-md-8">
+            <QuestionList />
+            <div className="d-none d-sm-none d-md-block">
+              <Intro />
+            </div>
+          </div>
+          <div className="col-12 col-sm-12 col-md-4">
+            <Leaderboard
+              user={this.props.user}
+              userBonusImage={this.props.userBonusImage}
+              cacheBonusImage={this.props.cacheBonusImage} />
+          </div>
         </div>
-        <div className="col-12 col-sm-12 col-md-4">
-          <Leaderboard user={this.props.user} />
-        </div>
-      </div>
-      </div>;
+      </div>);
     } else {
       return <div>
         <p className="alert alert-primary">Perhaps you wish to <a href="/login">Login</a> so you can participate in the fun?</p>
