@@ -36,6 +36,7 @@ const solutionLanguages = {
   'java':'java',
   'javascript':'javascript',
   'typescript':'typescript',
+  'ruby':'ruby',
   'rust':'rust',
   'lua':'lua',
   'perl':'perl'
