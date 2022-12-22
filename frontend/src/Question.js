@@ -326,7 +326,7 @@ class QuestionComponent extends React.Component {
           alt={s.username} />{s.username} &nbsp;
           <div className="badge rounded-pill bg-dark">{s.points} pts</div>
         </div>
-        <SyntaxHighlighter language={solutionLanguages[s.solution_lang]} showLineNumbers={true}>
+        <SyntaxHighlighter language={solutionLanguages[s.solution_lang.toLowerCase()]} showLineNumbers={true}>
           {s.solution}
         </SyntaxHighlighter>
         </div>
