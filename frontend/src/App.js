@@ -95,12 +95,14 @@ class App extends React.Component {
                 </RequireAuth>
               }
             />
-
+              
+            <!--
             <Route
               path="gallery"
               element={<RequireAuth>
                 <Gallery user={this.state.user}/>
                 </RequireAuth>} />
+                -->
 
             <Route
               path="question/:day"
