@@ -219,7 +219,10 @@ def get_current_user_calculate_score(user=Depends(authenticated_user)):
     """
     tmp = 0
     for r, q in db.query(models.Response, models.Question)\
-        .filter(models.Response.user_id == models.User.id)\
+        .filter(
+            models.Response.user_id == models.User.id,
+            datetime.datetime.utcnow() >= models.Question.deactivate_date # prevent kjetil from cheating
+            )\
         .join(models.Question, models.Question.id == models.Response.question_id)\
             .all():
         tmp += calculate_score(q, r)
