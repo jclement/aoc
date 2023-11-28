@@ -24,6 +24,7 @@ import "ace-builds/src-noconflict/mode-typescript";
 import "ace-builds/src-noconflict/mode-rust";
 import "ace-builds/src-noconflict/mode-perl";
 import "ace-builds/src-noconflict/mode-lua";
+import "ace-builds/src-noconflict/mode-elixir";
 import "ace-builds/src-noconflict/ext-language_tools"
 
 
@@ -39,7 +40,8 @@ const solutionLanguages = {
   'ruby':'ruby',
   'rust':'rust',
   'lua':'lua',
-  'perl':'perl'
+  'perl':'perl',
+  'elixir':'elixir'
 };
 
 class MyTag extends React.Component {
