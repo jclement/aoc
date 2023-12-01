@@ -446,14 +446,15 @@ def retrieve_solutions(question_id, current_user=Depends(authenticated_user), db
         raise HTTPException(404)
     responses = db.query(models.Response, models.User).filter(
         models.Response.question_id == question_id,
-        current_user.is_admin or datetime.datetime.utcnow() >= models.Question.deactivate_date,
+        current_user.is_admin or datetime.datetime.utcnow() >= question.deactivate_date,
     ).join(models.User, models.User.id == models.Response.user_id).all()
+    show_score = current_user.is_admin or datetime.datetime.utcnow() >= question.deactivate_date
     return [schemas.Solution(
         user_id = u.id,
         username = u.username,
         solution = r.solution, 
         solution_lang = r.solution_lang, 
-        points = calculate_score(question, r)
+        points = calculate_score(question, r) if show_score else 0
     ) for r,u in responses]
 
 @app.get("/questions/{question_id}/responses", tags=["Response"], response_model=List[schemas.UserResponse])
