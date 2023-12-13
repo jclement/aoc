@@ -367,7 +367,7 @@ class QuestionComponent extends React.Component {
             </div>
           </div>
 
-          { this.state.user.is_admin && <div>
+          {<div>
             <hr/>
             <div className="row mb-3 hint">
               Optionally, if you are proud of your code, feel free to post it below.
