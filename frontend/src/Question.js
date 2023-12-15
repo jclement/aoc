@@ -25,11 +25,13 @@ import "ace-builds/src-noconflict/mode-rust";
 import "ace-builds/src-noconflict/mode-perl";
 import "ace-builds/src-noconflict/mode-lua";
 import "ace-builds/src-noconflict/mode-elixir";
+import "ace-builds/src-noconflict/mode-c_cpp.js";
 import "ace-builds/src-noconflict/ext-language_tools"
 
 
 const konamiId = '93d11bb4dba141a587413137112ae59e';
-const solutionLanguages = {
+// key = ACE (Editor) and value = Prism
+const solutionLanguages = { 
   'text':'text',
   'csharp':'csharp',
   'python':'python',
@@ -41,7 +43,8 @@ const solutionLanguages = {
   'rust':'rust',
   'lua':'lua',
   'perl':'perl',
-  'elixir':'elixir'
+  'elixir':'elixir',
+  'c_cpp':'cpp'
 };
 
 class MyTag extends React.Component {
