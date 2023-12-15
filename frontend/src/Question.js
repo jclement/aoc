@@ -26,6 +26,7 @@ import "ace-builds/src-noconflict/mode-perl";
 import "ace-builds/src-noconflict/mode-lua";
 import "ace-builds/src-noconflict/mode-elixir";
 import "ace-builds/src-noconflict/mode-c_cpp.js";
+import "ace-builds/src-noconflict/mode-powershell.js";
 import "ace-builds/src-noconflict/ext-language_tools"
 
 
@@ -44,7 +45,8 @@ const solutionLanguages = {
   'lua':'lua',
   'perl':'perl',
   'elixir':'elixir',
-  'c_cpp':'cpp'
+  'c_cpp':'cpp',
+  'powershell':'powershell',
 };
 
 class MyTag extends React.Component {
